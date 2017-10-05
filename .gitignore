@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# Emacs's temporary file
+*~
+
+# build directory
+build/

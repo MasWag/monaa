@@ -15,72 +15,49 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(RE2 re2 REQUIRED)
 
 include_directories(
-  yare/
+  tgrep/
   ${PROJECT_BINARY_DIR}
   ${Boost_INCLUDE_DIRS}
   ${RE2_INCLUDE_DIRS})
 
-BISON_TARGET(regexpr_parser
-  yare/regexpr_parser.yy
-  ${CMAKE_CURRENT_BINARY_DIR}/regexpr_parser.tab.cc)
-FLEX_TARGET(regexpr_lexer
-  yare/regexpr_lexer.l
-  ${CMAKE_CURRENT_BINARY_DIR}/regexpr_lexer.yy.cc)
-ADD_FLEX_BISON_DEPENDENCY(regexpr_lexer regexpr_parser)
+# BISON_TARGET(regexpr_parser
+#   yare/regexpr_parser.yy
+#   ${CMAKE_CURRENT_BINARY_DIR}/regexpr_parser.tab.cc)
+# FLEX_TARGET(regexpr_lexer
+#   yare/regexpr_lexer.l
+#   ${CMAKE_CURRENT_BINARY_DIR}/regexpr_lexer.yy.cc)
+# ADD_FLEX_BISON_DEPENDENCY(regexpr_lexer regexpr_parser)
 
-add_executable(main
-  yare/main.cc
-  yare/regexpr.cc
-  ${FLEX_regexpr_lexer_OUTPUTS}
-  ${BISON_regexpr_parser_OUTPUTS})
+# add_executable(main
+#   yare/main.cc
+#   yare/regexpr.cc
+#   ${FLEX_regexpr_lexer_OUTPUTS}
+#   ${BISON_regexpr_parser_OUTPUTS})
 
-target_link_libraries(main
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${RE2_LIBRARIES}
-  )
+# target_link_libraries(main
+#   ${Boost_PROGRAM_OPTIONS_LIBRARY}
+#   ${RE2_LIBRARIES}
+#   )
 
-target_include_directories(main
-  PRIVATE
-  .
-  ${CMAKE_CURRENT_BINARY_DIR})
-set_property(TARGET main
-  PROPERTY CXX_STANDARD 14)
-
-## Config for Benchmarks
-add_executable(get_ip_re2
-  benchmark/get_ip_re2.cc
-  ${FLEX_regexpr_lexer_OUTPUTS}
-  ${BISON_regexpr_parser_OUTPUTS})
-
-target_link_libraries(get_ip_re2
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${Boost_IOSTREAMS_LIBRARY}
-  ${RE2_LIBRARIES}
-  )
-
-add_executable(get_ip_yare
-  benchmark/get_ip_yare.cc
-  yare/regexpr.cc
-  ${FLEX_regexpr_lexer_OUTPUTS}
-  ${BISON_regexpr_parser_OUTPUTS})
-
-target_link_libraries(get_ip_yare
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${Boost_IOSTREAMS_LIBRARY}
-  )
+# target_include_directories(main
+#   PRIVATE
+#   .
+#   ${CMAKE_CURRENT_BINARY_DIR})
+# set_property(TARGET main
+#   PROPERTY CXX_STANDARD 14)
 
 ## Config for Test
 enable_testing()
 
 add_executable(unit_test
   test/unit_test.cc
-  yare/regexpr.cc
   ${FLEX_regexpr_lexer_OUTPUTS}
   ${BISON_regexpr_parser_OUTPUTS})
 
 target_link_libraries(unit_test
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${RE2_LIBRARIES})
+  ${RE2_LIBRARIES}
+  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 add_test(NAME unit_test
   COMMAND $<TARGET_FILE:unit_test>
