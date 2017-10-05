@@ -5,14 +5,14 @@
 #include <cmath>
 #include <climits>
 #include <unordered_set>
-#include "types.hh"
 // #include "automaton_operations.hh"
 // #include "calcLs.hh"
-// #include "ta2za.hh"
+#include "ta2za.hh"
 // #include "partial_run_checker.hh"
 // #include "intersection.hh"
-// #include "word_container.hh"
-// #include "ans_vec.hh"
+#include "word_container.hh"
+#include "sunday_skip_value.hh"
+#include "ans_vec.hh"
 
 #include "utils.hh"
 
@@ -86,17 +86,19 @@ inline void updateConstraint(std::pair<double,bool>& upperConstraint,
 /*!
   @brief Boyer-Moore type algorithm for timed pattern matching
  */
-template <int NVar, class InputContainer, class OutputContainer>
+template <class InputContainer, class OutputContainer>
 void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
-                               TimedAutomaton <NVar> A,
+                               TimedAutomaton A,
                                AnsContainer<OutputContainer> &ans,
                                int &hashCalcCount)
 {
   // Internal state of BFS
   struct InternalState{
     using Variables = char;
-    State s;
-    std::array<double,NVar> resetTime;
+    std::shared_ptr<TAState> s;
+    //! @todo fix
+    std::vector<double> resetTime; // C -> (R or Z)
+    //! @todo this should be a zone
     std::pair<double,bool> upperConstraint;
     std::pair<double,bool> lowerConstraint;
   };
@@ -107,14 +109,14 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
 
   //! ZA = R^r(A)
   ZoneAutomaton ZA;
-  ZA.abstractedStates.clear();
-  int m = 0;
-  //! The table of skip values
+  ZA.states.clear();
+  // KMP-Type Skip value
   //! A.State -> SkipValue
   std::vector<int> beta;
   std::unordered_set<Alphabet> endChars;
   // Sunday's Skip value
-  std::array<unsigned int, 128> delta;
+  SundaySkipValue delta = SundaySkipValue(A);
+  const int m = delta.getM();
   //
   int tSizeP;
   // precomputation
@@ -124,6 +126,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
     auto dur = end - start;
     auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count();
 
+#if 0 // TOOD: around here will be modified a lot
     // make R(A)
     printDuration(ta2za(A,ZA), "ta2za: ");
     //! L = L'    
@@ -143,8 +146,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
                    [](std::pair<std::vector<ZAState>, std::string> x) { return x.second; });
     std::sort (L_second.begin(), L_second.end ());
     L_second.erase( std::unique(L_second.begin(), L_second.end()), L_second.end() );
-
-    beta.resize (A.edges.size(),0);
+    beta.resize (A.states.size(),0);
     tSizeP = word.size() - m + 1;
 
     // Calc Sunday's Skip value
@@ -154,14 +156,15 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
         delta[ s.second[i] ] = m - i - 1;
       }
     }
+#endif
 
     ZoneAutomaton ZA2;
     ZA2.abstractedStates.clear();
     // make R'(A2)
     //! A2 = A x A (product)
-    TimedAutomaton<NVar*2> A2;
-    TimedAutomaton<NVar> A0 = A;
-    TimedAutomaton<NVar> As = A;
+    TimedAutomaton A2;
+    TimedAutomaton A0 = A;
+    TimedAutomaton As = A;
     intersectionTA (A0,As,A2);
 
     for (TAState s = 0; s < A.edges.size();s++) {
