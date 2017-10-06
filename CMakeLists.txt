@@ -11,7 +11,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "-flto -O3 -DRELEASE")
 # find_package(FLEX REQUIRED)
 find_package(Boost REQUIRED COMPONENTS
   program_options unit_test_framework iostreams)
-find_package(PkgConfig REQUIRED)
 
 include_directories(
   tgrep/
