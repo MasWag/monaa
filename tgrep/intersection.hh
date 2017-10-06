@@ -100,3 +100,19 @@ void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, Timed
     }
   }
 }
+
+void updateInitAccepting(const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out, boost::unordered_map<std::pair<std::shared_ptr<TAState>, std::shared_ptr<TAState>>, std::shared_ptr<TAState>> toIState) {
+  // update initial states
+  out.initialStates.clear();
+  out.initialStates.reserve(in1.initialStates.size() * in2.initialStates.size());
+  for (auto init1: in1.initialStates) {
+    for (auto init2: in2.initialStates) {
+      out.initialStates.push_back(toIState[std::make_pair(init1, init2)]);
+    }
+  }
+
+  // update accepting states
+  for (auto &p: toIState) {
+    p.second->isMatch = p.first.first->isMatch && p.first.second->isMatch;
+  }
+}
