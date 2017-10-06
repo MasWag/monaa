@@ -9,3 +9,4 @@
 //#include "word_container_test.hh"
 #include "ans_vec_test.hh"
 #include "intersection_test.hh"
+#include "timed_automaton_test.hh"
