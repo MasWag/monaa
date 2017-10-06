@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <algorithm>
 
 #include "common_types.hh"
 

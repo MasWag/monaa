@@ -49,7 +49,7 @@ BOOST_FIXTURE_TEST_CASE( deepCopyIdenticalTest, DeepCopyFixture )
     BOOST_CHECK_EQUAL(oldState->isMatch, newState->isMatch);
     for (char c = 0; c < CHAR_MAX; ++c) {
       BOOST_CHECK_EQUAL(oldState->next[c].size(), newState->next[c].size());
-      for (int i = 0; i < oldState->next[c].size(); ++i) {
+      for (std::size_t i = 0; i < oldState->next[c].size(); ++i) {
         BOOST_CHECK_EQUAL(old2new[oldState->next[c][i].target.lock()], newState->next[c][i].target.lock());
         BOOST_CHECK_EQUAL(oldState->next[c][i].resetVars.size(), newState->next[c][i].resetVars.size());
         BOOST_CHECK_EQUAL(oldState->next[c][i].guard.size(), newState->next[c][i].guard.size());

@@ -6,32 +6,29 @@
 #include <unordered_set>
 #include <utility>
 
-namespace 
-{
-  struct ZAState {
-    bool isMatch;
-    // An epsilon transition is denoted by the null character (\0)
-    std::array<std::vector<std::weak_ptr<ZAState>>, CHAR_MAX> next;
-    std::shared_ptr<TAState> taState;
-    Zone zone;
-    ZAState () : isMatch(false), next({}) {}
-    ZAState (std::shared_ptr<TAState> taState, Zone zone) : isMatch(taState->isMatch), next({}), taState(taState), zone(std::move(zone)) {}
-    ZAState (bool isMatch) : isMatch(isMatch), next({}) {}
-    ZAState (bool isMatch, std::array<std::vector<std::weak_ptr<ZAState>>, CHAR_MAX> next) : isMatch(isMatch), next(next) {}
-    bool operator==(std::pair<std::shared_ptr<TAState>, Zone> pair) {
-      return pair.first == taState && pair.second == zone;
-    }
-  };
+struct ZAState {
+  bool isMatch;
+  // An epsilon transition is denoted by the null character (\0)
+  std::array<std::vector<std::weak_ptr<ZAState>>, CHAR_MAX> next;
+  std::shared_ptr<TAState> taState;
+  Zone zone;
+  ZAState () : isMatch(false), next({}) {}
+  ZAState (std::shared_ptr<TAState> taState, Zone zone) : isMatch(taState->isMatch), next({}), taState(taState), zone(std::move(zone)) {}
+  ZAState (bool isMatch) : isMatch(isMatch), next({}) {}
+  ZAState (bool isMatch, std::array<std::vector<std::weak_ptr<ZAState>>, CHAR_MAX> next) : isMatch(isMatch), next(next) {}
+  bool operator==(std::pair<std::shared_ptr<TAState>, Zone> pair) {
+    return pair.first == taState && pair.second == zone;
+  }
+};
 
-  struct NoEpsilonZAState {
-    bool isMatch;
-    std::array<std::vector<std::weak_ptr<NoEpsilonZAState>>, CHAR_MAX> next;    
-    std::unordered_set<std::shared_ptr<ZAState>> zaStates;
-    bool operator==(const std::unordered_set<std::shared_ptr<ZAState>> &zas) {
-      return zas == zaStates;
-    }
-  };
-}
+struct NoEpsilonZAState {
+  bool isMatch;
+  std::array<std::vector<std::weak_ptr<NoEpsilonZAState>>, CHAR_MAX> next;    
+  std::unordered_set<std::shared_ptr<ZAState>> zaStates;
+  bool operator==(const std::unordered_set<std::shared_ptr<ZAState>> &zas) {
+    return zas == zaStates;
+  }
+};
 
 //! @brief returns the set of states that is reachable from a state in the state by unobservable transitions
 void epsilonClosure(std::unordered_set<std::shared_ptr<ZAState>> &closure) {
@@ -50,7 +47,7 @@ void epsilonClosure(std::unordered_set<std::shared_ptr<ZAState>> &closure) {
 
 
 struct ZoneAutomaton : public Automaton<ZAState> {
-  using ZAState = ZAState;
+  using State = ::ZAState;
 
   //! @brief remove states unreachable to any accepting states
   void removeDeadStates() {

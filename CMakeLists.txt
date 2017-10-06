@@ -3,22 +3,20 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-register")
 project(simple_wc_example CXX)
 
 cmake_minimum_required(VERSION 3.1)
-set(CMAKE_CXX_FLAGS "-Wall -std=c++11 -march=native")
+set(CMAKE_CXX_FLAGS "-Wall -std=c++14 -march=native")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "-flto -O3 -DRELEASE")
 
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 find_package(Boost REQUIRED COMPONENTS
-  PROGRAM_OPTIONS UNIT_TEST_FRAMEWORK IOSTREAMS)
+  program_options unit_test_framework iostreams)
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(RE2 re2 REQUIRED)
 
 include_directories(
   tgrep/
   ${PROJECT_BINARY_DIR}
-  ${Boost_INCLUDE_DIRS}
-  ${RE2_INCLUDE_DIRS})
+  ${Boost_INCLUDE_DIRS})
 
 # BISON_TARGET(regexpr_parser
 #   yare/regexpr_parser.yy
@@ -36,7 +34,6 @@ include_directories(
 
 # target_link_libraries(main
 #   ${Boost_PROGRAM_OPTIONS_LIBRARY}
-#   ${RE2_LIBRARIES}
 #   )
 
 # target_include_directories(main
@@ -56,7 +53,6 @@ add_executable(unit_test
 
 target_link_libraries(unit_test
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${RE2_LIBRARIES}
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 add_test(NAME unit_test

@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <memory>
 
 typedef char Alphabet;
 typedef uint8_t ClockVariables;
