@@ -12,6 +12,7 @@ BOOST_AUTO_TEST_CASE( widenTest )
                                    {ConstraintMaker(1) >= 9},
                                    {ConstraintMaker(2) <= 8},
                                    {ConstraintMaker(3) < 7}};
+  BOOST_CHECK_EQUAL(guard.size(), 4);
   widen(guard);
   BOOST_CHECK_EQUAL(guard.size(), 2);
   BOOST_CHECK_EQUAL(guard[0].c, 8);

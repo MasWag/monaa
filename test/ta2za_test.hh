@@ -75,7 +75,7 @@ BOOST_FIXTURE_TEST_CASE( updateAcceptingTest, ZAFixture ) {
   ZA.updateAccepting();
   BOOST_CHECK_EQUAL(std::count_if(ZA.states.begin(), ZA.states.end(), [](std::shared_ptr<ZAState> state) {
         return state->isMatch;
-      }), 2);
+      }), 3);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

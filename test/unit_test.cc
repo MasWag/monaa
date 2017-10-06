@@ -10,3 +10,6 @@
 #include "ans_vec_test.hh"
 #include "intersection_test.hh"
 #include "timed_automaton_test.hh"
+#include "constraint_test.hh"
+#include "intersection_test.hh"
+#include "zone_automaton_test.hh"
