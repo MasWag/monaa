@@ -1,0 +1,11 @@
+box: ilssim/cmake-boost-qt5
+build:
+  steps:
+    - script:
+        name: setup
+        code: |
+          mkdir build
+          cd build && cmake .. && make
+        name: test
+        code: |
+          make -C test
