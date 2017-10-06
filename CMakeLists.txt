@@ -7,10 +7,11 @@ set(CMAKE_CXX_FLAGS "-Wall -std=c++14 -march=native")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "-flto -O3 -DRELEASE")
 
-# find_package(BISON REQUIRED)
-# find_package(FLEX REQUIRED)
+find_package(BISON REQUIRED)
+find_package(FLEX REQUIRED)
 find_package(Boost REQUIRED COMPONENTS
   program_options unit_test_framework iostreams)
+find_package(Eigen3 REQUIRED)
 
 include_directories(
   tgrep/

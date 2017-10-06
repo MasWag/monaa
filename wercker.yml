@@ -1,4 +1,4 @@
-box: ilssim/cmake-boost-qt5
+box: maswag/tgrep-env
 build:
   steps:
     - script:
