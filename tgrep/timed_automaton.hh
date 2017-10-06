@@ -38,7 +38,7 @@ struct TimedAutomaton : public Automaton<TAState> {
   /*!
     @brief make a deep copy of this timed automaton.
    */
-  void deepCopy(TimedAutomaton& dest, std::unordered_map<std::shared_ptr<TAState>, std::shared_ptr<TAState>> &old2new) {
+  void deepCopy(TimedAutomaton& dest, std::unordered_map<std::shared_ptr<TAState>, std::shared_ptr<TAState>> &old2new) const {
     // copy states
     old2new.reserve(stateSize());
     dest.states.reserve(stateSize());

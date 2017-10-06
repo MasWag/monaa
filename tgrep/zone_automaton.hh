@@ -33,6 +33,7 @@ namespace
   };
 }
 
+//! @brief returns the set of states that is reachable from a state in the state by unobservable transitions
 void epsilonClosure(std::unordered_set<std::shared_ptr<ZAState>> &closure) {
   auto waiting = std::deque<std::shared_ptr<ZAState>>(closure.begin(), closure.end());
   while (!waiting.empty()) {
@@ -67,8 +68,8 @@ struct ZoneAutomaton : public Automaton<ZAState> {
         reachable.insert(conf.first);
         reachable.insert(conf.second.begin(), conf.second.end());
       }
-      for (auto &edges: conf.first->next) {
-        for (auto edge: edges) {
+      for (const auto &edges: conf.first->next) {
+        for (const auto &edge: edges) {
           if (conf.second.find(conf.first) != conf.second.end()) {
             // We are in a loop
             continue;
@@ -104,9 +105,38 @@ struct ZoneAutomaton : public Automaton<ZAState> {
     }
   }
 
-  void removeEpsilon (Automaton<NoEpsilonZAState>& A) {
-    A.states.clear();
-    A.initialStates.clear();
+  //! @brief Propagate accepting states from the original timed automaton
+  void updateAccepting() {
+    for (auto &state: states) {
+      state->isMatch = state->taState->isMatch;
+    }
+  }
+  
+  //! @brief emptiness check of the language
+  bool empty() const {
+    std::unordered_set<std::shared_ptr<ZAState>> visited;
+    std::vector<std::shared_ptr<ZAState>> currentStates = initialStates;
+    while (!currentStates.empty()) {
+      std::vector<std::shared_ptr<ZAState>> nextStates;
+      for (auto state: currentStates) {
+        if (state->isMatch) {
+          return false;
+        }
+        for (const auto &edges: state->next) {
+          for (const auto &edge: edges) {
+            auto target = edge.lock();
+            if (!target || visited.find(target) != visited.end()) {
+              // We have visited the state
+              continue;
+            }
+            nextStates.push_back(target);
+          }
+        }
+        
+      }
+      currentStates = std::move(nextStates);
+    }
+    return true;
   }
 };
 
