@@ -10,12 +10,12 @@
   * x = x1 or x2 + |C|
   * in1 and in2 can be same.
 */
-void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out)
+void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out, boost::unordered_map<std::pair<std::shared_ptr<TAState>, std::shared_ptr<TAState>>, std::shared_ptr<TAState>> &toIState)
 {
-  //! (in1.State, in2.State) -> out.State
-  boost::unordered_map<std::pair<std::shared_ptr<TAState>, std::shared_ptr<TAState>>, std::shared_ptr<TAState>> toIState;
+  // toIState :: (in1.State, in2.State) -> out.State
 
   // make states
+  toIState.reserve(in1.stateSize() * in2.stateSize());
   out.states.reserve(in1.stateSize() * in2.stateSize());
   for (auto s1: in1.states) {
     for (auto s2: in2.states) {
@@ -38,27 +38,47 @@ void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, Timed
   out.maxConstraints.insert( out.maxConstraints.end(), in1.maxConstraints.begin(), in1.maxConstraints.end() );
   out.maxConstraints.insert( out.maxConstraints.end(), in2.maxConstraints.begin(), in2.maxConstraints.end() );
 
+  const auto addProductTransition = [&] (std::shared_ptr<TAState> s1, std::shared_ptr<TAState> s2, std::shared_ptr<TAState> nextS1, std::shared_ptr<TAState> nextS2, const TATransition &e1, const TATransition &e2, char c) {
+    TATransition transition;
+    transition.target = toIState[std::make_pair(nextS1, nextS2)];
+
+    //concat resetVars
+    transition.resetVars.reserve (e1.resetVars.size() + e2.resetVars.size());
+    transition.resetVars.insert (transition.resetVars.end(),e1.resetVars.begin(), e1.resetVars.end());
+    transition.resetVars.insert (transition.resetVars.end(),e2.resetVars.begin(), e2.resetVars.end());
+    std::for_each (transition.resetVars.begin () + e1.resetVars.size(),
+                   transition.resetVars.end(),
+                   [&] (char &v) { v += in1.clockSize();});
+
+    //concat constraints
+    transition.guard.reserve (e1.guard.size() + e2.guard.size());
+    transition.guard.insert (transition.guard.end(),e1.guard.begin(), e1.guard.end());
+    transition.guard.insert (transition.guard.end(),e2.guard.begin(), e2.guard.end());
+    std::for_each (transition.guard.begin () + e1.guard.size(),
+                   transition.guard.end(),
+                   [&] (Constraint &guard) { guard.x += in1.clockSize();});
+
+    toIState[std::make_pair(s1, s2)]->next[c].push_back(std::move(transition));
+  };
+
+  TATransition emptyTransition;
   // make edges
   for (auto s1: in1.states) {
     for (auto s2: in2.states) {
       // Epsilon transitions
-      //! @todo not yet: write a function to do the loop and apply
       for (const auto &e1: s1->next[0]) {
         auto nextS1 = e1.target.lock();
         if (!nextS1) {
           continue;
         }
-        TATransition transition;
-        transition.target = toIState[std::make_pair(nextS1, s2)];
-        
+        addProductTransition(s1, s2, nextS1, s2, e1, emptyTransition, 0);
       }
       for (const auto &e2: s2->next[0]) {
         auto nextS2 = e2.target.lock();
         if (!nextS2) {
           continue;
         }
-        TATransition transition;
-        transition.target = toIState[std::make_pair(s1, nextS2)];
+        addProductTransition(s1, s2, s1, nextS2, emptyTransition, e2, 0);
       }
 
       // Observable transitions
@@ -73,29 +93,10 @@ void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, Timed
             if (!nextS2) {
               continue;
             }
-            TATransition transition;
-            transition.target = toIState[std::make_pair(nextS1, nextS2)];
-
-            //concat resetVars
-            transition.resetVars.reserve (e1.resetVars.size() + e2.resetVars.size());
-            transition.resetVars.insert (transition.resetVars.end(),e1.resetVars.begin(), e1.resetVars.end());
-            transition.resetVars.insert (transition.resetVars.end(),e2.resetVars.begin(), e2.resetVars.end());
-            std::for_each (transition.resetVars.begin () + e1.resetVars.size(),
-                           transition.resetVars.end(),
-                           [&] (char &v) { v += in1.clockSize();});
-
-            //concat constraints
-            transition.guard.reserve (e1.guard.size() + e2.guard.size());
-            transition.guard.insert (transition.guard.end(),e1.guard.begin(), e1.guard.end());
-            transition.guard.insert (transition.guard.end(),e2.guard.begin(), e2.guard.end());
-            std::for_each (transition.guard.begin () + e1.guard.size(),
-                           transition.guard.end(),
-                           [&] (Constraint &guard) { guard.x += in1.clockSize();});
-
-            toIState[std::make_pair(nextS1,nextS2)]->next[c].push_back(transition);
+            addProductTransition(s1, s2, nextS1, nextS2, e1, e2, c);
           }
         }
       }
     }
-  }  
+  }
 }

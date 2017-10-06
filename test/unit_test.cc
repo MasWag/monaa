@@ -8,3 +8,4 @@
 #include "lazy_deque_test.hh"
 //#include "word_container_test.hh"
 #include "ans_vec_test.hh"
+#include "intersection_test.hh"
