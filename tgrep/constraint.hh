@@ -66,3 +66,12 @@ public:
     return Constraint {x, Constraint::Order::ge, c};
   }
 };
+
+/*!
+  @brief remove any inequality x > c or x >= c
+ */
+void widen(std::vector<Constraint> &guard) {
+  guard.erase(std::remove_if(guard.begin(), guard.end(), [](Constraint g) {
+        return g.odr == Constraint::Order::ge || g.odr == Constraint::Order::gt;
+      }));
+}
