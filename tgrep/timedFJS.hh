@@ -9,9 +9,10 @@
 // #include "calcLs.hh"
 #include "ta2za.hh"
 // #include "partial_run_checker.hh"
-// #include "intersection.hh"
+#include "intersection.hh"
 #include "word_container.hh"
 #include "sunday_skip_value.hh"
+#include "kmp_skip_value.hh"
 #include "ans_vec.hh"
 
 #include "utils.hh"
@@ -112,11 +113,12 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
   ZA.states.clear();
   // KMP-Type Skip value
   //! A.State -> SkipValue
-  std::vector<int> beta;
-  std::unordered_set<Alphabet> endChars;
+  const KMPSkipValue beta = KMPSkipValue(A);
   // Sunday's Skip value
-  SundaySkipValue delta = SundaySkipValue(A);
+  const SundaySkipValue delta = SundaySkipValue(A);
   const int m = delta.getM();
+  std::unordered_set<Alphabet> endChars;
+  delta.getEndChars(endChars);
   //
   int tSizeP;
   // precomputation
@@ -126,39 +128,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
     auto dur = end - start;
     auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count();
 
-#if 0 // TOOD: around here will be modified a lot
-    // make R(A)
-    printDuration(ta2za(A,ZA), "ta2za: ");
-    //! L = L'    
-    std::vector< std::pair<std::vector<ZAState>, std::string> > L;
-    std::vector< std::vector<ZAState> > L_first;
-    std::vector<std::string> L_second;
-    //! Ls = L'_s
-    std::vector< std::vector<ZAState> > Ls;
-    printDuration(calcL (ZA,L,m, endChars), "calcL: ");
-    // sort uniq
-    std::transform(L.begin(), L.end(), std::back_inserter(L_first),
-                   [](std::pair<std::vector<ZAState>, std::string> x) { return x.first; });
-    std::sort (L_first.begin(), L_first.end ());
-    L_first.erase( std::unique(L_first.begin(), L_first.end()), L_first.end() );
 
-    std::transform(L.begin(), L.end(), std::back_inserter(L_second),
-                   [](std::pair<std::vector<ZAState>, std::string> x) { return x.second; });
-    std::sort (L_second.begin(), L_second.end ());
-    L_second.erase( std::unique(L_second.begin(), L_second.end()), L_second.end() );
-    beta.resize (A.states.size(),0);
-    tSizeP = word.size() - m + 1;
-
-    // Calc Sunday's Skip value
-    delta.fill (m);
-    for (int i = 0; i < m-1; i++) {
-      for (auto s: L) {
-        delta[ s.second[i] ] = m - i - 1;
-      }
-    }
-#endif
-
-    ZoneAutomaton ZA2;
     ZA2.abstractedStates.clear();
     // make R'(A2)
     //! A2 = A x A (product)
