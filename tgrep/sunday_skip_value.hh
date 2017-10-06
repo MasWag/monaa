@@ -56,14 +56,17 @@ public:
     }
     endChars = charSet[m-1];
   }
-  unsigned int at(std::size_t n) {
+  unsigned int at(std::size_t n) const {
     return delta.at(n);
   }
-  unsigned int operator[](std::size_t n) {
+  unsigned int operator[](std::size_t n) const {
     return delta[n];
   }
   //! @brief Minumum length of the language
-  int getM() {
+  int getM() const {
     return m;
+  }
+  void getEndChars (std::unordered_set<char> &endChars) const {
+    endChars = this->endChars;
   }
 };
