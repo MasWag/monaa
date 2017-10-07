@@ -13,3 +13,4 @@
 #include "constraint_test.hh"
 #include "intersection_test.hh"
 #include "zone_automaton_test.hh"
+#include "sunday_skip_value_test.hh"

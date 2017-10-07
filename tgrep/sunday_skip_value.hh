@@ -22,7 +22,7 @@ public:
     bool accepted = false;
     m = 0;
     std::vector<std::shared_ptr<ZAState>> CStates = ZA.initialStates;
-    while (accepted) {
+    while (!accepted) {
       std::vector<std::shared_ptr<ZAState>> NStates;
       m++;
       charSet.resize(m);
@@ -48,10 +48,10 @@ public:
     }
 
     // Calc Sunday's Skip Value
-    delta.fill(m);
+    delta.fill(m+1);
     for (int i = 0; i <= m - 1; i++) {
       for (char s: charSet[i]) {
-        delta[s] = m - i - 1;
+        delta[s] = m - i;
       }
     }
     endChars = charSet[m-1];
