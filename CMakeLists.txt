@@ -11,7 +11,7 @@ find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 find_package(Boost REQUIRED COMPONENTS
   program_options unit_test_framework iostreams)
-find_package(PkgConfig REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 include_directories(
   tgrep/

@@ -1,0 +1,8 @@
+box: maswag/tgrep-env
+build:
+  steps:
+    - script:
+        name: unit_test
+        code: |
+          mkdir build
+          cd build && cmake .. && make && make test
