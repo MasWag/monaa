@@ -79,7 +79,7 @@ public:
     // Calculate KMP-type skip value
     for (auto origState: TA.states) {
       for (auto &stateAs: As.states) {
-        stateAs->isMatch = stateAs == old2newS[origState] || toDummyState[old2newS[origState]];
+        stateAs->isMatch = stateAs == old2newS[origState] || stateAs == toDummyState[old2newS[origState]];
       }
       // Find the minumum n such that the intersection of the two languages is not empty.
       for (int n = 1; n <= m; n++) {
