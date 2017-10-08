@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <numeric>
 
 #include "timed_automaton.hh"
 #include "zone_automaton.hh"
@@ -20,7 +21,11 @@ public:
     std::unordered_map<std::shared_ptr<TAState>, std::shared_ptr<TAState>> old2new0;
     TA.deepCopy(A0, old2new0);
     // Vector of extended initial states. if the accepting state is extendedInitialStates[n], the TA reads n-additional events.
-    std::vector<std::shared_ptr<TAState>> extendedInitialStates(m+1, std::make_shared<TAState>());
+    std::vector<std::shared_ptr<TAState>> extendedInitialStates(m+1);
+    for (auto &es: extendedInitialStates) {
+      es = std::make_shared<TAState>();
+    }
+
     for (auto initialState: A0.initialStates) {
       for (char c = 0; c < CHAR_MAX; ++c) {
         for (TATransition edge: initialState->next[c]) {
@@ -30,19 +35,18 @@ public:
         }
       }
     }
+    
+    std::vector<ClockVariables> allClocks(TA.clockSize());
+    std::iota(allClocks.begin(), allClocks.end(), 0);
     for (int i = 1; i <= m; ++i) {
-      for (char c = 0; c < CHAR_MAX; ++c) {
-        TATransition transition;
-        transition.target = extendedInitialStates[i-1];
-        extendedInitialStates[i]->next[c].push_back(std::move(transition));
+      for (char c = 1; c < CHAR_MAX; ++c) {
+        extendedInitialStates[i]->next[c].push_back({extendedInitialStates[i-1], allClocks, {}});
       }      
     }
     auto dummyAcceptingState = std::make_shared<TAState>(true);
     // add self loop
     for (char c = 1; c < CHAR_MAX; ++c) {
-      TATransition transition;
-      transition.target = dummyAcceptingState;
-      dummyAcceptingState->next[c].push_back(std::move(transition));
+      dummyAcceptingState->next[c].push_back({dummyAcceptingState, {}, {}});
     }
     for (auto &state: A0.states) {
       for (char c = 0; c < CHAR_MAX; ++c) {
@@ -51,7 +55,7 @@ public:
           if (edge.target.lock()->isMatch) {
             edge.target = dummyAcceptingState;
             widen(edge.guard);
-            state->next[c].push_back(std::move(edge));
+            state->next[c].emplace_back(std::move(edge));
           }
         }
       }      
@@ -63,8 +67,10 @@ public:
     //! @brief As is the automaton in A_{s}^* in the paper. What we do is to construct a dummy state for each state s.
     TimedAutomaton As;
     std::unordered_map<std::shared_ptr<TAState>, std::shared_ptr<TAState>> old2newS;
+    old2newS.reserve(TA.states.size());
     TA.deepCopy(As, old2newS);
     std::unordered_map<std::shared_ptr<TAState>, std::shared_ptr<TAState>> toDummyState;
+    toDummyState.reserve(TA.states.size());
     for (auto state: As.states) {
       toDummyState[state] = std::make_shared<TAState>();
       state->next[0].push_back({toDummyState[state], {}, {}});
@@ -73,7 +79,11 @@ public:
         toDummyState[state]->next[c].push_back({toDummyState[state], {}, {}});
       }
     }
-
+    As.states.reserve(As.states.size() * 2);
+    for (auto dummyState: toDummyState) {
+      As.states.push_back(dummyState.second);
+    }
+    
     intersectionTA (A0, As, A2, toIState);
 
     // Calculate KMP-type skip value
@@ -85,8 +95,9 @@ public:
       for (int n = 1; n <= m; n++) {
         A0.initialStates = {extendedInitialStates[n]};
         updateInitAccepting(A0, As, A2, toIState);
-        ZA2.updateAccepting();
+        std::sort(A2.initialStates.begin(), A2.initialStates.end());
         ta2za(A2, ZA2);
+        ZA2.updateInitAccepting(A2.initialStates);
         if (!ZA2.empty()) {
           beta[origState] = n;
           break;

@@ -71,6 +71,10 @@ void ta2za (const TimedAutomaton &TA, ZoneAutomaton &ZA, Zone initialZone)
       for (char c = 0; c < CHAR_MAX; c++) {
         for (const auto &edge : taState->next[c]) {
         Zone nextZone = nowZone;
+        auto nextState = edge.target.lock();
+        if (!nextState) {
+          continue;
+        }          
         for (const auto &delta : edge.guard) {
           switch (delta.odr) {
           case Constraint::Order::lt:
@@ -95,8 +99,8 @@ void ta2za (const TimedAutomaton &TA, ZoneAutomaton &ZA, Zone initialZone)
           nextZone.abstractize();
           nextZone.canonize();
           // nextZone state is new
-          const auto targetStateInZA = std::find_if(ZA.states.begin(), ZA.states.end(), [&edge, &nextZone] (std::shared_ptr<ZAState> zaState) { 
-              return *zaState == std::make_pair(edge.target.lock(), nextZone);
+          const auto targetStateInZA = std::find_if(ZA.states.begin(), ZA.states.end(), [&nextState, &nextZone] (std::shared_ptr<ZAState> zaState) { 
+              return *zaState == std::make_pair(nextState, nextZone);
             });
 
           // targetStateInZA is already added
@@ -107,7 +111,7 @@ void ta2za (const TimedAutomaton &TA, ZoneAutomaton &ZA, Zone initialZone)
             // ZA.edgeMap[newEdge.toTuple()] = taEdge;
           } else {
             // targetStateInZA is new
-            ZA.states.push_back(std::make_shared<ZAState>(edge.target.lock(), nextZone));
+            ZA.states.push_back(std::make_shared<ZAState>(nextState, nextZone));
             conf->next[c].push_back(ZA.states.back());
 
             // ZA.edgeMap[newEdge.toTuple()] = taEdge;
