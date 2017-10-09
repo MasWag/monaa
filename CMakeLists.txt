@@ -47,7 +47,19 @@ include_directories(
 enable_testing()
 
 add_executable(unit_test
+  tgrep/ta2za.cc
   test/unit_test.cc
+  test/zone_automaton_test.cc
+  test/ta2za_test.cc
+  test/lazy_deque_test.cc
+# test/word_container_test.cc
+  test/ans_vec_test.cc
+  test/intersection_test.cc
+  test/timed_automaton_test.cc
+  test/constraint_test.cc
+  test/intersection_test.cc
+  test/zone_automaton_test.cc
+  test/sunday_skip_value_test.cc
   ${FLEX_regexpr_lexer_OUTPUTS}
   ${BISON_regexpr_parser_OUTPUTS})
 

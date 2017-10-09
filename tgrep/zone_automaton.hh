@@ -31,7 +31,7 @@ struct NoEpsilonZAState {
 };
 
 //! @brief returns the set of states that is reachable from a state in the state by unobservable transitions
-void epsilonClosure(std::unordered_set<std::shared_ptr<ZAState>> &closure) {
+static inline void epsilonClosure(std::unordered_set<std::shared_ptr<ZAState>> &closure) {
   auto waiting = std::deque<std::shared_ptr<ZAState>>(closure.begin(), closure.end());
   while (!waiting.empty()) {
     for(auto wstate: waiting.front()->next[0]) {

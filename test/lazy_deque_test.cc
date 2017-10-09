@@ -1,4 +1,3 @@
-#pragma once
 #include <boost/test/unit_test.hpp>
 #include <cstdio>
 #include "../tgrep/lazy_deque.hh"
