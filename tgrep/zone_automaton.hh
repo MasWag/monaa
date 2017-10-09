@@ -31,7 +31,7 @@ struct NoEpsilonZAState {
 };
 
 //! @brief returns the set of states that is reachable from a state in the state by unobservable transitions
-void epsilonClosure(std::unordered_set<std::shared_ptr<ZAState>> &closure) {
+static inline void epsilonClosure(std::unordered_set<std::shared_ptr<ZAState>> &closure) {
   auto waiting = std::deque<std::shared_ptr<ZAState>>(closure.begin(), closure.end());
   while (!waiting.empty()) {
     for(auto wstate: waiting.front()->next[0]) {
@@ -102,8 +102,20 @@ struct ZoneAutomaton : public Automaton<ZAState> {
     }
   }
 
-  //! @brief Propagate accepting states from the original timed automaton
-  void updateAccepting() {
+  /*!
+    @brief Propagate accepting states from the original timed automaton
+    @note taInitSates must be sorted
+  */
+  void updateInitAccepting(const std::vector<std::shared_ptr<TAState>> taInitialStates) {
+    // update initial states
+    initialStates.clear();
+    for (std::shared_ptr<ZAState> s: states) {
+      if (std::binary_search(taInitialStates.begin(), taInitialStates.end(), s->taState)) {
+        initialStates.push_back(s);
+      }
+    }
+
+    // update accepting states
     for (auto &state: states) {
       state->isMatch = state->taState->isMatch;
     }
@@ -111,8 +123,8 @@ struct ZoneAutomaton : public Automaton<ZAState> {
   
   //! @brief emptiness check of the language
   bool empty() const {
-    std::unordered_set<std::shared_ptr<ZAState>> visited;
     std::vector<std::shared_ptr<ZAState>> currentStates = initialStates;
+    std::unordered_set<std::shared_ptr<ZAState>> visited = {initialStates.begin(), initialStates.end()};
     while (!currentStates.empty()) {
       std::vector<std::shared_ptr<ZAState>> nextStates;
       for (auto state: currentStates) {
@@ -120,13 +132,13 @@ struct ZoneAutomaton : public Automaton<ZAState> {
           return false;
         }
         for (const auto &edges: state->next) {
-          for (const auto &edge: edges) {
+          for (const auto edge: edges) {
             auto target = edge.lock();
-            if (!target || visited.find(target) != visited.end()) {
-              // We have visited the state
-              continue;
+            if (target && visited.find(target) == visited.end()) {
+              // We have not visited the state
+              nextStates.push_back(target);
+              visited.insert(target);
             }
-            nextStates.push_back(target);
           }
         }
         

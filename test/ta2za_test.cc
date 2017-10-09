@@ -1,4 +1,3 @@
-#pragma once
 
 #include <boost/test/unit_test.hpp>
 
@@ -70,9 +69,9 @@ BOOST_FIXTURE_TEST_CASE( ta2zaTest, ZAFixture )
       }), 1);
 }
 
-BOOST_FIXTURE_TEST_CASE( updateAcceptingTest, ZAFixture ) {
+BOOST_FIXTURE_TEST_CASE( updateInitAcceptingTest, ZAFixture ) {
   TA.states[0]->isMatch = true;
-  ZA.updateAccepting();
+  ZA.updateInitAccepting(TA.initialStates);
   BOOST_CHECK_EQUAL(std::count_if(ZA.states.begin(), ZA.states.end(), [](std::shared_ptr<ZAState> state) {
         return state->isMatch;
       }), 3);
