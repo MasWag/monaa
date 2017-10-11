@@ -7,11 +7,11 @@
 
 #include "common_types.hh"
 
-void getOne(FILE* file, std::pair<Alphabet, double> &p) {
+static inline void getOne(FILE* file, std::pair<Alphabet, double> &p) {
   fscanf(file, " %c %lf\n", &p.first, &p.second);
 }
 
-void getOneBinary(FILE* file, std::pair<Alphabet, double> &p) {
+static inline void getOneBinary(FILE* file, std::pair<Alphabet, double> &p) {
   fread(&p.first, sizeof(char), 1, file);
   fread(&p.second, sizeof(double), 1, file);
 }

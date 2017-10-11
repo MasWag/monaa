@@ -6,15 +6,16 @@
 #include <boost/unordered_map.hpp>
 
 #include "common_types.hh"
+#include "constraint.hh"
 
 using Bounds = std::pair<double, bool>;
 static Bounds operator+ (Bounds a,Bounds b) {
   return Bounds(a.first + b.first, a.second && b.second);
 }
-// static inline std::ostream& operator << (std::ostream& os, const Bounds& b) {
-//   os << "(" << b.first << ", " << b.second << ")";
-//   return os;
-// }
+static inline std::ostream& operator << (std::ostream& os, const Bounds& b) {
+  os << "(" << b.first << ", " << b.second << ")";
+  return os;
+}
 
 #include <eigen3/Eigen/Core>
 //! @TODO configure include directory for eigen
@@ -78,8 +79,8 @@ struct Zone {
   }
   
   void elapse() {
-    static const Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
-    value.col(0).fill(infinity);
+    static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
+    value.col(0).fill(Bounds(infinity));
     for (int i = 0; i < value.row(0).size(); ++i) {
       value.row(0)[i].second = false;
     }
@@ -93,16 +94,20 @@ struct Zone {
 
   bool isSatisfiable() {
     canonize();
-    return (value + value.transpose()).minCoeff() >= Bounds(0.0,true);
+    return (value + value.transpose()).minCoeff() >= Bounds(0.0, true);
   }
 
   void abstractize() {
-    static const Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
+    static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
     for (auto it = value.data(); it < value.data() + value.size(); it++) {
       if (*it >= M) {
-        *it = infinity;
+        *it = Bounds(infinity);
       }
     }
+  }
+
+  void makeUnsat() {
+    value(0, 0) = Bounds(-std::numeric_limits<double>::infinity(), false);
   }
 
   bool operator== (Zone z) const {
@@ -135,3 +140,5 @@ struct Zone {
 //   os << std::endl;
 //   return os;
 // }
+
+

@@ -29,8 +29,7 @@ public:
   @brief Word container with runtime allocation and free.
 */
 
-template <class T>
-using WordLazyDeque = WordContainer<LazyDeque<T>>;
+using WordLazyDeque = WordContainer<LazyDeque>;
 
 /*!
   @class WordVector
