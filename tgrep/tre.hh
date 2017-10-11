@@ -4,6 +4,8 @@
 #include <memory>
 #include <iostream>
 #include "interval.hh"
+#include "timed_automaton.hh"
+#include "intersection.hh"
 
 class TRE {
 public:
@@ -45,105 +47,144 @@ public:
   }
 
   /*!
-    @brief construct an NFA without unnecessary states (every states are reachable from an initial state and reachable to an accepting state)
+    @brief construct an event TA without unnecessary states (every states are reachable from an initial state and reachable to an accepting state)
   */
-  // void toNFA(tmpNFA& out) const {
-  //   switch(tag) {
-  //   case op::atom:
-  //     out = tmpNFA(c);
-  //     break;
-  //   case op::epsilon:
-  //     out = tmpNFA();
-  //     break;
-  //   case op::plus: {
-  //     regExpr->toNFA(out);
-  //     for (auto &s: out.states) {
-  //       for(auto &ns: s->next) {
-  //         // if we can go to an accepting state, we add transitions to initial states.
-  //         if(std::any_of(ns.begin(), ns.end(), [](std::weak_ptr<NFAState> ps) {
-  //               return ps.lock()->isMatch;
-  //             })) {
-  //           ns.insert(ns.end(), out.initStates.begin(), out.initStates.end());
-  //         }
-  //       }
-  //     }
-  //     // append an immidiate accepting state
-  //     out.states.push_back(std::make_shared<NFAState>(true));
-  //     out.initStates.push_back(out.states.back());
-  //     break;
-  //   }
-  //   case op::concat: {
-  //     regExprPair.first->toNFA(out);
-  //     tmpNFA another;
-  //     regExprPair.second->toNFA(another);
-  //     for (auto &s: out.states) {
-  //       for(auto &ns: s->next) {
-  //         if(std::any_of(ns.begin(), ns.end(), [](std::weak_ptr<NFAState> ps) {
-  //               return ps.lock()->isMatch;
-  //             })) {
-  //           // append the transitions to the another's initial states
-  //           ns.insert(ns.end(), another.initStates.begin(), another.initStates.end());
-  //         }
-  //       }
-  //     }
-  //     // remove accepting states in out they are not used anymore
-  //     for (auto &s: out.states) {
-  //       s->isMatch = false;
-  //     }
-  //     // remove any accepting states of out that is unreachable to an initial state of another ( remove states without any transitions to other states)
-  //     size_t statesNum = out.states.size();
-  //     do {
-  //       statesNum = out.states.size();
-  //       out.states.remove_if([] (std::shared_ptr<NFAState> &s) {
-  //           return std::all_of(s->next.begin(), s->next.end(), [] (std::vector<std::weak_ptr<NFAState>> states) {
-  //               return states.empty();
-  //             });
-  //         });
-  //     } while (statesNum != out.states.size());
+  void toEventTA(TimedAutomaton& out) const {
+    switch(tag) {
+    case op::atom: {
+      out.states.resize(2);
+      for (auto &state: out.states) {
+        state = std::make_shared<TAState>();
+      }
+      out.initialStates = {out.states[0]};
 
-  //     out.states.splice(out.states.end(), another.states);
-  //     for (auto &s: out.states) {
-  //       for (std::vector<std::weak_ptr<NFAState>> &states: s->next) {
-  //         states.erase(std::remove_if(states.begin(), states.end(), [&out](std::weak_ptr<NFAState> pstate) {
-  //               return std::find_if(out.states.begin(), out.states.end(), [&pstate](std::shared_ptr<NFAState> &s) {
-  //                   return s == pstate.lock();
-  //                 }) == out.states.end();
-  //             }), states.end());
-  //       }
-  //     }
-  //     out.initStates.remove_if([&out](std::shared_ptr<NFAState> pstate) {
-  //         return std::find_if(out.states.begin(), out.states.end(), [&pstate](std::shared_ptr<NFAState> s) {
-  //             return s == pstate;
-  //           }) == out.states.end();
-  //       });
-  //     break;
-  //   }
-  //   case op::disjunction: {
-  //     regExprPair.first->toNFA(out);
-  //     tmpNFA another;
-  //     regExprPair.second->toNFA(another);
-  //     out.states.splice(out.states.end(), another.states);
-  //     out.initStates.splice(out.initStates.end(), another.initStates);
-  //     break;
-  //   }
-  //   case op::conjunction: {
-  //     regExprPair.first->toNFA(out);
-  //     tmpNFA another;
-  //     regExprPair.second->toNFA(another);
-  //     out.states.splice(out.states.end(), another.states);
-  //     out.initStates.splice(out.initStates.end(), another.initStates);
-  //     break;
-  //   }
-  //   case op::within: {
-  //     regExprPair.first->toNFA(out);
-  //     tmpNFA another;
-  //     regExprPair.second->toNFA(another);
-  //     out.states.splice(out.states.end(), another.states);
-  //     out.initStates.splice(out.initStates.end(), another.initStates);
-  //     break;
-  //   }
-  //   }
-  // }
+      out.states[0]->isMatch = false;
+      out.states[1]->isMatch = true;
+
+      out.states[0]->next[c].push_back({out.states[1], {}, {}});
+
+      out.maxConstraints.clear();
+      break;
+    }
+    case op::epsilon: {
+      out.states.resize(2);
+      for (auto &state: out.states) {
+        state = std::make_shared<TAState>();
+      }
+      out.initialStates = {out.states[0]};
+
+      out.states[0]->isMatch = false;
+      out.states[1]->isMatch = true;
+
+      out.states[0]->next[0].push_back({out.states[1], {}, {}});
+      out.maxConstraints.clear();
+      break;
+    }
+    case op::plus: {
+      regExpr->toEventTA(out);
+      for (auto &s: out.states) {
+        for (auto &edges: s->next) {
+          for (auto &edge: edges) {
+            std::shared_ptr<TAState> target = edge.target.lock();
+            if (target && target->isMatch) {
+              edges.reserve(edges.size() + out.initialStates.size());
+              for (auto initState: out.initialStates) {
+                TATransition transition = edge;
+                edge.target = target;
+                edges.emplace_back(std::move(transition));
+              }
+            }
+          }
+        }
+      }
+      break;
+    }
+    case op::concat: {
+      regExprPair.first->toEventTA(out);
+      TimedAutomaton another;
+      regExprPair.second->toEventTA(another);
+      for (auto &s: out.states) {
+        for(auto &edges: s->next) {
+          for (auto &edge: edges) {
+            std::shared_ptr<TAState> target = edge.target.lock();
+            if (target && target->isMatch) {
+              edges.reserve(edges.size() + another.initialStates.size());
+              for (auto initState: another.initialStates) {
+                TATransition transition = edge;
+                edge.target = target;
+                edges.emplace_back(std::move(transition));
+              }
+            }
+          }
+        }
+        // remove accepting states in out since they are not used anymore
+        s->isMatch = false;
+      }
+
+      out.states.insert(out.states.end(), another.states.begin(), another.states.end());
+
+      // we can reuse variables since we have no overwrapping constraints
+      out.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
+      another.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
+      for (int i = 0; i < out.maxConstraints.size(); ++i) {
+        out.maxConstraints[i] = std::max(out.maxConstraints[i], another.maxConstraints[i]);
+      }
+      break;
+    }
+    case op::disjunction: {
+      regExprPair.first->toEventTA(out);
+      TimedAutomaton another;
+      regExprPair.second->toEventTA(another);
+      out.states.insert(out.states.end(), another.states.begin(), another.states.end());
+      out.initialStates.insert(out.initialStates.end(), another.initialStates.begin(), another.initialStates.end());
+      break;
+    }
+    case op::conjunction: {
+      TimedAutomaton tmpTA;
+      TimedAutomaton another;
+      boost::unordered_map<std::pair<std::shared_ptr<TAState>,std::shared_ptr<TAState>>, std::shared_ptr<TAState>> toIState;
+      regExprPair.first->toEventTA(tmpTA);
+      regExprPair.second->toEventTA(another);
+      intersectionTA(tmpTA, another, out, toIState);
+      break;
+    }
+    case op::within: {
+      regExprWithin.first->toEventTA(out);
+      std::vector<std::shared_ptr<TAState>> newStates(out.initialStates.size());
+      for (int i = 0; i < out.initialStates.size(); ++i) {
+        newStates[i] = std::make_shared<TAState>();
+        newStates[i]->next = out.initialStates[i]->next;
+        for (auto& edges: newStates[i]->next) {
+          for (auto& edge: edges) {
+            edge.resetVars.push_back(out.clockSize());
+          }
+        }
+      }
+      std::shared_ptr<TAState> dummyAcceptingState = std::make_shared<TAState>();
+      dummyAcceptingState->isMatch = true;
+      for (auto state: out.states) {
+        for (auto& edges: state->next) {
+          for (auto& edge: edges) {
+            auto target = edge.target.lock();
+            if (target && target->isMatch) {
+              TATransition transition = edge;
+              transition.target = dummyAcceptingState;
+              edges.emplace_back(std::move(transition));
+            }
+          }
+        }
+      }
+      for (auto state: out.states) {
+        state->isMatch = false;
+      }
+      out.initialStates = std::move(newStates);
+      out.states.resize(out.stateSize() + out.initialStates.size() + 1);
+      out.states.insert(out.states.end(), out.initialStates.begin(), out.initialStates.end());
+      out.states.push_back(dummyAcceptingState);
+      break;
+    }
+    }
+  }
 
   ~TRE() {
     switch(tag) {
