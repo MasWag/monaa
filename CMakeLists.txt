@@ -1,6 +1,6 @@
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-register")
 
-project(simple_wc_example CXX)
+project(tgrep CXX)
 
 cmake_minimum_required(VERSION 3.1)
 set(CMAKE_CXX_FLAGS "-Wall -std=c++14 -march=native")
@@ -16,21 +16,22 @@ find_package(Eigen3 REQUIRED)
 include_directories(
   tgrep/
   ${PROJECT_BINARY_DIR}
-  ${Boost_INCLUDE_DIRS})
+  ${Boost_INCLUDE_DIRS}
+  ${Eigen3_INCLUDE_DIRS})
 
-# BISON_TARGET(regexpr_parser
-#   yare/regexpr_parser.yy
-#   ${CMAKE_CURRENT_BINARY_DIR}/regexpr_parser.tab.cc)
-# FLEX_TARGET(regexpr_lexer
-#   yare/regexpr_lexer.l
-#   ${CMAKE_CURRENT_BINARY_DIR}/regexpr_lexer.yy.cc)
-# ADD_FLEX_BISON_DEPENDENCY(regexpr_lexer regexpr_parser)
+BISON_TARGET(tre_parser
+  tgrep/tre_parser.yy
+  ${CMAKE_CURRENT_BINARY_DIR}/tre_parser.tab.cc)
+FLEX_TARGET(tre_lexer
+  tgrep/tre_lexer.l
+  ${CMAKE_CURRENT_BINARY_DIR}/tre_lexer.yy.cc)
+ADD_FLEX_BISON_DEPENDENCY(tre_lexer tre_parser)
 
 # add_executable(main
 #   yare/main.cc
 #   yare/regexpr.cc
-#   ${FLEX_regexpr_lexer_OUTPUTS}
-#   ${BISON_regexpr_parser_OUTPUTS})
+#   ${FLEX_tre_lexer_OUTPUTS}
+#   ${BISON_tre_parser_OUTPUTS})
 
 # target_link_libraries(main
 #   ${Boost_PROGRAM_OPTIONS_LIBRARY}
@@ -49,6 +50,7 @@ enable_testing()
 add_executable(unit_test
   tgrep/intersection.cc
   tgrep/ta2za.cc
+  tgrep/tre.cc
   test/unit_test.cc
   test/zone_automaton_test.cc
   test/ta2za_test.cc
@@ -65,8 +67,9 @@ add_executable(unit_test
   test/zone_test.cc
   test/intermediate_zone_test.cc
   test/timedFJS_test.cc
-  ${FLEX_regexpr_lexer_OUTPUTS}
-  ${BISON_regexpr_parser_OUTPUTS})
+  test/tre_driver_test.cc
+  ${FLEX_tre_lexer_OUTPUTS}
+  ${BISON_tre_parser_OUTPUTS})
 
 target_link_libraries(unit_test
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
