@@ -67,16 +67,10 @@ public:
       break;
     }
     case op::epsilon: {
-      out.states.resize(2);
-      for (auto &state: out.states) {
-        state = std::make_shared<TAState>();
-      }
+      out.states.resize(1);
+      out.states[0] = std::make_shared<TAState>();
       out.initialStates = {out.states[0]};
-
-      out.states[0]->isMatch = false;
-      out.states[1]->isMatch = true;
-
-      out.states[0]->next[0].push_back({out.states[1], {}, {}});
+      out.states[0]->isMatch = true;
       out.maxConstraints.clear();
       break;
     }
@@ -103,6 +97,7 @@ public:
       regExprPair.first->toEventTA(out);
       TimedAutomaton another;
       regExprPair.second->toEventTA(another);
+      // make a transition to an accepting state of out to a transition to an initial state of another
       for (auto &s: out.states) {
         for(auto &edges: s->next) {
           for (auto &edge: edges) {
@@ -111,13 +106,16 @@ public:
               edges.reserve(edges.size() + another.initialStates.size());
               for (auto initState: another.initialStates) {
                 TATransition transition = edge;
-                edge.target = target;
+                transition.target = initState;
                 edges.emplace_back(std::move(transition));
               }
             }
           }
         }
-        // remove accepting states in out since they are not used anymore
+      }
+
+      // make accepting states of out non-accepting
+      for (auto &s: out.states) {
         s->isMatch = false;
       }
 
@@ -137,6 +135,13 @@ public:
       regExprPair.second->toEventTA(another);
       out.states.insert(out.states.end(), another.states.begin(), another.states.end());
       out.initialStates.insert(out.initialStates.end(), another.initialStates.begin(), another.initialStates.end());
+
+      // we can reuse variables since we have no overwrapping constraints
+      out.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
+      another.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
+      for (int i = 0; i < out.maxConstraints.size(); ++i) {
+        out.maxConstraints[i] = std::max(out.maxConstraints[i], another.maxConstraints[i]);
+      }
       break;
     }
     case op::conjunction: {
@@ -150,16 +155,19 @@ public:
     }
     case op::within: {
       regExprWithin.first->toEventTA(out);
-      std::vector<std::shared_ptr<TAState>> newStates(out.initialStates.size());
-      for (int i = 0; i < out.initialStates.size(); ++i) {
-        newStates[i] = std::make_shared<TAState>();
-        newStates[i]->next = out.initialStates[i]->next;
-        for (auto& edges: newStates[i]->next) {
-          for (auto& edge: edges) {
-            edge.resetVars.push_back(out.clockSize());
+      // add dummy initial state
+      std::shared_ptr<TAState> dummyInitialState = std::make_shared<TAState>();
+      for (auto initialState: out.initialStates) {
+        for (Alphabet c = 0; c < CHAR_MAX; c++) {
+          dummyInitialState->next[c].reserve(dummyInitialState->next[c].size() + initialState->next[c].size());
+          for (auto& edge: initialState->next[c]) {
+            TATransition transition = edge;
+            transition.resetVars.push_back(out.clockSize());
+            dummyInitialState->next[c].emplace_back(std::move(transition));
           }
         }
       }
+      // add dummy accepting state
       std::shared_ptr<TAState> dummyAcceptingState = std::make_shared<TAState>();
       dummyAcceptingState->isMatch = true;
       for (auto state: out.states) {
@@ -169,6 +177,19 @@ public:
             if (target && target->isMatch) {
               TATransition transition = edge;
               transition.target = dummyAcceptingState;
+              transition.guard.reserve(transition.guard.size() + 2);
+              // upper bound
+              if (regExprWithin.second->upperBound.second) {
+                transition.guard.emplace_back(TimedAutomaton::X(out.clockSize()) <= regExprWithin.second->upperBound.first);
+              } else {
+                transition.guard.emplace_back(TimedAutomaton::X(out.clockSize()) < regExprWithin.second->upperBound.first);
+              }
+              // lower bound
+              if (regExprWithin.second->lowerBound.second) {
+                transition.guard.emplace_back(TimedAutomaton::X(out.clockSize()) >= regExprWithin.second->lowerBound.first);
+              } else {
+                transition.guard.emplace_back(TimedAutomaton::X(out.clockSize()) > regExprWithin.second->lowerBound.first);
+              }
               edges.emplace_back(std::move(transition));
             }
           }
@@ -177,10 +198,11 @@ public:
       for (auto state: out.states) {
         state->isMatch = false;
       }
-      out.initialStates = std::move(newStates);
-      out.states.resize(out.stateSize() + out.initialStates.size() + 1);
-      out.states.insert(out.states.end(), out.initialStates.begin(), out.initialStates.end());
-      out.states.push_back(dummyAcceptingState);
+      out.initialStates = {dummyInitialState};
+      out.states.reserve(out.stateSize() + 2);
+      out.states.emplace_back(std::move(dummyInitialState));
+      out.states.emplace_back(std::move(dummyAcceptingState));
+      out.maxConstraints.emplace_back(regExprWithin.second->upperBound.first);
       break;
     }
     }

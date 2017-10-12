@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_map>
 #include <climits>
+#include <valarray>
 
 #include "constraint.hh"
 #include "common_types.hh"
@@ -64,4 +65,45 @@ struct TimedAutomaton : public Automaton<TAState> {
     dest.maxConstraints = maxConstraints;
   }
   inline size_t clockSize() const {return maxConstraints.size ();}
+
+  /*!
+    @brief solve membership problem for observable timed automaton
+    @note This is only for testing.
+    @note If there are epsilon transitions, this does not work.
+   */
+  bool isMember(const std::vector<std::pair<Alphabet, double>> &w) const {
+    std::vector<std::pair<std::shared_ptr<TAState>, std::valarray<double>>> CStates;
+    CStates.reserve(initialStates.size());
+    for (const auto& s: initialStates) {
+      CStates.emplace_back(s, std::valarray<double>(0.0, clockSize()));
+    }
+    for (int i = 0; i < w.size(); i++) {
+      std::vector<std::pair<std::shared_ptr<TAState>, std::valarray<double>>> NextStates;
+      for (std::pair<std::shared_ptr<TAState>, std::valarray<double>> &config: CStates) {
+        if (i > 0) {
+          config.second += w[i].second - w[i-1].second;
+        } else {
+          config.second += w[i].second;
+        }
+        for (const auto &edge: config.first->next[w[i].first]) {
+          if (std::all_of(edge.guard.begin(), edge.guard.end(), [&](const Constraint &g) {
+                return g.satisfy(config.second[g.x]);
+              })) {
+            auto tmpConfig = config;
+            tmpConfig.first = edge.target.lock();
+            if (tmpConfig.first) {
+              for (ClockVariables x: edge.resetVars) {
+                tmpConfig.second[x] = 0; 
+              }
+              NextStates.emplace_back(std::move(tmpConfig));
+            }
+          }
+        }
+      }
+      CStates = std::move(NextStates);
+    }
+    return std::any_of(CStates.begin(), CStates.end(), [](std::pair<std::shared_ptr<TAState>, std::valarray<double>> p) {
+        return p.first->isMatch;
+      });
+  }
 };

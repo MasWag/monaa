@@ -1,7 +1,7 @@
 #pragma once
 /*!
-  @file regexpr_driver.hh
-  @brief A driver for regular expression parser
+  @file tre_driver.hh
+  @brief A driver for timed regular expression parser
   @author Masaki Waga <masakiwaga@gmail.com>
 */
 
