@@ -51,6 +51,7 @@ add_executable(unit_test
   tgrep/intersection.cc
   tgrep/ta2za.cc
   tgrep/tre.cc
+  tgrep/intermediate_tre.cc
   test/unit_test.cc
   test/zone_automaton_test.cc
   test/ta2za_test.cc

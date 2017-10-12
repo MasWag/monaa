@@ -7,6 +7,10 @@
 #include "timed_automaton.hh"
 #include "intersection.hh"
 
+class SingletonTRE;
+class AtomicTRE;
+class DNFTRE;
+
 class TRE {
 public:
   enum class op {
@@ -241,5 +245,8 @@ private:
   };
 
   friend std::ostream& operator<<(std::ostream& os, const TRE&);
+  friend SingletonTRE;
+  friend AtomicTRE;
+  friend DNFTRE;
 };
 
