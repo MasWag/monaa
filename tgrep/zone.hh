@@ -9,8 +9,14 @@
 #include "constraint.hh"
 
 using Bounds = std::pair<double, bool>;
-static Bounds operator+ (Bounds a,Bounds b) {
+static inline Bounds
+operator+ (Bounds a,Bounds b) {
   return Bounds(a.first + b.first, a.second && b.second);
+}
+static inline void
+operator+= (Bounds &a, const Bounds b) {
+  a.first += b.first;
+  a.second = a.second && b.second;
 }
 static inline std::ostream& operator << (std::ostream& os, const Bounds& b) {
   os << "(" << b.first << ", " << b.second << ")";

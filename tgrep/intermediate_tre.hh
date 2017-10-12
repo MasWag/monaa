@@ -11,7 +11,13 @@ struct SyntacticDecision {
     Mixed
   };
   Decision tag;
-  std::unordered_set<Alphabet> chars;
+  //! @note chars must be sorted
+  std::vector<Alphabet> chars;
+  SyntacticDecision(const Decision &tag, const std::vector<Alphabet> &chars) : tag(tag), chars(chars) {}
+  void concat(std::shared_ptr<SyntacticDecision> in);
+  inline bool isMixed() const {
+    return tag == Decision::Mixed && !chars.empty();
+  }
 };
 
 class SingletonTRE {
@@ -35,6 +41,11 @@ public:
     singleton->c = c;
     singleton->intervals.clear();
   }
+  AtomicTRE(const std::list<std::shared_ptr<AtomicTRE>> &left, const std::shared_ptr<AtomicTRE> mid, const std::list<std::shared_ptr<AtomicTRE>> &right) : tag(op::concat) {
+    list = left;
+    list.push_back(mid);
+    list.insert(list.end(), right.begin(), right.end());
+    }
   AtomicTRE(const std::shared_ptr<AtomicTRE> left, const std::shared_ptr<AtomicTRE> right) : tag(op::concat) {
     if (left->tag == op::concat) {
       list = left->list;
@@ -113,89 +124,16 @@ public:
     std::pair<std::shared_ptr<AtomicTRE>, std::shared_ptr<Interval>>  within;
     std::list<std::shared_ptr<AtomicTRE>> list;
   };
-  std::unique_ptr<SyntacticDecision> desicion;
+  std::shared_ptr<SyntacticDecision> decision;
+  void toNormalForm();
 };
 
 class DNFTRE {
 public:
   std::list<std::list<std::shared_ptr<AtomicTRE>>> list;
+  DNFTRE() {}
+  DNFTRE(const std::list<std::shared_ptr<AtomicTRE>> &conjunctions) : list({conjunctions}){}
   DNFTRE(const std::shared_ptr<TRE> tre);
-  std::unique_ptr<SyntacticDecision> desicion;
+  std::shared_ptr<SyntacticDecision> decision;
+  void toNormalForm();
 };
-  /*
-{
-    switch(tag) {
-    case op::atom: {
-      tag = op::singleton;
-      singletonNormalForm.first = c;
-      singletonNormalForm.second.clear();
-      break;
-    }
-    case op::epsilon: {
-      break;
-    }
-    case op::singleton: {
-    }
-    case op::plus: {
-      regExpr->toSingletonNormalForm();
-      if (regExpr->tag == op::singleton) {
-        //! @todo remove plus
-      } else if (regExpr->tag == op::epsilon) {
-        tag = op::epsilon;
-        regExpr.reset();
-      }
-
-      break;
-    }
-    case op::concat: {
-      regExprPair.first->toSingletonNormalForm();
-      regExprPair.second->toSingletonNormalForm();
-      
-      if (regExprPair.first->tag == op::epsilon) {
-        // make this == regExprPair.second
-      } else if (regExprPair.second->tag == op::epsilon) {
-        // make this == regExprPair.first
-        
-      } else if (regExprPair.first->tag == op::singleton && 
-                 regExprPair.second->tag == op::singleton &&
-                 regExprPair.first->singletonNormalForm.first == regExprPair.second->singletonNormalForm.first) {
-      }
-        // make this->tag = singleton
-      break;
-    }
-    case op::disjunction: {
-      regExprPair.first->toSingletonNormalForm();
-      regExprPair.second->toSingletonNormalForm();
-
-      break;
-    }
-    case op::conjunction: {
-      regExprPair.first->toSingletonNormalForm();
-      regExprPair.second->toSingletonNormalForm();
-
-      break;
-    }
-    case op::within: {
-      regExprWithin.first->toSingletonNormalForm();
-      if (regExprWithin.first->tag == op::disjunction || regExprWithin.first->tag == op::conjunction) {
-        // propergate within
-      } else if (regExprWithin.first->tag == op::singleton) {
-        auto within = regExprWithin.second;
-        auto intervals = std::move(regExprWithin.first->singletonNormalForm.second);
-        char c = regExprWithin.first->singletonNormalForm.first;
-        regExprWithin.first.reset();
-
-        tag = op::singleton;
-        singletonNormalForm.first = c;
-        singletonNormalForm.second = intervals && within;
-      }
-
-      break;
-    }
-    }
-  }
-
-};
-
-
-*/
