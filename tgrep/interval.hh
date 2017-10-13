@@ -8,6 +8,11 @@ struct Interval {
   Bounds lowerBound;
   Bounds upperBound;
 
+  Interval() {
+    upperBound = Bounds{std::numeric_limits<double>::infinity(), false};
+    lowerBound = {0, true};
+  }
+
   Interval(int lower, int upper) {
     upperBound = {upper, false};
     lowerBound = {lower, false};
@@ -41,7 +46,7 @@ land( std::vector<std::shared_ptr<Interval>> &left, const Interval &right) {
   }
   left.erase(std::remove_if(left.begin(), left.end(), [](std::shared_ptr<Interval> interval) {
         return interval->lowerBound > interval->upperBound;
-      }));
+      }), left.end());
 }
 
 inline static void

@@ -1,20 +1,20 @@
 #include "intermediate_tre.hh"
 
 void SyntacticDecision::concat(std::shared_ptr<SyntacticDecision> in) {
-  std::vector<Alphabet> ansChars;    
+  std::vector<Alphabet> ansChars (chars.size() + in->chars.size());
   // chars have epsilon
   if (chars.size() > 0 && chars[0] == 0) {
     if (in->chars.size() > 0 && in->chars[0] == 0) {
-      std::set_union(chars.begin(), chars.end(),
-                     in->chars.begin(), in->chars.end(), ansChars.begin());
+      ansChars.resize(std::set_union(chars.begin(), chars.end(),
+                                     in->chars.begin(), in->chars.end(), ansChars.begin()) - ansChars.begin());
     } else {
       ansChars = in->chars;
     }
   } else if (in->chars.size() > 0 && in->chars[0] == 0) {
     ansChars = chars;
   } else {
-    std::set_intersection(chars.begin(), chars.end(),
-                          in->chars.begin(), in->chars.end(), ansChars.begin());
+    ansChars.resize(std::set_intersection(chars.begin(), chars.end(),
+                                          in->chars.begin(), in->chars.end(), ansChars.begin()) - ansChars.begin());
   }
 
   if (tag == Decision::Constant && in->tag == Decision::Constant ) {
@@ -43,7 +43,7 @@ void SyntacticDecision::concat(std::shared_ptr<SyntacticDecision> in) {
   chars = std::move(ansChars);
 }
 
-DNFTRE::DNFTRE(const std::shared_ptr<TRE> tre) {
+DNFTRE::DNFTRE(const std::shared_ptr<const TRE> tre) {
   switch(tre->tag) {
   case TRE::op::atom: {
     list = {{std::make_shared<AtomicTRE>(tre->c)}};
@@ -144,7 +144,7 @@ void AtomicTRE::toNormalForm()
                  (*std::next(it))->tag == AtomicTRE::op::singleton &&
                  (*it)->singleton->c == (*std::next(it))->singleton->c) {
         (*it)->singleton->intervals += (*std::next(it))->singleton->intervals;
-        it = list.erase(std::next(it));
+        list.erase(std::next(it));
       } else {
         it++;
       }
@@ -155,22 +155,22 @@ void AtomicTRE::toNormalForm()
       list.~list();
       switch (tag = origExpr->tag) {
       case op::singleton: {
-        singleton = origExpr->singleton;
+        new (&singleton) std::shared_ptr<SingletonTRE>(origExpr->singleton);
         break;
       }
       case op::epsilon: {
         break;
       }
       case op::concat: {
-        list = origExpr->list;
+        new (&list) std::list<std::shared_ptr<AtomicTRE>>(origExpr->list);
         break;
       }
       case op::plus: {
-        expr = origExpr->expr;
+        new (&expr) std::shared_ptr<DNFTRE>(origExpr->expr);
         break;
       }
       case op::within: {
-        within = origExpr->within;
+        new (&within) std::pair<std::shared_ptr<AtomicTRE>, std::shared_ptr<Interval>>(origExpr->within);
         break;
       }
       }
@@ -187,8 +187,8 @@ void AtomicTRE::toNormalForm()
         auto origDecision =  (*it)->decision;
         auto origExpr = (*it)->expr;
         list.~list();
-        expr = std::move(origExpr);
         tag = op::plus;
+        new (&expr) std::shared_ptr<DNFTRE>(std::move(origExpr));
         for (auto &conjunctions: expr->list) {
           for (auto &tmpExpr: conjunctions) {
             tmpExpr = std::make_shared<AtomicTRE>(prevList, tmpExpr, afterList);
@@ -251,8 +251,8 @@ void AtomicTRE::toNormalForm()
       auto origExpr = within.first;
       land(origExpr->singleton->intervals, *(within.second));
       within.~pair<std::shared_ptr<AtomicTRE>, std::shared_ptr<Interval>>();
-      singleton = std::move(origExpr->singleton);
       tag = op::singleton;
+      new (&singleton) std::shared_ptr<SingletonTRE>(std::move(origExpr->singleton));
       break;
     }
     case op::epsilon: {
@@ -320,9 +320,9 @@ void DNFTRE::toNormalForm()
     decisions.push_back(std::make_shared<SyntacticDecision>(*((*it)->decision)));
     for (it++;it != conjunctions.end();) {
       decisions.back()->tag = (decisions.back()->tag == SyntacticDecision::Decision::Constant || (*it)->decision->tag == SyntacticDecision::Decision::Constant) ? SyntacticDecision::Decision::Constant : SyntacticDecision::Decision::Mixed;
-      std::vector<Alphabet> chars;
-      std::set_intersection(decisions.back()->chars.begin(), decisions.back()->chars.end(),
-                            (*it)->decision->chars.begin(), (*it)->decision->chars.end(), chars.begin());
+      std::vector<Alphabet> chars (decisions.back()->chars.size());
+      chars.resize(std::set_intersection(decisions.back()->chars.begin(), decisions.back()->chars.end(),
+                                         (*it)->decision->chars.begin(), (*it)->decision->chars.end(), chars.begin()) - chars.begin());
       decisions.back()->chars = std::move(chars);
     }
   }
@@ -330,11 +330,11 @@ void DNFTRE::toNormalForm()
   // decision of conjunctions
   auto it = decisions.begin();
   decision = std::make_shared<SyntacticDecision>(**it);
-  for (it++;it != decisions.end();) {
+  for (it++;it != decisions.end();it++) {
     decision->tag = (decision->tag == SyntacticDecision::Decision::Constant && (*it)->tag == SyntacticDecision::Decision::Constant) ? SyntacticDecision::Decision::Constant : SyntacticDecision::Decision::Mixed;
-    std::vector<Alphabet> chars;
-    std::set_intersection(decision->chars.begin(), decision->chars.end(),
-                          (*it)->chars.begin(), (*it)->chars.end(), chars.begin());    
+    std::vector<Alphabet> chars(decision->chars.size());
+    chars.resize(std::set_intersection(decision->chars.begin(), decision->chars.end(),
+                                       (*it)->chars.begin(), (*it)->chars.end(), chars.begin()) - chars.begin());
     decision->chars = std::move(chars);
   }
 }
@@ -358,7 +358,7 @@ bool AtomicTRE::makeSNF(const char singleC)
       }
       tag = op::singleton;
       list.~list();
-      singleton = std::move(tmpTre);
+      new (&singleton) std::shared_ptr<SingletonTRE>(std::move(tmpTre));
       return true;
     } else {
       return false;
@@ -371,7 +371,7 @@ bool AtomicTRE::makeSNF(const char singleC)
     auto tmpTRE = expr->list.front().front()->singleton;
     expr.reset();
     tag = op::singleton;
-    singleton = std::move(tmpTRE);
+    new (&singleton) std::shared_ptr<SingletonTRE>(std::move(tmpTRE));
     plus(singleton->intervals);
     return true;
   }
@@ -383,7 +383,7 @@ bool AtomicTRE::makeSNF(const char singleC)
     auto tmpInterval = within.second;
     within.~pair<std::shared_ptr<AtomicTRE>, std::shared_ptr<Interval>>();
     tag = op::singleton;
-    singleton = std::move(tmpTRE);
+    new (&singleton) std::shared_ptr<SingletonTRE>(std::move(tmpTRE));
     land(singleton->intervals, *tmpInterval);
 
     return true;

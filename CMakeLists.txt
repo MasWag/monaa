@@ -70,6 +70,7 @@ add_executable(unit_test
   test/timedFJS_test.cc
   test/tre_driver_test.cc
   test/tre_test.cc
+  test/intermediate_tre_test.cc
   ${FLEX_tre_lexer_OUTPUTS}
   ${BISON_tre_parser_OUTPUTS})
 
