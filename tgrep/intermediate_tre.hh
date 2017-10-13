@@ -138,6 +138,7 @@ public:
   std::shared_ptr<SyntacticDecision> decision;
   void toNormalForm();
   bool makeSNF(const char singleC);
+  void toSignalTA(TimedAutomaton& out) const;
 };
 
 class DNFTRE {
@@ -149,4 +150,5 @@ public:
   std::shared_ptr<SyntacticDecision> decision;
   void toNormalForm();
   bool makeSNF(const char singleC);
+  void toSignalTA(TimedAutomaton& out) const;
 };

@@ -419,3 +419,195 @@ bool DNFTRE::makeSNF(const char singleC)
   list = {{std::make_shared<AtomicTRE>(std::move(tmpTre))}};
   return true;
 }
+
+
+static void concat2(TimedAutomaton &left, const TimedAutomaton &right) {
+  // make a transition to an accepting state of left to a transition to an initial state of right
+  for (auto &s: left.states) {
+    for(auto &edges: s->next) {
+      for (auto &edge: edges) {
+        std::shared_ptr<TAState> target = edge.target.lock();
+        if (target && target->isMatch) {
+          edges.reserve(edges.size() + right.initialStates.size());
+          for (auto initState: right.initialStates) {
+            TATransition transition = edge;
+            transition.target = initState;
+            edges.emplace_back(std::move(transition));
+          }
+        }
+      }
+    }
+  }
+
+  // make accepting states of left non-accepting
+  for (auto &s: left.states) {
+    s->isMatch = false;
+  }
+
+  left.states.insert(left.states.end(), right.states.begin(), right.states.end());
+
+  // we can reuse variables since we have no overwrapping constraints
+  left.maxConstraints.resize(std::max(left.maxConstraints.size(), right.maxConstraints.size()));
+  std::vector<int> maxConstraints = right.maxConstraints;
+  maxConstraints.resize(std::max(left.maxConstraints.size(), maxConstraints.size()));
+  for (int i = 0; i < left.maxConstraints.size(); ++i) {
+    left.maxConstraints[i] = std::max(left.maxConstraints[i], maxConstraints[i]);
+  }
+}
+
+void AtomicTRE::toSignalTA(TimedAutomaton& out) const {
+  switch(tag) {
+  case op::singleton: {
+    out.states.resize(2);
+    for (auto &state: out.states) {
+      state = std::make_shared<TAState>();
+    }
+    out.initialStates = {out.states[0]};
+
+    out.states[0]->isMatch = false;
+    out.states[1]->isMatch = true;
+
+    // make constraints form intervals
+    std::vector<Constraint> guard;
+    guard.reserve(2 * singleton->intervals.size());
+    int maxConstraint = -1;
+    for (const auto &interval: singleton->intervals) {
+      if (interval->lowerBound.first != 0 || interval->lowerBound.second != true) {
+        if (interval->lowerBound.second) {
+          guard.push_back(TimedAutomaton::X(0) <= interval->lowerBound.first);
+        } else {
+          guard.push_back(TimedAutomaton::X(0) < interval->lowerBound.first);          
+        }
+        maxConstraint = std::max(maxConstraint, int(interval->lowerBound.first));
+      }
+      if (!isinf(interval->upperBound.first)) {
+        if (interval->upperBound.second) {
+          guard.push_back(TimedAutomaton::X(0) >= interval->upperBound.first);
+        } else {
+          guard.push_back(TimedAutomaton::X(0) > interval->upperBound.first);          
+        }
+        maxConstraint = std::max(maxConstraint, int(interval->upperBound.first));
+      }
+    }
+    out.states[0]->next[singleton->c].push_back({out.states[1], {}, guard});
+
+    if (maxConstraint != -1) {
+      out.maxConstraints.push_back(maxConstraint);
+    } else {
+      out.maxConstraints.clear();
+    }
+    break;
+  }
+  case op::epsilon: {
+    out.states.resize(1);
+    out.states[0] = std::make_shared<TAState>();
+    out.initialStates = {out.states[0]};
+    out.states[0]->isMatch = true;
+    out.maxConstraints.clear();
+    break;
+  }
+  case op::plus: {
+    expr->toSignalTA(out);
+    for (auto &s: out.states) {
+      for (auto &edges: s->next) {
+        for (auto &edge: edges) {
+          std::shared_ptr<TAState> target = edge.target.lock();
+          if (target && target->isMatch) {
+            edges.reserve(edges.size() + out.initialStates.size());
+            for (auto initState: out.initialStates) {
+              TATransition transition = edge;
+              edge.target = target;
+              edges.emplace_back(std::move(transition));
+            }
+          }
+        }
+      }
+    }
+    break;
+  }
+  case op::concat: {
+    auto it = list.begin();
+    (*it)->toSignalTA(out);
+    for (it++; it != list.end(); it++) {
+      TimedAutomaton another; 
+      (*it)->toSignalTA(another);
+      concat2(out, another);
+    }
+    break;
+  }
+  case op::within: {
+    within.first->toSignalTA(out);
+    // add dummy initial state
+    std::shared_ptr<TAState> dummyInitialState = std::make_shared<TAState>();
+    for (auto initialState: out.initialStates) {
+      for (Alphabet c = 0; c < CHAR_MAX; c++) {
+        dummyInitialState->next[c].reserve(dummyInitialState->next[c].size() + initialState->next[c].size());
+        for (auto& edge: initialState->next[c]) {
+          TATransition transition = edge;
+          transition.resetVars.push_back(out.clockSize());
+          dummyInitialState->next[c].emplace_back(std::move(transition));
+        }
+      }
+    }
+    // add dummy accepting state
+    std::shared_ptr<TAState> dummyAcceptingState = std::make_shared<TAState>();
+    dummyAcceptingState->isMatch = true;
+    for (auto state: out.states) {
+      for (auto& edges: state->next) {
+        for (auto& edge: edges) {
+          auto target = edge.target.lock();
+          if (target && target->isMatch) {
+            TATransition transition = edge;
+            transition.target = dummyAcceptingState;
+            transition.guard.reserve(transition.guard.size() + 2);
+            // upper bound
+            if (within.second->upperBound.second) {
+              transition.guard.emplace_back(TimedAutomaton::X(out.clockSize()) <= within.second->upperBound.first);
+            } else {
+              transition.guard.emplace_back(TimedAutomaton::X(out.clockSize()) < within.second->upperBound.first);
+            }
+            // lower bound
+            if (within.second->lowerBound.second) {
+              transition.guard.emplace_back(TimedAutomaton::X(out.clockSize()) >= within.second->lowerBound.first);
+            } else {
+              transition.guard.emplace_back(TimedAutomaton::X(out.clockSize()) > within.second->lowerBound.first);
+            }
+            edges.emplace_back(std::move(transition));
+          }
+        }
+      }
+    }
+    for (auto state: out.states) {
+      state->isMatch = false;
+    }
+    out.initialStates = {dummyInitialState};
+    out.states.reserve(out.stateSize() + 2);
+    out.states.emplace_back(std::move(dummyInitialState));
+    out.states.emplace_back(std::move(dummyAcceptingState));
+    out.maxConstraints.emplace_back(within.second->upperBound.first);
+    break;
+  }
+  }
+}
+
+void DNFTRE::toSignalTA(TimedAutomaton& out) const {
+  for (auto &conjunctions: list) {
+    auto it = conjunctions.begin();
+    TimedAutomaton another;
+    (*it)->toSignalTA(another);
+    for (it++; it != conjunctions.end(); it++) {
+      TimedAutomaton tmpTA, TA2;
+      (*it)->toSignalTA(tmpTA);
+      intersectionSignalTA(another, tmpTA, TA2);
+    }
+    out.states.insert(out.states.end(), another.states.begin(), another.states.end());
+    out.initialStates.insert(out.initialStates.end(), another.initialStates.begin(), another.initialStates.end());
+
+    // we can reuse variables since we have no overwrapping constraints
+    out.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
+    another.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
+    for (int i = 0; i < out.maxConstraints.size(); ++i) {
+      out.maxConstraints[i] = std::max(out.maxConstraints[i], another.maxConstraints[i]);
+    }
+  }
+}

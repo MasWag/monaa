@@ -68,7 +68,7 @@ struct UnTimedExpression {
   std::stringstream stream;
 };
 
-BOOST_AUTO_TEST_SUITE(intermediateTRETest)
+BOOST_AUTO_TEST_SUITE(toNormalFormTest)
 
 BOOST_FIXTURE_TEST_CASE(toNormalFormUntimedSimple, SimpleUnTimedExpression)
 {
@@ -167,6 +167,22 @@ BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedPlusComplex, PlusUnTimedExpression)
   BOOST_CHECK_EQUAL(static_cast<int>(dnf->list.front().front()->tag), static_cast<int>(AtomicTRE::op::singleton));
   BOOST_CHECK_EQUAL(dnf->list.front().front()->singleton->c, 'a');
   BOOST_CHECK_EQUAL(dnf->list.front().front()->singleton->intervals.size(), 1);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(isMemberTest)
+
+BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedConcat, SimpleConcatUnTimedExpression)
+{
+  TREDriver driver;
+  TimedAutomaton TA;
+  driver.parse(stream);
+  std::shared_ptr<DNFTRE> dnf = std::make_shared<DNFTRE>(driver.getResult());
+
+  dnf->toNormalForm();
+  dnf->toSignalTA(TA);
+  BOOST_TEST(TA.isMember({{0, 1.2}, {0, 1.3}, {0, 1.6}, {'a', 2.9}}));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
