@@ -24,25 +24,25 @@ public:
    * parse - parse from a file
    * @param filename - valid string with input file
    */
-  void parse( const char * const filename ) {
+  bool parse( const char * const filename ) {
     assert( filename != nullptr );
     std::ifstream in_file( filename );
     if( !in_file.good()) {
       exit(EXIT_FAILURE);
     }
-    parse_helper(in_file);
-    return;
+
+    return parse_helper(in_file);
   }
   /** 
    * parse - parse from a c++ input stream
    * @param is - std::istream&, valid input stream
    */
-  void parse( std::istream &stream ) {
+  bool parse( std::istream &stream ) {
     if( !stream.good() && stream.eof()) {
-      return;
+      return false;
     }
-    parse_helper(stream);
-    return;
+
+    return parse_helper(stream);
   }
 
   std::shared_ptr<const TRE> getResult() const {
@@ -53,15 +53,12 @@ public:
 private:
 
   std::shared_ptr<TRE> result;
-  void parse_helper( std::istream &stream ) {
+  bool parse_helper( std::istream &stream ) {
     TREScanner scanner(&stream);
     tgrep::TREParser parser( scanner /* scanner */, 
                             (*this) /* driver */ );
 
-    if( parser.parse() != 0 ) {
-      std::cerr << "Parse failed!!\n";
-    }
-    return;
+    return parser.parse() == 0;
   }
 
   friend tgrep::TREParser;

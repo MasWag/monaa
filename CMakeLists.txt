@@ -27,22 +27,26 @@ FLEX_TARGET(tre_lexer
   ${CMAKE_CURRENT_BINARY_DIR}/tre_lexer.yy.cc)
 ADD_FLEX_BISON_DEPENDENCY(tre_lexer tre_parser)
 
-# add_executable(main
-#   yare/main.cc
-#   yare/regexpr.cc
-#   ${FLEX_tre_lexer_OUTPUTS}
-#   ${BISON_tre_parser_OUTPUTS})
+## Config for Main tgrep
+add_executable(tgrep
+  tgrep/main.cc
+  tgrep/intersection.cc
+  tgrep/ta2za.cc
+  tgrep/tre.cc
+  tgrep/intermediate_tre.cc
+  ${FLEX_tre_lexer_OUTPUTS}
+  ${BISON_tre_parser_OUTPUTS})
 
-# target_link_libraries(main
-#   ${Boost_PROGRAM_OPTIONS_LIBRARY}
-#   )
+target_link_libraries(tgrep
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  )
 
-# target_include_directories(main
-#   PRIVATE
-#   .
-#   ${CMAKE_CURRENT_BINARY_DIR})
-# set_property(TARGET main
-#   PROPERTY CXX_STANDARD 14)
+target_include_directories(tgrep
+  PRIVATE
+  .
+  ${CMAKE_CURRENT_BINARY_DIR})
+set_property(TARGET tgrep
+  PROPERTY CXX_STANDARD 14)
 
 ## Config for Test
 enable_testing()
