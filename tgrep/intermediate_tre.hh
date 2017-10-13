@@ -18,12 +18,22 @@ struct SyntacticDecision {
   inline bool isMixed() const {
     return tag == Decision::Mixed && !chars.empty();
   }
+  inline bool isConstant(char &singleC) {
+    if (chars.size() == 1) {
+      singleC = chars[0];
+      return true;
+    } else {
+      return false;
+    }
+  }
 };
 
 class SingletonTRE {
 public:
   Alphabet c;
+  //! @todo this is too naive implemenation. this must be slow.
   std::vector<std::shared_ptr<Interval>> intervals;
+  SingletonTRE(Alphabet c, std::vector<std::shared_ptr<Interval>> intervals) : c(c), intervals(std::move(intervals)) {}
 };
 
 class AtomicTRE {
@@ -41,6 +51,7 @@ public:
     singleton->c = c;
     singleton->intervals.clear();
   }
+  AtomicTRE(const std::shared_ptr<SingletonTRE> singleton) : tag(op::singleton), singleton(singleton) {}
   AtomicTRE(const std::list<std::shared_ptr<AtomicTRE>> &left, const std::shared_ptr<AtomicTRE> mid, const std::list<std::shared_ptr<AtomicTRE>> &right) : tag(op::concat) {
     list = left;
     list.push_back(mid);
@@ -126,6 +137,7 @@ public:
   };
   std::shared_ptr<SyntacticDecision> decision;
   void toNormalForm();
+  bool makeSNF(const char singleC);
 };
 
 class DNFTRE {
@@ -136,4 +148,5 @@ public:
   DNFTRE(const std::shared_ptr<TRE> tre);
   std::shared_ptr<SyntacticDecision> decision;
   void toNormalForm();
+  bool makeSNF(const char singleC);
 };

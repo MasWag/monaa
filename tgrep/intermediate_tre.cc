@@ -70,8 +70,6 @@ DNFTRE::DNFTRE(const std::shared_ptr<TRE> tre) {
             conjunctions.push_back(std::make_shared<AtomicTRE>(left, right));
           }
         }
-        //! @todo normalize conjunctions
-
         if (!conjunctions.empty()) {
           list.emplace_back(std::move(conjunctions));
         }
@@ -96,8 +94,6 @@ DNFTRE::DNFTRE(const std::shared_ptr<TRE> tre) {
       for (const auto& conjunctionsRight: subfmlRight->list) {
         std::list<std::shared_ptr<AtomicTRE>> conjunctions = conjunctionsLeft;
         conjunctions.insert(conjunctions.end(), conjunctionsRight.begin(), conjunctionsRight.end());
-
-        //! @todo normalize conjunctions
 
         if (!conjunctions.empty()) {
           list.emplace_back(std::move(conjunctions));
@@ -240,11 +236,10 @@ void AtomicTRE::toNormalForm()
       }
       expr = std::move(separatedTRE);
     }
-    //! @todo reduce to SNF
+    //! reduce to SNF
     Alphabet singleC;
     if (decision->isConstant(singleC)) {
-      singleton = expr->makeSNF(singleC);
-      tag = op::singleton;
+      makeSNF(singleC);
     }
     break;
   }
@@ -296,13 +291,131 @@ void DNFTRE::toNormalForm()
   for (auto &conjunctions: list) {
     for (auto &expr: conjunctions) {
       expr->toNormalForm();
-      // When plus and mixed, we execute sparation
-      //! @todo not yet
-      if (expr->tag == AtomicTRE::op::plus && expr->decision->isMixed()) {
-        
+    }
+  }
+  for (auto it = list.begin(); it != list.end();) {
+    auto itc = std::find_if(it->begin(), it->end(), [](std::shared_ptr<AtomicTRE> expr) {
+        return expr->tag == AtomicTRE::op::plus && expr->decision->isMixed();
+      });
+    // When plus and mixed, we execute sparation
+    if (itc != it->end()) {
+      std::shared_ptr<AtomicTRE> expr = *itc;
+      std::list<std::shared_ptr<AtomicTRE>> others = {it->begin(), std::prev(itc)};
+      others.insert(others.end(), std::next(itc), it->end());
+      for (auto &subExpr: expr->expr->list) {
+        subExpr.insert(subExpr.end(), others.begin(), others.end());
+      }
+      list.insert(list.end(), expr->expr->list.begin(), expr->expr->list.end());
+      it = list.erase(it);
+    } else {
+      it++;
+    }
+  }
+
+  // decision of each conjunction
+  std::vector<std::shared_ptr<SyntacticDecision>> decisions;
+  decisions.reserve(list.size());
+  for (auto &conjunctions: list) {
+    auto it = conjunctions.begin();
+    decisions.push_back(std::make_shared<SyntacticDecision>(*((*it)->decision)));
+    for (it++;it != conjunctions.end();) {
+      decisions.back()->tag = (decisions.back()->tag == SyntacticDecision::Decision::Constant || (*it)->decision->tag == SyntacticDecision::Decision::Constant) ? SyntacticDecision::Decision::Constant : SyntacticDecision::Decision::Mixed;
+      std::vector<Alphabet> chars;
+      std::set_intersection(decisions.back()->chars.begin(), decisions.back()->chars.end(),
+                            (*it)->decision->chars.begin(), (*it)->decision->chars.end(), chars.begin());
+      decisions.back()->chars = std::move(chars);
+    }
+  }
+
+  // decision of conjunctions
+  auto it = decisions.begin();
+  decision = std::make_shared<SyntacticDecision>(**it);
+  for (it++;it != decisions.end();) {
+    decision->tag = (decision->tag == SyntacticDecision::Decision::Constant && (*it)->tag == SyntacticDecision::Decision::Constant) ? SyntacticDecision::Decision::Constant : SyntacticDecision::Decision::Mixed;
+    std::vector<Alphabet> chars;
+    std::set_intersection(decision->chars.begin(), decision->chars.end(),
+                          (*it)->chars.begin(), (*it)->chars.end(), chars.begin());    
+    decision->chars = std::move(chars);
+  }
+}
+
+bool AtomicTRE::makeSNF(const char singleC)
+{
+  switch(tag) {
+  case op::singleton: {
+    return singleC == singleton->c;
+  }
+  case op::epsilon: {
+    return false;
+  }
+  case op::concat: {
+    if (std::all_of(list.begin(), list.end(), [&](std::shared_ptr<AtomicTRE> tre) {
+          return tre->makeSNF(singleC);
+        })) {
+      auto tmpTre = std::make_shared<SingletonTRE>(singleC, std::vector<std::shared_ptr<Interval>>{std::make_shared<Interval>(Bounds{0, true}, Bounds{0, true})});
+      for (auto &singleton: list) {
+        tmpTre->intervals += singleton->singleton->intervals;
+      }
+      tag = op::singleton;
+      list.~list();
+      singleton = std::move(tmpTre);
+      return true;
+    } else {
+      return false;
+    }
+  }
+  case op::plus: {
+    if (!expr->makeSNF(singleC)) {
+      return false;
+    }
+    auto tmpTRE = expr->list.front().front()->singleton;
+    expr.reset();
+    tag = op::singleton;
+    singleton = std::move(tmpTRE);
+    plus(singleton->intervals);
+    return true;
+  }
+  case op::within: {
+    if (!within.first->makeSNF(singleC)) {
+      return false;
+    }
+    auto tmpTRE = within.first->singleton;
+    auto tmpInterval = within.second;
+    within.~pair<std::shared_ptr<AtomicTRE>, std::shared_ptr<Interval>>();
+    tag = op::singleton;
+    singleton = std::move(tmpTRE);
+    land(singleton->intervals, *tmpInterval);
+
+    return true;
+  }
+  }
+}
+
+bool DNFTRE::makeSNF(const char singleC)
+{
+  auto tmpTre = std::make_shared<SingletonTRE>(singleC, std::vector<std::shared_ptr<Interval>>{});
+  for (auto it = list.begin(); it != list.end();) {
+    bool remainConjunctions = true;
+    for (auto &expr: *it) {
+      if (!(remainConjunctions = remainConjunctions && expr->makeSNF(singleC))) {
+        break;
       }
     }
-    //! @todo decision of a conjunction
+    if (remainConjunctions) {
+      it++;
+    } else {
+      it = list.erase(it);
+    }
   }
-  //! @todo decision of conjunctions
+  // make SNF
+  for (auto &conjunctions: list) {
+    std::vector<std::shared_ptr<Interval>> tmpIntervals = {std::make_shared<Interval>(Bounds{0, true},
+                                                                                      Bounds{std::numeric_limits<double>::infinity(), false})};
+    for (auto &expr: conjunctions) {
+      land(tmpIntervals, expr->singleton->intervals);
+    }
+    tmpIntervals.insert(tmpIntervals.end(), tmpIntervals.begin(), tmpIntervals.end());
+  }
+  list = {{std::make_shared<AtomicTRE>(std::move(tmpTre))}};
+  return true;
 }
