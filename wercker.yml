@@ -1,9 +1,10 @@
 box: maswag/tgrep-env
+
 build:
   steps:
-    -scrpt:
-      name: default_build
-      code: |
+    - script:
+        name: default_build
+        code: |
           mkdir build
           cd build && cmake .. && make
 
