@@ -77,7 +77,7 @@ struct TimedAutomaton : public Automaton<TAState> {
     for (const auto& s: initialStates) {
       CStates.emplace_back(s, std::valarray<double>(0.0, clockSize()));
     }
-    for (int i = 0; i < w.size(); i++) {
+    for (std::size_t i = 0; i < w.size(); i++) {
       std::vector<std::pair<std::shared_ptr<TAState>, std::valarray<double>>> NextStates;
       for (std::pair<std::shared_ptr<TAState>, std::valarray<double>> &config: CStates) {
         if (i > 0) {

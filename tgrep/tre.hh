@@ -55,9 +55,6 @@ public:
   */
   void toEventTA(TimedAutomaton& out) const;
 
-  //! @brief Construct a signal-TA
-  void toSignalTA(TimedAutomaton& out) const;
-
   ~TRE() {
     switch(tag) {
     case op::atom:
@@ -95,3 +92,6 @@ private:
   friend AtomicTRE;
   friend DNFTRE;
 };
+
+//! @brief Construct a signal-TA
+void toSignalTA(std::shared_ptr<const TRE> tre, TimedAutomaton& out);

@@ -36,6 +36,7 @@ struct Constraint {
     case Order::ge:
       return d >= c;
     }
+    return false;
   }
   using Interpretation = std::vector<double>;
   ::Order operator() (Interpretation val) const {

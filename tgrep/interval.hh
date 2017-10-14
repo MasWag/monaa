@@ -87,7 +87,7 @@ plus( std::vector<std::shared_ptr<Interval>> &intervals) {
   }
   std::vector<std::vector<std::shared_ptr<Interval>>> plusIntervals;
   plusIntervals.resize(intervals.size());
-  for (int i = 0; i < intervals.size(); i++) {
+  for (std::size_t i = 0; i < intervals.size(); i++) {
     intervals[i]->plus(plusIntervals[i]);
   }
   std::vector<std::shared_ptr<Interval>> ansIntervals;
@@ -95,7 +95,7 @@ plus( std::vector<std::shared_ptr<Interval>> &intervals) {
   for (uint32_t i = 0; i < subsetSize; i++) {
     std::vector<std::vector<std::shared_ptr<Interval>>> subSetVec;
     subSetVec.reserve(intervals.size());
-    for (int j = 0; j < intervals.size(); j++) {
+    for (std::size_t j = 0; j < intervals.size(); j++) {
       if( (1<<j) & i){
         subSetVec.push_back(plusIntervals[i]);
       }

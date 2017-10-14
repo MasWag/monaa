@@ -109,7 +109,7 @@ void TRE::toEventTA(TimedAutomaton& out) const {
     // we can reuse variables since we have no overwrapping constraints
     out.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
     another.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
-    for (int i = 0; i < out.maxConstraints.size(); ++i) {
+    for (std::size_t i = 0; i < out.maxConstraints.size(); ++i) {
       out.maxConstraints[i] = std::max(out.maxConstraints[i], another.maxConstraints[i]);
     }
     break;
@@ -124,7 +124,7 @@ void TRE::toEventTA(TimedAutomaton& out) const {
     // we can reuse variables since we have no overwrapping constraints
     out.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
     another.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
-    for (int i = 0; i < out.maxConstraints.size(); ++i) {
+    for (std::size_t i = 0; i < out.maxConstraints.size(); ++i) {
       out.maxConstraints[i] = std::max(out.maxConstraints[i], another.maxConstraints[i]);
     }
     break;
@@ -193,19 +193,24 @@ void TRE::toEventTA(TimedAutomaton& out) const {
   }
 }
 
-void TRE::toSignalTA(TimedAutomaton& out) const {
-  DNFTRE dnftre(std::shared_ptr<const TRE>(this));
-
-  dnftre.toSignalTA(out);
-
-  //! @todo rename to epsilon transitions
+//! rename to epsilon transitions
+void renameToEpsilonTransitions(TimedAutomaton& out) {
   std::unordered_map<std::shared_ptr<TAState>, std::shared_ptr<TAState>> toAccepting;
-  auto haveToChangeToEpsilon = [](std::shared_ptr<TAState> s, char c) {
-    return c && !s->next[c].empty();
+  const auto haveToChangeToEpsilon = [](const std::shared_ptr<TAState> s, const char c) {
+    static std::unordered_map<std::shared_ptr<TAState>, Alphabet> output;
+    if (c != 0) {
+      if (!s->next[c].empty()) {
+        output[s] = c;
+        return true;
+      } else {
+        return output[s] == c;
+      }
+    } 
+    return false;
   };
   for (auto s: out.states) {
     for (char c = 1; c < CHAR_MAX; c++) {
-      for (auto it = s->next[c].begin(); it != s->next[c].end(); it++) {
+      for (auto it = s->next[c].begin(); it != s->next[c].end();) {
         std::shared_ptr<TAState> target = it->target.lock();
         if (target) {
           if (haveToChangeToEpsilon(target, c)) {
@@ -219,6 +224,8 @@ void TRE::toSignalTA(TimedAutomaton& out) const {
             } else {
               it = s->next[c].erase(it);
             }
+          } else {
+            it++;
           }
         } else {
           it = s->next[c].erase(it);
@@ -231,4 +238,13 @@ void TRE::toSignalTA(TimedAutomaton& out) const {
     pair.first->isMatch = false;
     out.states.emplace_back(std::move(pair.second));
   }
+}
+
+void toSignalTA(std::shared_ptr<const TRE> tre, TimedAutomaton& out) {
+  DNFTRE dnftre(tre);
+
+  dnftre.toNormalForm();
+  dnftre.toSignalTA(out);
+
+  renameToEpsilonTransitions(out);
 }

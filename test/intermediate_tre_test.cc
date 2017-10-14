@@ -3,116 +3,63 @@
 #include "../tgrep/tre_driver.hh"
 #include "../tgrep/intermediate_tre.hh"
 
+extern void renameToEpsilonTransitions(TimedAutomaton& out);
+
 BOOST_AUTO_TEST_SUITE(IntermediateTRETest)
-struct SimpleUnTimedExpression {
-  SimpleUnTimedExpression() {
-    stream << "ab";
+class ParseTRE {
+public:
+  TREDriver driver;
+  ParseTRE() {}
+  void parse(const char* tre) {
+    stream << tre;
+    driver.parse(stream);
   }
-
+private:
   std::stringstream stream;
 };
 
-struct SimpleConcatUnTimedExpression {
-  SimpleConcatUnTimedExpression() {
-    stream << "aaaa";
+class ConstructDNFTRE : private ParseTRE {
+public:
+  ConstructDNFTRE() {}
+  std::shared_ptr<DNFTRE> dnf;
+  void constructNormalForm(const char* tre) {
+    parse(tre);
+    dnf = std::make_shared<DNFTRE>(driver.getResult());
+    dnf->toNormalForm();
   }
-
-  std::stringstream stream;
 };
 
-struct ConcatIntervalsUnTimedExpression {
-  ConcatIntervalsUnTimedExpression() {
-    stream << "a(a)%(1,2)aa%(2,3)";
+class ConstructTA : private ParseTRE {
+public:
+  ConstructTA() {}
+  TimedAutomaton TA;
+  void constructSignalTA(const char* tre) {
+    parse(tre);
+    toSignalTA(driver.getResult(), TA);
   }
-
-  std::stringstream stream;
-};
-
-struct SimplePlusUnTimedExpression {
-  SimplePlusUnTimedExpression() {
-    stream << "aa+aa";
-  }
-
-  std::stringstream stream;
-};
-
-struct PlusUnTimedExpression {
-  PlusUnTimedExpression() {
-    stream << "(a|(a+))aa";
-  }
-
-  std::stringstream stream;
-};
-
-struct SimpleTimedExpression {
-  SimpleTimedExpression() {
-    stream << "((aba)%(1,2))*";
-  }
-
-  std::stringstream stream;
-};
-
-struct SingletonTimedExpression {
-  SingletonTimedExpression() {
-    stream << "((a)%(1,2))*";
-  }
-
-  std::stringstream stream;
-};
-
-struct UnTimedExpression {
-  UnTimedExpression() {
-    stream << "((a|b)d&c)*";
-  }
-
-  std::stringstream stream;
 };
 
 BOOST_AUTO_TEST_SUITE(toNormalFormTest)
 
-BOOST_FIXTURE_TEST_CASE(toNormalFormUntimedSimple, SimpleUnTimedExpression)
+BOOST_FIXTURE_TEST_CASE(toNormalFormUntimedSimple, ConstructDNFTRE)
 {
-  TREDriver driver;
-  driver.parse(stream);
-  std::shared_ptr<DNFTRE> dnf = std::make_shared<DNFTRE>(driver.getResult());
-
-  dnf->toNormalForm();
+  constructNormalForm("ab");
 }
 
-BOOST_FIXTURE_TEST_CASE(toNormalFormTimed, SimpleTimedExpression)
+BOOST_FIXTURE_TEST_CASE(toNormalFormTimed, ConstructDNFTRE)
 {
-  TREDriver driver;
-  driver.parse(stream);
-  std::shared_ptr<DNFTRE> dnf = std::make_shared<DNFTRE>(driver.getResult());
-
-  dnf->toNormalForm();
+  constructNormalForm("((aba)%(1,2))*");
 }
 
-BOOST_FIXTURE_TEST_CASE(toNormalFormTimedSingleton, SingletonTimedExpression)
+BOOST_FIXTURE_TEST_CASE(toNormalFormTimedSingleton, ConstructDNFTRE)
 {
-  TREDriver driver;
-  driver.parse(stream);
-  std::shared_ptr<DNFTRE> dnf = std::make_shared<DNFTRE>(driver.getResult());
-
-  dnf->toNormalForm();
+  constructNormalForm("((a)%(1,2))*");
 }
 
-BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimed, SingletonTimedExpression)
+BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedConcat, ConstructDNFTRE)
 {
-  TREDriver driver;
-  driver.parse(stream);
-  std::shared_ptr<DNFTRE> dnf = std::make_shared<DNFTRE>(driver.getResult());
+  constructNormalForm("aaaa");
 
-  dnf->toNormalForm();
-}
-
-BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedConcat, SimpleConcatUnTimedExpression)
-{
-  TREDriver driver;
-  driver.parse(stream);
-  std::shared_ptr<DNFTRE> dnf = std::make_shared<DNFTRE>(driver.getResult());
-
-  dnf->toNormalForm();
   BOOST_CHECK_EQUAL(dnf->list.size(), 1);
   BOOST_CHECK_EQUAL(dnf->list.front().size(), 1);
   BOOST_CHECK_EQUAL(static_cast<int>(dnf->list.front().front()->tag), static_cast<int>(AtomicTRE::op::singleton));
@@ -120,13 +67,10 @@ BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedConcat, SimpleConcatUnTimedExpression
   BOOST_CHECK_EQUAL(dnf->list.front().front()->singleton->intervals.size(), 1);
 }
 
-BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedPlus, SimplePlusUnTimedExpression)
+BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedPlus, ConstructDNFTRE)
 {
-  TREDriver driver;
-  driver.parse(stream);
-  std::shared_ptr<DNFTRE> dnf = std::make_shared<DNFTRE>(driver.getResult());
+  constructNormalForm("aa+aa");
 
-  dnf->toNormalForm();
   BOOST_CHECK_EQUAL(dnf->list.size(), 1);
   BOOST_CHECK_EQUAL(dnf->list.front().size(), 1);
   BOOST_CHECK_EQUAL(static_cast<int>(dnf->list.front().front()->tag), static_cast<int>(AtomicTRE::op::singleton));
@@ -134,13 +78,10 @@ BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedPlus, SimplePlusUnTimedExpression)
   BOOST_CHECK_EQUAL(dnf->list.front().front()->singleton->intervals.size(), 1);
 }
 
-BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedConcatInterval, ConcatIntervalsUnTimedExpression)
+BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedConcatInterval, ConstructDNFTRE)
 {
-  TREDriver driver;
-  driver.parse(stream);
-  std::shared_ptr<DNFTRE> dnf = std::make_shared<DNFTRE>(driver.getResult());
+  constructNormalForm("a(a%(1,2))a(a%(2,3))");
 
-  dnf->toNormalForm();
   BOOST_CHECK_EQUAL(dnf->list.size(), 1);
   BOOST_CHECK_EQUAL(dnf->list.front().size(), 1);
   BOOST_CHECK_EQUAL(static_cast<int>(dnf->list.front().front()->tag), static_cast<int>(AtomicTRE::op::singleton));
@@ -148,13 +89,9 @@ BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedConcatInterval, ConcatIntervalsUnTime
   BOOST_CHECK_EQUAL(dnf->list.front().front()->singleton->intervals.size(), 1);
 }
 
-BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedPlusComplex, PlusUnTimedExpression)
+BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedPlusComplex, ConstructDNFTRE)
 {
-  TREDriver driver;
-  driver.parse(stream);
-  std::shared_ptr<DNFTRE> dnf = std::make_shared<DNFTRE>(driver.getResult());
-
-  dnf->toNormalForm();
+  constructNormalForm("(a|(a+))aa");
 
   // we do not remove duplicated subformula
   BOOST_CHECK_EQUAL(dnf->list.size(), 2);
@@ -169,20 +106,73 @@ BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedPlusComplex, PlusUnTimedExpression)
   BOOST_CHECK_EQUAL(dnf->list.front().front()->singleton->intervals.size(), 1);
 }
 
+BOOST_FIXTURE_TEST_CASE(toNormalFormConcatIntervals, ParseTRE)
+{
+  parse("a(a%(1,2))a(a%(2,3))");
+  std::shared_ptr<DNFTRE> dnf = std::make_shared<DNFTRE>(driver.getResult());
+
+  //  dnf->toNormalForm();
+  BOOST_CHECK_EQUAL(dnf->list.size(), 1);
+  BOOST_CHECK_EQUAL(dnf->list.front().size(), 1);
+  BOOST_CHECK_EQUAL(static_cast<int>(dnf->list.front().front()->tag), static_cast<int>(AtomicTRE::op::concat));
+  BOOST_CHECK_EQUAL(dnf->list.front().front()->list.size(), 4);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(isMemberTest)
 
-BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedConcat, SimpleConcatUnTimedExpression)
+BOOST_FIXTURE_TEST_CASE(isMemberUnTimedConcat, ConstructTA)
 {
-  TREDriver driver;
-  TimedAutomaton TA;
-  driver.parse(stream);
-  std::shared_ptr<DNFTRE> dnf = std::make_shared<DNFTRE>(driver.getResult());
+  constructSignalTA("aaaa");
 
-  dnf->toNormalForm();
-  dnf->toSignalTA(TA);
-  BOOST_TEST(TA.isMember({{0, 1.2}, {0, 1.3}, {0, 1.6}, {'a', 2.9}}));
+  BOOST_TEST(TA.isMember({{'a', 2.9}}));
+}
+
+BOOST_FIXTURE_TEST_CASE(isMemberUnTimedPlusComplex, ConstructTA)
+{
+  constructSignalTA("(a|(a+))aa");
+
+  BOOST_TEST(TA.isMember({{'a', 2.9}}));
+}
+
+BOOST_FIXTURE_TEST_CASE(isMemberUnTimedPlusComplexMulti, ConstructTA)
+{
+  constructSignalTA("(a|(c+))ba");
+
+  BOOST_TEST(TA.isMember({{'c', 2.9}, {'b', 2.9}, {'a', 2.9}}));
+}
+
+BOOST_FIXTURE_TEST_CASE(isMemberConcatIntervals, ConstructTA)
+{
+  constructSignalTA("a(a%(1,2))a(a%(2,3))");
+
+  BOOST_TEST(TA.isMember({{'a', 2.9}}));
+}
+
+BOOST_FIXTURE_TEST_CASE(isMemberConcatIntervalsPlus, ConstructTA)
+{
+  constructSignalTA("a(a%(1,2)+)a(a%(2,3)+)");
+
+  BOOST_TEST(TA.isMember({{'a', 2.9}}));
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(renameToEpsilonTransitionsTest)
+
+BOOST_FIXTURE_TEST_CASE(renameToEpsilonTransitionsConcatIntervals, ParseTRE)
+{
+  TimedAutomaton TA;
+  parse("a(a%(1,2))a(a%(2,3))");
+
+  // Skip Normalize to have epsilon transitions easily
+  DNFTRE dnf(driver.getResult());
+
+  // dnf.toNormalForm();
+  dnf.toSignalTA(TA);
+  renameToEpsilonTransitions(TA);
+  BOOST_TEST(TA.isMember({{0, 2.9}, {0, 4.2}, {0, 4.7}, {'a', 7.0}}));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

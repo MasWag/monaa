@@ -218,7 +218,7 @@ void AtomicTRE::toNormalForm()
       for (uint32_t i = 0; i < subsetSize; i++) {
         std::vector<std::list<std::shared_ptr<AtomicTRE>>> subSetVec;
         subSetVec.reserve(vec.size());
-        for (int j = 0; j < vec.size(); j++) {
+        for (std::size_t j = 0; j < vec.size(); j++) {
           if( (1<<j) & i){
             subSetVec.push_back(vec[i]);
           }
@@ -389,6 +389,7 @@ bool AtomicTRE::makeSNF(const char singleC)
     return true;
   }
   }
+  return false;
 }
 
 bool DNFTRE::makeSNF(const char singleC)
@@ -450,7 +451,7 @@ static void concat2(TimedAutomaton &left, const TimedAutomaton &right) {
   left.maxConstraints.resize(std::max(left.maxConstraints.size(), right.maxConstraints.size()));
   std::vector<int> maxConstraints = right.maxConstraints;
   maxConstraints.resize(std::max(left.maxConstraints.size(), maxConstraints.size()));
-  for (int i = 0; i < left.maxConstraints.size(); ++i) {
+  for (std::size_t i = 0; i < left.maxConstraints.size(); ++i) {
     left.maxConstraints[i] = std::max(left.maxConstraints[i], maxConstraints[i]);
   }
 }
@@ -480,7 +481,7 @@ void AtomicTRE::toSignalTA(TimedAutomaton& out) const {
         }
         maxConstraint = std::max(maxConstraint, int(interval->lowerBound.first));
       }
-      if (!isinf(interval->upperBound.first)) {
+      if (!std::isinf(interval->upperBound.first)) {
         if (interval->upperBound.second) {
           guard.push_back(TimedAutomaton::X(0) >= interval->upperBound.first);
         } else {
@@ -606,7 +607,7 @@ void DNFTRE::toSignalTA(TimedAutomaton& out) const {
     // we can reuse variables since we have no overwrapping constraints
     out.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
     another.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
-    for (int i = 0; i < out.maxConstraints.size(); ++i) {
+    for (std::size_t i = 0; i < out.maxConstraints.size(); ++i) {
       out.maxConstraints[i] = std::max(out.maxConstraints[i], another.maxConstraints[i]);
     }
   }

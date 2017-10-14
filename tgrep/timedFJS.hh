@@ -57,12 +57,10 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
   {
     auto start = std::chrono::system_clock::now();  
 
-    int i = 0;
+    std::size_t i = 0;
     std::array<std::vector<IntermediateZone>, CHAR_MAX> init;
     std::vector<InternalState> CStates;
     std::vector<InternalState> LastStates;
-    const std::pair<double,bool> upperMaxConstraint = {INFINITY,false};
-    const std::pair<double,bool> lowerMinConstraint = {0,true};
   
     // When there can be immidiate accepting
     // @todo This optimization is not yet when we have epsilon transitions
@@ -88,8 +86,8 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
 #endif
 
     ans.clear();
-    int j;
-    const int maxI = word.size() - m;
+    std::size_t j;
+    const std::size_t maxI = word.size() - m;
     while (i <= maxI ) {
       bool tooLarge = false;
       // Sunday Shift
@@ -197,11 +195,10 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
               continue;
             }
             IntermediateZone tmpZ = config.z;
-            ClockVariables newClock;
             if (j > 0) {
-              newClock = tmpZ.alloc({word[j].second, false}, {word[j-1].second, true});
+              tmpZ.alloc({word[j].second, false}, {word[j-1].second, true});
             } else {
-              newClock = tmpZ.alloc({word[j].second, false});
+              tmpZ.alloc({word[j].second, false});
             }
             tmpZ.tighten(edge.guard, config.resetTime);
             if (tmpZ.isSatisfiable()) {
