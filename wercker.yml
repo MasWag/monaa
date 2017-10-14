@@ -2,7 +2,12 @@ box: maswag/tgrep-env
 build:
   steps:
     - script:
-        name: unit_test
+        name: gcc_unit_test
         code: |
           mkdir build
           cd build && cmake .. && make && make test
+    - script:
+        name: clang_unit_test
+        code: |
+          mkdir build
+          cd build && CXX=/usr/bin/clang++ cmake .. && make && make test
