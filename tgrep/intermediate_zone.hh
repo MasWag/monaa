@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <boost/variant.hpp>
 
 #include "zone.hh"
@@ -77,7 +78,7 @@ public:
     }
     for (ClockVariables x = 1; x < value.cols(); x++) {
       if (!isAllocated[x]) {
-        deallocate(x - 1);
+        deallocate(x);
       }
     }
   }
@@ -172,7 +173,6 @@ public:
           tighten(*p_resetClock, 0, Bounds{t - guard.c, true});
           break;
         }
-        tighten(newestClock, guard, *p_resetClock);
       }
     } 
   }

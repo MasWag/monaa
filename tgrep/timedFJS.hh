@@ -236,7 +236,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
                   tmpResetTime[x] = t;
                 }
                 tmpZ.update(tmpResetTime);
-                CStates.emplace_back(target, tmpResetTime, tmpZ);
+                CStates.emplace_back(target, std::move(tmpResetTime), std::move(tmpZ));
               }
             }
           }
