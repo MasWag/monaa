@@ -152,6 +152,9 @@ void TRE::toEventTA(TimedAutomaton& out) const {
         }
       }
     }
+    out.initialStates = {dummyInitialState};
+    out.states.emplace_back(std::move(dummyInitialState));
+
     // add dummy accepting state
     std::shared_ptr<TAState> dummyAcceptingState = std::make_shared<TAState>();
     dummyAcceptingState->isMatch = true;
@@ -183,9 +186,6 @@ void TRE::toEventTA(TimedAutomaton& out) const {
     for (auto state: out.states) {
       state->isMatch = false;
     }
-    out.initialStates = {dummyInitialState};
-    out.states.reserve(out.stateSize() + 2);
-    out.states.emplace_back(std::move(dummyInitialState));
     out.states.emplace_back(std::move(dummyAcceptingState));
     out.maxConstraints.emplace_back(regExprWithin.second->upperBound.first);
     break;
