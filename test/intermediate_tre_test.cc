@@ -67,6 +67,17 @@ BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedConcat, ConstructDNFTRE)
   BOOST_CHECK_EQUAL(dnf->list.front().front()->singleton->intervals.size(), 1);
 }
 
+BOOST_FIXTURE_TEST_CASE(toNormalFormPlus, ConstructDNFTRE)
+{
+  constructNormalForm("a+");
+
+  BOOST_CHECK_EQUAL(dnf->list.size(), 1);
+  BOOST_CHECK_EQUAL(dnf->list.front().size(), 1);
+  BOOST_CHECK_EQUAL(static_cast<int>(dnf->list.front().front()->tag), static_cast<int>(AtomicTRE::op::singleton));
+  BOOST_CHECK_EQUAL(dnf->list.front().front()->singleton->c, 'a');
+  BOOST_CHECK_EQUAL(dnf->list.front().front()->singleton->intervals.size(), 1);
+}
+
 BOOST_FIXTURE_TEST_CASE(toNormalFormUnTimedPlus, ConstructDNFTRE)
 {
   constructNormalForm("aa+aa");
@@ -118,6 +129,20 @@ BOOST_FIXTURE_TEST_CASE(toNormalFormConcatIntervals, ParseTRE)
   BOOST_CHECK_EQUAL(dnf->list.front().front()->list.size(), 4);
 }
 
+BOOST_FIXTURE_TEST_CASE(isMember1_2Plus, ConstructDNFTRE)
+{
+  constructNormalForm("a%(1,2)+");
+
+  BOOST_CHECK_EQUAL(dnf->list.size(), 1);
+  BOOST_CHECK_EQUAL(dnf->list.front().size(), 1);
+  BOOST_CHECK_EQUAL(static_cast<int>(dnf->list.front().front()->tag), static_cast<int>(AtomicTRE::op::singleton));
+  auto singleton = dnf->list.front().front()->singleton;
+  BOOST_CHECK_EQUAL(singleton->c, 'a');
+  BOOST_CHECK_EQUAL(singleton->intervals.size(), 1);
+  BOOST_CHECK_EQUAL(singleton->intervals[0]->lowerBound.first, 1);
+  BOOST_CHECK_EQUAL(singleton->intervals[0]->lowerBound.second, false);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(isMemberTest)
@@ -154,6 +179,14 @@ BOOST_FIXTURE_TEST_CASE(isMemberConcatIntervalsPlus, ConstructTA)
 {
   constructSignalTA("a(a%(1,2)+)a(a%(2,3)+)");
 
+  BOOST_TEST(TA.isMember({{'a', 2.9}}));
+}
+
+BOOST_FIXTURE_TEST_CASE(isMember1_2Plus, ConstructTA)
+{
+  constructSignalTA("a%(1,2)+");
+
+  BOOST_TEST(!TA.isMember({{'a', 0.2}}));
   BOOST_TEST(TA.isMember({{'a', 2.9}}));
 }
 

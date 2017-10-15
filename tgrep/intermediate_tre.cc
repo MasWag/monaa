@@ -201,7 +201,7 @@ void AtomicTRE::toNormalForm()
   case op::plus: {
     expr->toNormalForm();
     decision = std::make_shared<SyntacticDecision>(SyntacticDecision::Decision::Mixed, expr->decision->chars);
-    if (decision->chars.size() == 1 || (decision->chars.size() == 2 && decision->chars[0] == 0)) {
+    if (expr->decision->tag == SyntacticDecision::Decision::Constant && (decision->chars.size() == 1 || (decision->chars.size() == 2 && decision->chars[0] == 0))) {
       decision->tag = SyntacticDecision::Decision::Constant;
     }
 
@@ -215,12 +215,12 @@ void AtomicTRE::toNormalForm()
       const uint32_t subsetSize = 1 << expr->list.size();
       expr->list.sort();
       std::vector<std::list<std::shared_ptr<AtomicTRE>>> vec(expr->list.begin(), expr->list.end());
-      for (uint32_t i = 0; i < subsetSize; i++) {
+      for (uint32_t i = 1; i < subsetSize; i++) {
         std::vector<std::list<std::shared_ptr<AtomicTRE>>> subSetVec;
         subSetVec.reserve(vec.size());
         for (std::size_t j = 0; j < vec.size(); j++) {
           if( (1<<j) & i){
-            subSetVec.push_back(vec[i]);
+            subSetVec.push_back(vec[j]);
           }
         }
         std::shared_ptr<DNFTRE> dnftre = std::make_shared<DNFTRE>();
@@ -409,13 +409,13 @@ bool DNFTRE::makeSNF(const char singleC)
     }
   }
   // make SNF
-  for (auto &conjunctions: list) {
-    std::vector<std::shared_ptr<Interval>> tmpIntervals = {std::make_shared<Interval>(Bounds{0, true},
-                                                                                      Bounds{std::numeric_limits<double>::infinity(), false})};
-    for (auto &expr: conjunctions) {
+  for (const auto &conjunctions: list) {
+    std::vector<std::shared_ptr<Interval>> tmpIntervals = {std::make_shared<Interval>()};
+    for (const auto &expr: conjunctions) {
       land(tmpIntervals, expr->singleton->intervals);
     }
-    tmpIntervals.insert(tmpIntervals.end(), tmpIntervals.begin(), tmpIntervals.end());
+    tmpTre->intervals.reserve(tmpTre->intervals.size() + tmpIntervals.size());
+    tmpTre->intervals.insert(tmpTre->intervals.end(), tmpIntervals.begin(), tmpIntervals.end());
   }
   list = {{std::make_shared<AtomicTRE>(std::move(tmpTre))}};
   return true;

@@ -20,8 +20,12 @@ struct Interval {
 
   Interval(Bounds lower, Bounds upper) : lowerBound(lower), upperBound(upper){}
   inline void plus(std::vector<std::shared_ptr<Interval>> &plusIntervals) {
-    const int m = ceil(double(lowerBound.first) / double(upperBound.first - lowerBound.first));
     plusIntervals.clear();
+    if (std::isinf(upperBound.first)) {
+      plusIntervals = {std::make_shared<Interval>(lowerBound, upperBound)};
+      return;
+    }
+    const int m = ceil(double(lowerBound.first) / double(upperBound.first - lowerBound.first));
     plusIntervals.reserve(m + 1);
     for (int i = 1; i < m; i++) {
       plusIntervals.emplace_back(std::make_shared<Interval>(Bounds{lowerBound.first * i, lowerBound.second},
@@ -51,13 +55,16 @@ land( std::vector<std::shared_ptr<Interval>> &left, const Interval &right) {
 
 inline static void
 land( std::vector<std::shared_ptr<Interval>> &left, const std::vector<std::shared_ptr<Interval>> &right) {
-  std::vector<std::shared_ptr<Interval>> tmp = left;
+  std::vector<std::shared_ptr<Interval>> tmp;
   for (auto interval: right) {
     std::vector<std::shared_ptr<Interval>> tmpL = left;
     land(tmpL, *interval);
     tmp.insert(tmp.end(), tmpL.begin(), tmpL.end());
   }
 
+#ifdef DEBUG
+  assert(left.size() * right.size() == tmp.size());
+#endif
   left = tmp;
 }
 
@@ -77,6 +84,7 @@ operator+=( std::vector<std::shared_ptr<Interval>> &left, const std::vector<std:
       ans.emplace_back(std::make_shared<Interval>(*intervalLeft + *intervalRight));
     }
   }
+  left = std::move(ans);
 }
 
 //! @todo Optimization: We can use * - 0 instead of cup of +
@@ -88,21 +96,30 @@ plus( std::vector<std::shared_ptr<Interval>> &intervals) {
   std::vector<std::vector<std::shared_ptr<Interval>>> plusIntervals;
   plusIntervals.resize(intervals.size());
   for (std::size_t i = 0; i < intervals.size(); i++) {
-    intervals[i]->plus(plusIntervals[i]);
+    if (std::isinf(intervals[i]->upperBound.first)) {
+      plusIntervals[i] = {intervals[i]};
+    } else {
+      intervals[i]->plus(plusIntervals[i]);
+    }
   }
+  if (plusIntervals.size() == 1) {
+    intervals = std::move(plusIntervals[0]);
+    return;
+  }
+
   std::vector<std::shared_ptr<Interval>> ansIntervals;
   const uint32_t subsetSize = 1 << intervals.size();
-  for (uint32_t i = 0; i < subsetSize; i++) {
-    std::vector<std::vector<std::shared_ptr<Interval>>> subSetVec;
+  for (uint32_t i = 1; i < subsetSize; i++) {
+    std::vector<const std::vector<std::shared_ptr<Interval>>*> subSetVec;
     subSetVec.reserve(intervals.size());
     for (std::size_t j = 0; j < intervals.size(); j++) {
       if( (1<<j) & i){
-        subSetVec.push_back(plusIntervals[i]);
+        subSetVec.emplace_back(&(plusIntervals[j]));
       }
     }
     std::vector<std::shared_ptr<Interval>> tmpIntervals = {std::make_shared<Interval>(Bounds{0, true}, Bounds{0, true})};
     for (const auto &intervals : subSetVec) {
-      tmpIntervals += intervals;
+      tmpIntervals += *intervals;
     }
     ansIntervals.insert(ansIntervals.end(), tmpIntervals.begin(), tmpIntervals.end());
   }

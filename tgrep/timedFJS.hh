@@ -26,7 +26,8 @@ struct InternalState {
   InternalState (std::shared_ptr<TAState> s, std::vector<boost::variant<double, ClockVariables>> resetTime, IntermediateZone z) :s(s), resetTime(resetTime), z(z) {}
   InternalState (std::size_t numOfVar, std::shared_ptr<TAState> s, std::pair<double,bool> upperBound, std::pair<double,bool> lowerBound = {0, true}) : s(s), z(Zone::zero(numOfVar + 3), 1) {
     static std::vector<boost::variant<double, ClockVariables>> zeroResetTime(numOfVar);
-    std::fill(zeroResetTime.begin(), zeroResetTime.end(), ClockVariables(0));
+    // Every clock variables are reset at t1 ( = t)
+    std::fill(zeroResetTime.begin(), zeroResetTime.end(), ClockVariables(1));
     resetTime = zeroResetTime;
     lowerBound.first = -lowerBound.first;
     z.value(1, 0) = upperBound;
@@ -55,7 +56,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
 
   // main computation
   {
-    auto start = std::chrono::system_clock::now();  
+    // auto start = std::chrono::system_clock::now();
 
     std::size_t i = 0;
     std::array<std::vector<IntermediateZone>, CHAR_MAX> init;
@@ -257,9 +258,9 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
       word.setFront(i - 1);
     }
 
-    auto end = std::chrono::system_clock::now();
-    auto dur = end - start;
-    auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count();
-    std::cout << "main computation: " << nsec / 1000000.0 << " ms" << std::endl;
+    // auto end = std::chrono::system_clock::now();
+    // auto dur = end - start;
+    // auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count();
+    // std::cout << "main computation: " << nsec / 1000000.0 << " ms" << std::endl;
   }
 }

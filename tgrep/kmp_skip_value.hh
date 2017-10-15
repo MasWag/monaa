@@ -51,8 +51,9 @@ public:
     for (auto &state: A0.states) {
       for (char c = 0; c < CHAR_MAX; ++c) {
         for (TATransition edge: state->next[c]) {
+          const auto target = edge.target.lock();
           // We can modify edge because it is copied
-          if (edge.target.lock()->isMatch) {
+          if (target && target->isMatch) {
             edge.target = dummyAcceptingState;
             widen(edge.guard);
             state->next[c].emplace_back(std::move(edge));

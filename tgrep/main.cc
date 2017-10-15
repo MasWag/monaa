@@ -79,9 +79,6 @@ int main(int argc, char *argv[])
   if (!timedAutomatonFileName.empty() && !tre.empty()) {
     die("both a timed automaton and a timed regular expression are specified", 1);
   }
-  // DEBUG
-  std::cout << "TRE: " << tre << std::endl;
-  std::cout << "File: " << timedWordFileName << std::endl;
 
   TimedAutomaton TA;
 
