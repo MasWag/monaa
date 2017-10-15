@@ -1,4 +1,6 @@
+#include <numeric>
 #include <ostream>
+
 #include "tre.hh"
 #include "intermediate_tre.hh"
 
@@ -82,19 +84,26 @@ void TRE::toEventTA(TimedAutomaton& out) const {
     regExprPair.first->toEventTA(out);
     TimedAutomaton another;
     regExprPair.second->toEventTA(another);
+    std::vector<ClockVariables> anotherClocks (another.clockSize());
+    std::iota(anotherClocks.begin(), anotherClocks.end(), 0);
     // make a transition to an accepting state of out to a transition to an initial state of another
     for (auto &s: out.states) {
       for(auto &edges: s->next) {
+        std::vector<TATransition> newTransitions;
         for (auto &edge: edges) {
           std::shared_ptr<TAState> target = edge.target.lock();
           if (target && target->isMatch) {
-            edges.reserve(edges.size() + another.initialStates.size());
+            newTransitions.reserve(newTransitions.size() + another.initialStates.size());
             for (auto initState: another.initialStates) {
               TATransition transition = edge;
               transition.target = initState;
-              edges.emplace_back(std::move(transition));
+              transition.resetVars = anotherClocks;
+              newTransitions.emplace_back(std::move(transition));
             }
           }
+        }
+        if (!newTransitions.empty()) {
+          edges.insert(edges.end(), newTransitions.begin(), newTransitions.end());
         }
       }
     }

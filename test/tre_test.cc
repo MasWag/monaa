@@ -47,6 +47,16 @@ BOOST_FIXTURE_TEST_CASE(toEventTATimed, ConstructTA)
   BOOST_TEST(!TA.isMember({{'a', 1.2}, {'b', 2.0}, {'a', 3.3}}));
 }
 
+
+BOOST_FIXTURE_TEST_CASE(isMember1_2, ConstructTA)
+{
+  constructEventTA("a%(1,2)");
+
+  BOOST_TEST(!TA.isMember({{'a', 0.2}}));
+  BOOST_TEST(TA.isMember({{'a', 1.2}}));
+  BOOST_TEST(!TA.isMember({{'a', 2.9}}));
+}
+
 BOOST_FIXTURE_TEST_CASE(toEventTATimedSigleton, ConstructTA)
 {
   constructEventTA("(a)%(0,1)");

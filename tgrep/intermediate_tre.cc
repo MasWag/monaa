@@ -1,3 +1,5 @@
+#include <numeric>
+
 #include "intermediate_tre.hh"
 
 void SyntacticDecision::concat(std::shared_ptr<SyntacticDecision> in) {
@@ -104,9 +106,9 @@ DNFTRE::DNFTRE(const std::shared_ptr<const TRE> tre) {
     break;
   }
   case TRE::op::within: {
-    std::shared_ptr<DNFTRE> subfml = std::make_shared<DNFTRE>(tre->regExprWithin.first);
-    list = subfml->list;
-    for (auto& conjunctions: subfml->list) {
+    DNFTRE subfml (tre->regExprWithin.first);
+    list = std::move(subfml.list);
+    for (auto& conjunctions: list) {
       for (auto& atomic: conjunctions) {
         atomic = std::make_shared<AtomicTRE>(atomic, tre->regExprWithin.second);
       }
@@ -245,7 +247,7 @@ void AtomicTRE::toNormalForm()
   }
   case op::within: {
     within.first->toNormalForm();
-    decision = std::make_shared<SyntacticDecision>(expr->decision->tag, expr->decision->chars);
+    decision = std::make_shared<SyntacticDecision>(within.first->decision->tag, within.first->decision->chars);
     switch (within.first->tag) {
     case op::singleton: {
       auto origExpr = within.first;
@@ -422,20 +424,27 @@ bool DNFTRE::makeSNF(const char singleC)
 }
 
 
-static void concat2(TimedAutomaton &left, const TimedAutomaton &right) {
+void concat2(TimedAutomaton &left, const TimedAutomaton &right) {
   // make a transition to an accepting state of left to a transition to an initial state of right
+  std::vector<ClockVariables> rightClocks (right.clockSize());
+  std::iota(rightClocks.begin(), rightClocks.end(), 0);
   for (auto &s: left.states) {
     for(auto &edges: s->next) {
+      std::vector<TATransition> newTransitions;
       for (auto &edge: edges) {
         std::shared_ptr<TAState> target = edge.target.lock();
         if (target && target->isMatch) {
-          edges.reserve(edges.size() + right.initialStates.size());
+          newTransitions.reserve(newTransitions.size() + right.initialStates.size());
           for (auto initState: right.initialStates) {
             TATransition transition = edge;
             transition.target = initState;
-            edges.emplace_back(std::move(transition));
+            transition.resetVars = rightClocks;
+            newTransitions.emplace_back(std::move(transition));
           }
         }
+      }
+      if (!newTransitions.empty()) {
+        edges.insert(edges.end(), newTransitions.begin(), newTransitions.end());
       }
     }
   }
@@ -459,6 +468,11 @@ static void concat2(TimedAutomaton &left, const TimedAutomaton &right) {
 void AtomicTRE::toSignalTA(TimedAutomaton& out) const {
   switch(tag) {
   case op::singleton: {
+    if (singleton->intervals.empty()) {
+      out.states.clear();
+      out.initialStates.clear();
+      return;
+    }
     out.states.resize(2);
     for (auto &state: out.states) {
       state = std::make_shared<TAState>();
@@ -469,28 +483,29 @@ void AtomicTRE::toSignalTA(TimedAutomaton& out) const {
     out.states[1]->isMatch = true;
 
     // make constraints form intervals
-    std::vector<Constraint> guard;
-    guard.reserve(2 * singleton->intervals.size());
+    out.states[0]->next[singleton->c].reserve(singleton->intervals.size());
     int maxConstraint = -1;
     for (const auto &interval: singleton->intervals) {
+      std::vector<Constraint> guard;
+      guard.reserve(2);
       if (interval->lowerBound.first != 0 || interval->lowerBound.second != true) {
         if (interval->lowerBound.second) {
-          guard.push_back(TimedAutomaton::X(0) <= interval->lowerBound.first);
+          guard.emplace_back(TimedAutomaton::X(0) >= interval->lowerBound.first);
         } else {
-          guard.push_back(TimedAutomaton::X(0) < interval->lowerBound.first);          
+          guard.emplace_back(TimedAutomaton::X(0) > interval->lowerBound.first);          
         }
         maxConstraint = std::max(maxConstraint, int(interval->lowerBound.first));
       }
       if (!std::isinf(interval->upperBound.first)) {
         if (interval->upperBound.second) {
-          guard.push_back(TimedAutomaton::X(0) >= interval->upperBound.first);
+          guard.emplace_back(TimedAutomaton::X(0) <= interval->upperBound.first);
         } else {
-          guard.push_back(TimedAutomaton::X(0) > interval->upperBound.first);          
+          guard.emplace_back(TimedAutomaton::X(0) < interval->upperBound.first);          
         }
         maxConstraint = std::max(maxConstraint, int(interval->upperBound.first));
       }
+      out.states[0]->next[singleton->c].push_back({out.states[1], {}, guard});
     }
-    out.states[0]->next[singleton->c].push_back({out.states[1], {}, guard});
 
     if (maxConstraint != -1) {
       out.maxConstraints.push_back(maxConstraint);

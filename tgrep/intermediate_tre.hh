@@ -100,9 +100,7 @@ public:
   AtomicTRE(const std::shared_ptr<AtomicTRE> atomic, const std::shared_ptr<Interval> interval) :tag (atomic->tag == op::singleton ? op::singleton : op::within) {
     if (atomic->tag == op::singleton) {
       new (&singleton) std::shared_ptr<SingletonTRE>(std::make_shared<SingletonTRE>(*(atomic->singleton)));
-      for (std::shared_ptr<Interval> i: singleton->intervals) {
-        i = std::make_shared<Interval>((*i) && (*interval));
-      }
+      land(singleton->intervals, *interval);
     } else {
       new (&within) std::pair<std::shared_ptr<AtomicTRE>, std::shared_ptr<Interval>>(atomic, interval);
     }
