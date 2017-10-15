@@ -4,30 +4,33 @@
 #include "../tgrep/tre.hh"
 
 BOOST_AUTO_TEST_SUITE(treTest)
-struct SimpleUnTimedExpression {
-  SimpleUnTimedExpression() {
-    stream << "ab";
+class ParseTRE {
+public:
+  TREDriver driver;
+  ParseTRE() {}
+  void parse(const char* tre) {
+    stream << tre;
+    driver.parse(stream);
   }
-
+private:
   std::stringstream stream;
 };
 
-struct SimpleTimedExpression {
-  SimpleTimedExpression() {
-    stream << "((aba)%(1,2))*";
+class ConstructTA : private ParseTRE {
+public:
+  ConstructTA() {}
+  TimedAutomaton TA;
+  void constructEventTA(const char* tre) {
+    parse(tre);
+    driver.getResult()->toEventTA(TA);
   }
-
-  std::stringstream stream;
 };
 
 BOOST_AUTO_TEST_SUITE(treTest)
 
-BOOST_FIXTURE_TEST_CASE(toEventTAUntimed, SimpleUnTimedExpression)
+BOOST_FIXTURE_TEST_CASE(toEventTAUntimed, ConstructTA)
 {
-  TREDriver driver;
-  TimedAutomaton TA;
-  driver.parse(stream);
-  driver.getResult()->toEventTA(TA);
+  constructEventTA("ab");
 
   BOOST_TEST(!TA.isMember({}));
   BOOST_TEST(TA.isMember({{'a', 1.2}, {'b', 2.0}}));
@@ -35,15 +38,22 @@ BOOST_FIXTURE_TEST_CASE(toEventTAUntimed, SimpleUnTimedExpression)
   BOOST_TEST(!TA.isMember({{'a', 1.2}, {'b', 2.0}, {'a', 3.3}}));
 }
 
-BOOST_FIXTURE_TEST_CASE(toEventTATimed, SimpleTimedExpression)
+BOOST_FIXTURE_TEST_CASE(toEventTATimed, ConstructTA)
 {
-  TREDriver driver;
-  TimedAutomaton TA;
-  driver.parse(stream);
-  driver.getResult()->toEventTA(TA);
+  constructEventTA("((aba)%(1,2))*");
 
   BOOST_TEST(TA.isMember({}));
   BOOST_TEST(TA.isMember({{'a', 1.2}, {'b', 2.0}, {'a', 3.0}}));
+  BOOST_TEST(!TA.isMember({{'a', 1.2}, {'b', 2.0}, {'a', 3.3}}));
+}
+
+BOOST_FIXTURE_TEST_CASE(toEventTATimedSigleton, ConstructTA)
+{
+  constructEventTA("(a)%(0,1)");
+
+  BOOST_TEST(!TA.isMember({}));
+  BOOST_TEST(TA.isMember({{'a', 0.2}}));
+  BOOST_TEST(!TA.isMember({{'a', 1.2}}));
   BOOST_TEST(!TA.isMember({{'a', 1.2}, {'b', 2.0}, {'a', 3.3}}));
 }
 
