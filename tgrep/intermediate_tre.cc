@@ -2,6 +2,8 @@
 
 #include "intermediate_tre.hh"
 
+void concat2(TimedAutomaton &left, const TimedAutomaton &right);
+
 void SyntacticDecision::concat(std::shared_ptr<SyntacticDecision> in) {
   std::vector<Alphabet> ansChars (chars.size() + in->chars.size());
   // chars have epsilon
@@ -421,48 +423,6 @@ bool DNFTRE::makeSNF(const char singleC)
   }
   list = {{std::make_shared<AtomicTRE>(std::move(tmpTre))}};
   return true;
-}
-
-
-void concat2(TimedAutomaton &left, const TimedAutomaton &right) {
-  // make a transition to an accepting state of left to a transition to an initial state of right
-  std::vector<ClockVariables> rightClocks (right.clockSize());
-  std::iota(rightClocks.begin(), rightClocks.end(), 0);
-  for (auto &s: left.states) {
-    for(auto &edges: s->next) {
-      std::vector<TATransition> newTransitions;
-      for (auto &edge: edges) {
-        std::shared_ptr<TAState> target = edge.target.lock();
-        if (target && target->isMatch) {
-          newTransitions.reserve(newTransitions.size() + right.initialStates.size());
-          for (auto initState: right.initialStates) {
-            TATransition transition = edge;
-            transition.target = initState;
-            transition.resetVars = rightClocks;
-            newTransitions.emplace_back(std::move(transition));
-          }
-        }
-      }
-      if (!newTransitions.empty()) {
-        edges.insert(edges.end(), newTransitions.begin(), newTransitions.end());
-      }
-    }
-  }
-
-  // make accepting states of left non-accepting
-  for (auto &s: left.states) {
-    s->isMatch = false;
-  }
-
-  left.states.insert(left.states.end(), right.states.begin(), right.states.end());
-
-  // we can reuse variables since we have no overwrapping constraints
-  left.maxConstraints.resize(std::max(left.maxConstraints.size(), right.maxConstraints.size()));
-  std::vector<int> maxConstraints = right.maxConstraints;
-  maxConstraints.resize(std::max(left.maxConstraints.size(), maxConstraints.size()));
-  for (std::size_t i = 0; i < left.maxConstraints.size(); ++i) {
-    left.maxConstraints[i] = std::max(left.maxConstraints[i], maxConstraints[i]);
-  }
 }
 
 void AtomicTRE::toSignalTA(TimedAutomaton& out) const {

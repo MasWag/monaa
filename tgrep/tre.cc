@@ -36,6 +36,47 @@ operator<<( std::ostream &stream, const TRE& expr)
 
 const std::shared_ptr<TRE> TRE::epsilon = std::make_shared<TRE>(op::epsilon);
 
+void concat2(TimedAutomaton &left, const TimedAutomaton &right) {
+  // make a transition to an accepting state of left to a transition to an initial state of right
+  std::vector<ClockVariables> rightClocks (right.clockSize());
+  std::iota(rightClocks.begin(), rightClocks.end(), 0);
+  for (auto &s: left.states) {
+    for(auto &edges: s->next) {
+      std::vector<TATransition> newTransitions;
+      for (auto &edge: edges) {
+        std::shared_ptr<TAState> target = edge.target.lock();
+        if (target && target->isMatch) {
+          newTransitions.reserve(newTransitions.size() + right.initialStates.size());
+          for (auto initState: right.initialStates) {
+            TATransition transition = edge;
+            transition.target = initState;
+            transition.resetVars = rightClocks;
+            newTransitions.emplace_back(std::move(transition));
+          }
+        }
+      }
+      if (!newTransitions.empty()) {
+        edges.insert(edges.end(), newTransitions.begin(), newTransitions.end());
+      }
+    }
+  }
+
+  // make accepting states of left non-accepting
+  for (auto &s: left.states) {
+    s->isMatch = false;
+  }
+
+  left.states.insert(left.states.end(), right.states.begin(), right.states.end());
+
+  // we can reuse variables since we have no overwrapping constraints
+  left.maxConstraints.resize(std::max(left.maxConstraints.size(), right.maxConstraints.size()));
+  std::vector<int> maxConstraints = right.maxConstraints;
+  maxConstraints.resize(std::max(left.maxConstraints.size(), maxConstraints.size()));
+  for (std::size_t i = 0; i < left.maxConstraints.size(); ++i) {
+    left.maxConstraints[i] = std::max(left.maxConstraints[i], maxConstraints[i]);
+  }
+}
+
 void TRE::toEventTA(TimedAutomaton& out) const {
   switch(tag) {
   case op::atom: {
@@ -84,43 +125,8 @@ void TRE::toEventTA(TimedAutomaton& out) const {
     regExprPair.first->toEventTA(out);
     TimedAutomaton another;
     regExprPair.second->toEventTA(another);
-    std::vector<ClockVariables> anotherClocks (another.clockSize());
-    std::iota(anotherClocks.begin(), anotherClocks.end(), 0);
-    // make a transition to an accepting state of out to a transition to an initial state of another
-    for (auto &s: out.states) {
-      for(auto &edges: s->next) {
-        std::vector<TATransition> newTransitions;
-        for (auto &edge: edges) {
-          std::shared_ptr<TAState> target = edge.target.lock();
-          if (target && target->isMatch) {
-            newTransitions.reserve(newTransitions.size() + another.initialStates.size());
-            for (auto initState: another.initialStates) {
-              TATransition transition = edge;
-              transition.target = initState;
-              transition.resetVars = anotherClocks;
-              newTransitions.emplace_back(std::move(transition));
-            }
-          }
-        }
-        if (!newTransitions.empty()) {
-          edges.insert(edges.end(), newTransitions.begin(), newTransitions.end());
-        }
-      }
-    }
+    concat2(out, another);
 
-    // make accepting states of out non-accepting
-    for (auto &s: out.states) {
-      s->isMatch = false;
-    }
-
-    out.states.insert(out.states.end(), another.states.begin(), another.states.end());
-
-    // we can reuse variables since we have no overwrapping constraints
-    out.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
-    another.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
-    for (std::size_t i = 0; i < out.maxConstraints.size(); ++i) {
-      out.maxConstraints[i] = std::max(out.maxConstraints[i], another.maxConstraints[i]);
-    }
     break;
   }
   case op::disjunction: {
