@@ -87,150 +87,162 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
 
     ans.clear();
     std::size_t j;
-    const std::size_t maxI = word.size() - m;
-    while (i <= maxI ) {
+    while (i + m <= word.size()) {
       bool tooLarge = false;
       // Sunday Shift
+      try {
 #if 0
-      if (m == 1 && init[word[i].first].size() > 0) {
-        // When there can be immidiate accepting
-        // @todo This optimization is not yet
-        ans.reserve(ans.size() + init[word[i].first].size());
-        if (i <= 0) {
-          for (auto zone: init[word[i].first]) {
-            Zone ansZone;
-            zone.value.col(0).fill({word[i].second, false});
-            if (zone.isSatisfiable()) {
-              zone.toAns(ansZone);
-              ans.push_back(std::move(ansZone));
+        if (m == 1 && init[word[i].first].size() > 0) {
+          // When there can be immidiate accepting
+          // @todo This optimization is not yet
+          ans.reserve(ans.size() + init[word[i].first].size());
+          if (i <= 0) {
+            for (auto zone: init[word[i].first]) {
+              Zone ansZone;
+              zone.value.col(0).fill({word[i].second, false});
+              if (zone.isSatisfiable()) {
+                zone.toAns(ansZone);
+                ans.push_back(std::move(ansZone));
+              }
+            }
+          } else {
+            for (auto zone: init[word[i].first]) {
+              Zone ansZone;
+              zone.value.col(0).fill({word[i].second, false});
+              zone.value.row(0).fill({-word[i-1].second, true});
+              if (zone.isSatisfiable()) {
+                zone.toAns(ansZone);
+                ans.push_back(std::move(ansZone));
+              }
             }
           }
-        } else {
-          for (auto zone: init[word[i].first]) {
-            Zone ansZone;
-            zone.value.col(0).fill({word[i].second, false});
-            zone.value.row(0).fill({-word[i-1].second, true});
-            if (zone.isSatisfiable()) {
-              zone.toAns(ansZone);
-              ans.push_back(std::move(ansZone));
-            }
-          }
-        }
-      } else
+        } else
 #endif
-        if (m > 1) {
-        while (endChars.find(word[i + m - 1].first) == endChars.end() ) {
-          if (i >= maxI) {
-            tooLarge = true;
-            break;
+          if (m > 1) {
+            while (endChars.find(word[i + m - 1].first) == endChars.end() ) {                    if (i + m >= word.size()) {
+                tooLarge = true;
+                break;
+              }
+              // increment i
+              i += delta[ word[i + m].first ];
+              word.setFront(i - 1);
+              if (i + m > word.size())  {
+                tooLarge = true;
+                break;
+              }
+            }
           }
-          // increment i
-          i += delta[ word[i + m].first ];
-          word.setFront(i - 1);
-          if (i > maxI)  {
-            tooLarge = true;
-            break;
-          }
-        }
+      } catch (const std::out_of_range& e) {
+        // if we hit EOF, i is too large
+        tooLarge = true;
       }
+
       if (tooLarge) break;
 
       // KMP like Matching
       CStates.clear ();
       CStates.reserve(A.initialStates.size());
-      if (i <= 0) {
-        for (const auto& s: A.initialStates) {
-          CStates.push_back({A.clockSize(), s, {word[i].second, false}});
+      try {
+        if (i <= 0) {
+          for (const auto& s: A.initialStates) {
+            CStates.push_back({A.clockSize(), s, {word[i].second, false}});
+          }
+        } else {
+          for (const auto& s: A.initialStates) {
+            CStates.push_back({A.clockSize(), s, {word[i].second, false}, {word[i-1].second, true}});
+          }
         }
-      } else {
-        for (const auto& s: A.initialStates) {
-          CStates.push_back({A.clockSize(), s, {word[i].second, false}, {word[i-1].second, true}});
-        }
+      } catch (const std::out_of_range&) {
+        break;
       }
       j = i;
-      while (!CStates.empty () && j < word.size ()) {
-        // try unobservable transitions
-        std::vector<InternalState> CurrEpsilonConf = CStates;
-        while (!CurrEpsilonConf.empty()) {
-          std::vector<InternalState> PrevEpsilonConf = std::move(CurrEpsilonConf);
-          CurrEpsilonConf.clear();
-          for (const auto &econfig: PrevEpsilonConf) {
-            for (const auto &edge: econfig.s->next[0]) {
+      try {
+        while (!CStates.empty () && j < word.size ()) {
+          // try unobservable transitions
+          std::vector<InternalState> CurrEpsilonConf = CStates;
+          while (!CurrEpsilonConf.empty()) {
+            std::vector<InternalState> PrevEpsilonConf = std::move(CurrEpsilonConf);
+            CurrEpsilonConf.clear();
+            for (const auto &econfig: PrevEpsilonConf) {
+              for (const auto &edge: econfig.s->next[0]) {
+                auto target = edge.target.lock();
+                if (!target) {
+                  continue;
+                }
+                IntermediateZone tmpZ = econfig.z;
+                ClockVariables newClock;
+                if (j > 0) {
+                  newClock = tmpZ.alloc({word[j].second, true}, {word[j-1].second, false});
+                } else {
+                  newClock = tmpZ.alloc({word[j].second, true});
+                }
+                tmpZ.tighten(edge.guard, econfig.resetTime);
+                if (tmpZ.isSatisfiable()) {
+                  auto tmpResetTime = econfig.resetTime;
+                  for (ClockVariables x: edge.resetVars) {
+                    tmpResetTime[x] = newClock;
+                  }
+                  tmpZ.update(tmpResetTime);
+                  CurrEpsilonConf.emplace_back(target, tmpResetTime, tmpZ);
+                }
+              }
+            }
+            CStates.insert(CStates.end(), CurrEpsilonConf.begin(), CurrEpsilonConf.end());
+          }
+
+
+
+          const Alphabet c = word[j].first;
+          const double t = word[j].second;
+      
+          // try to go to an accepting state
+          for (const auto &config : CStates) {
+            const std::shared_ptr<TAState> s = config.s;
+            for (const auto &edge : s->next[c]) {
+              auto target = edge.target.lock();
+              if (!target || !target->isMatch) {
+                continue;
+              }
+              IntermediateZone tmpZ = config.z;
+              if (j > 0) {
+                tmpZ.alloc({word[j].second, false}, {word[j-1].second, true});
+              } else {
+                tmpZ.alloc({word[j].second, false});
+              }
+              tmpZ.tighten(edge.guard, config.resetTime);
+              if (tmpZ.isSatisfiable()) {
+                Zone ansZone;
+                tmpZ.toAns(ansZone);
+                ans.push_back(ansZone);
+              }
+            }
+          }
+
+          // try observable transitios (usual)
+          LastStates = std::move(CStates);
+          for (const auto &config : LastStates) {
+            const std::shared_ptr<TAState> s = config.s;
+            for (const auto &edge : s->next[c]) {
               auto target = edge.target.lock();
               if (!target) {
                 continue;
               }
-              IntermediateZone tmpZ = econfig.z;
-              ClockVariables newClock;
-              if (j > 0) {
-                newClock = tmpZ.alloc({word[j].second, true}, {word[j-1].second, false});
-              } else {
-                newClock = tmpZ.alloc({word[j].second, true});
-              }
-              tmpZ.tighten(edge.guard, econfig.resetTime);
+              IntermediateZone tmpZ = config.z;
+              tmpZ.tighten(edge.guard, config.resetTime, t);
               if (tmpZ.isSatisfiable()) {
-                auto tmpResetTime = econfig.resetTime;
+                auto tmpResetTime = config.resetTime;
                 for (ClockVariables x: edge.resetVars) {
-                  tmpResetTime[x] = newClock;
+                  tmpResetTime[x] = t;
                 }
                 tmpZ.update(tmpResetTime);
-                CurrEpsilonConf.emplace_back(target, tmpResetTime, tmpZ);
+                CStates.emplace_back(target, tmpResetTime, tmpZ);
               }
             }
           }
-          CStates.insert(CStates.end(), CurrEpsilonConf.begin(), CurrEpsilonConf.end());
+          j++;
         }
-
-
-
-        const Alphabet c = word[j].first;
-        const double t = word[j].second;
-      
-        // try to go to an accepting state
-        for (const auto &config : CStates) {
-          const std::shared_ptr<TAState> s = config.s;
-          for (const auto &edge : s->next[c]) {
-            auto target = edge.target.lock();
-            if (!target || !target->isMatch) {
-              continue;
-            }
-            IntermediateZone tmpZ = config.z;
-            if (j > 0) {
-              tmpZ.alloc({word[j].second, false}, {word[j-1].second, true});
-            } else {
-              tmpZ.alloc({word[j].second, false});
-            }
-            tmpZ.tighten(edge.guard, config.resetTime);
-            if (tmpZ.isSatisfiable()) {
-              Zone ansZone;
-              tmpZ.toAns(ansZone);
-              ans.push_back(ansZone);
-            }
-          }
-        }
-
-        // try observable transitios (usual)
+      } catch (const std::out_of_range&) {
         LastStates = std::move(CStates);
-        for (const auto &config : LastStates) {
-          const std::shared_ptr<TAState> s = config.s;
-          for (const auto &edge : s->next[c]) {
-            auto target = edge.target.lock();
-            if (!target) {
-              continue;
-            }
-            IntermediateZone tmpZ = config.z;
-            tmpZ.tighten(edge.guard, config.resetTime, t);
-            if (tmpZ.isSatisfiable()) {
-              auto tmpResetTime = config.resetTime;
-              for (ClockVariables x: edge.resetVars) {
-                tmpResetTime[x] = t;
-              }
-              tmpZ.update(tmpResetTime);
-              CStates.emplace_back(target, tmpResetTime, tmpZ);
-            }
-          }
-        }
-        j++;
       }
       if (j >= word.size ()) {
         LastStates = std::move(CStates);

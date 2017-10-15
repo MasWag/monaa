@@ -9,7 +9,7 @@ class WordContainer
 protected:
   Container vec;
 public:
-  WordContainer<Container>(const std::size_t N, FILE* file,bool isBinary = false) : vec (N, file, isBinary) {}
+  WordContainer<Container>(FILE* file,bool isBinary = false) : vec (file, isBinary) {}
   typename Container::value_type operator[](const std::size_t n) {
     return vec[n];
   }
@@ -17,7 +17,7 @@ public:
     return vec.at(n);
   }
   std::size_t size() const {
-    return vec.size();    
+    return vec.size();
   }
   void setFront(std::size_t n) {
     return vec.setFront(n);
@@ -42,8 +42,7 @@ class Vector : public std::vector<T>
 {
 private:
 public:
-  Vector(const std::size_t N, FILE*, bool) {
-    this->resize(N);
+  Vector(FILE*, bool) {
   }
   void setFront(std::size_t) {}
 };
@@ -52,13 +51,11 @@ template <class T>
 class WordVector : public WordContainer<Vector<T>>
 {
 public:
-  WordVector (const std::size_t N, FILE* file, bool isBinary = false) : WordContainer<Vector<T>>(N, file, isBinary) {
+  WordVector (FILE* file, bool isBinary = false) : WordContainer<Vector<T>>(file, isBinary) {
     const auto getOneElem = isBinary ? getOneBinary : getOne;
-    this->vec.resize (N);
-    for (auto &p : this->vec) {
-      T elem;
-      getOneElem(file, elem);
-      p = elem;
+    T elem;
+    while (getOneElem(file, elem) != EOF) {
+      this->vec.push_back(elem);
     }
   }
 };

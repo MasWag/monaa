@@ -8,9 +8,18 @@ using namespace boost::program_options;
 
 int main(int argc, char *argv[])
 {
+  const auto programName = "monaa";
+  const auto errorHeader = "monaa: ";
+
+  const auto die = [&errorHeader] (const char* message, int status) {
+    std::cerr << errorHeader << message << std::endl;
+    exit(status);
+  };
+
   // visible options
   options_description visible("description of options");
-  std::string fileName;
+  std::string timedWordFileName;
+  std::string timedAutomatonFileName;
   std::string tre;
   std::stringstream treStream;
   bool isBinary = false;
@@ -18,81 +27,95 @@ int main(int argc, char *argv[])
   visible.add_options()
     ("help,h", "help")
     ("quiet,q", "quiet")
+    ("ascii,a", "ascii mode (default)")
     ("binary,b", "binary mode")
     ("version,V", "version")
-    ("event,e", "event mode (default)")
-    ("signal,s", "signal mode")
-    ("input,i", value<std::string>(&fileName)->default_value("stdin"),"input file")
-    ("pattern,p", value<std::string>(&tre)->default_value(""),"pattern Timed Regular Expression");
-
-  // positional options
-  positional_options_description positional;
-  positional.add("pattern", 1).add("input", 1);
+    ("event,E", "event mode (default)")
+    ("signal,S", "signal mode")
+    ("input,i", value<std::string>(&timedWordFileName)->default_value("stdin"),"input file of Timed Words")
+    ("automaton,f", value<std::string>(&timedAutomatonFileName)->default_value(""),"input file of Timed Automaton")
+    ("expression,e", value<std::string>(&tre)->default_value(""),"pattern Timed Regular Expression");
 
   command_line_parser parser(argc, argv);
-  parser.options(visible).positional(positional);
+  parser.options(visible);
   variables_map vm;
-  store(parser.run(), vm);
+  const auto parseResult = parser.run();
+  store(parseResult, vm);
   notify(vm);
 
-  std::cout << tre << std::endl;
+  for (auto const& str: collect_unrecognized(parseResult.options, include_positional)) {
+    if (timedAutomatonFileName.empty() && tre.empty()) {
+      tre = std::move(str);
+    } else if (timedWordFileName == "stdin") {
+      timedWordFileName = std::move(str);
+    }
+  }
 
-  if (tre.empty() || vm.count("help")) {
-    std::cout << "tgrep [option]... [pattern] [file]\n"
+  if ((timedAutomatonFileName.empty() && tre.empty()) || vm.count("help")) {
+    std::cout << programName << " [OPTIONS] PATTERN [FILE]\n" 
+              << programName << " [OPTIONS] -e PATTERN [FILE]\n" 
+              << programName << " [OPTIONS] -f FILE [FILE]\n" 
               << visible << std::endl;
     return 0;
   }
   if (vm.count("version")) {
-    std::cout << "tgrep (Timed grep) 0.0.0\n"
+    std::cout << "MONAA (a MONitoring tool Acceralated by Automata) 0.0.0\n"
               << visible << std::endl;
     return 0;
   }
+  if ((vm.count("ascii") && vm.count("binary")) || (vm.count("signal") && vm.count("event"))) {
+    die("conflicting input formats specified", 1);
+  }
   if (vm.count("binary")) {
     isBinary = true;
+  } else if (vm.count("ascii")) {
+    isBinary = false;
   }
   if (vm.count("signal")) {
     isSignal = true;
-  }
-  if (vm.count("event")) {
+  } else if (vm.count("event")) {
     isSignal = false;
   }
-
-  // parse TRE
-
-  TREDriver driver;
-  if (!driver.parse(treStream)) {
-    std::cerr << "Failed to parse TRE" << std::endl;
-    return -1;
+  if (!timedAutomatonFileName.empty() && !tre.empty()) {
+    die("both a timed automaton and a timed regular expression are specified", 1);
   }
-
-  int N;
-  FILE* file = stdin;
-  if (fileName != "stdin") {
-    file = fopen(fileName.c_str(), "r");
-  }
-  if (isBinary) {
-    fread(&N, sizeof(int), 1, file);
-  } else {
-    fscanf(file, "%d", &N);
-  }
-  
-#ifdef LAZY_READ
-  WordLazyDeque<std::pair<Alphabet,double> > w(N, file, isBinary);
-  AnsNum<ansZone> ans;
-#else
-  WordVector<std::pair<Alphabet,double> > w(N, file, isBinary);
-  AnsVec<Zone> ans;
-#endif
+  // DEBUG
+  std::cout << "TRE: " << tre << std::endl;
+  std::cout << "File: " << timedWordFileName << std::endl;
 
   TimedAutomaton TA;
 
-  timedFranekJenningsSmyth (w, TA, ans);
-
-  std::cout << ans.size() << " zones" << std::endl;
-  
-  if (vm.count ("quiet")) {
-    return 0;
+  if (timedAutomatonFileName.empty()) {
+    // parse TRE
+    TREDriver driver;
+    treStream << tre;
+    if (!driver.parse(treStream)) {
+      die("Failed to parse TRE", 2);
+    }
+    if (isSignal) {
+      toSignalTA(driver.getResult(), TA);
+    } else {
+      driver.getResult()->toEventTA(TA);
+    }
+  } else {
+    // parse TA
+    die("parse timed automaton is not implemented yet!", 100);
   }
+
+  FILE* file = stdin;
+  AnsPrinter ans(vm.count("quiet"));
+  if (timedWordFileName != "stdin") {
+    // offline mode
+    file = fopen(timedWordFileName.c_str(), "r");
+    WordVector<std::pair<Alphabet,double> > w(file, isBinary);
+    timedFranekJenningsSmyth (w, TA, ans);
+  } else {
+    // online mode
+    WordLazyDeque w(file, isBinary);
+    timedFranekJenningsSmyth (w, TA, ans);
+  }
+
+  return 0;
 
 #if 0
   // print result

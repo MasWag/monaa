@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <array>
 #include <climits>
 
@@ -23,6 +24,10 @@ public:
     m = 0;
     std::vector<std::shared_ptr<ZAState>> CStates = ZA.initialStates;
     while (!accepted) {
+      if (CStates.empty()) {
+        std::cerr << "monaa: empty pattern" << std::endl;
+        exit(10);
+      }
       std::vector<std::shared_ptr<ZAState>> NStates;
       m++;
       charSet.resize(m);

@@ -4,16 +4,21 @@
 #include <deque>
 #include <stdexcept>
 #include <utility>
+#include <limits>
 
 #include "common_types.hh"
 
-static inline void getOne(FILE* file, std::pair<Alphabet, double> &p) {
-  fscanf(file, " %c %lf\n", &p.first, &p.second);
+static inline int getOne(FILE* file, std::pair<Alphabet, double> &p) {
+  return fscanf(file, " %c %lf\n", &p.first, &p.second);
 }
 
-static inline void getOneBinary(FILE* file, std::pair<Alphabet, double> &p) {
-  fread(&p.first, sizeof(char), 1, file);
-  fread(&p.second, sizeof(double), 1, file);
+static inline int getOneBinary(FILE* file, std::pair<Alphabet, double> &p) {
+  if (fread(&p.first, sizeof(char), 1, file)) {
+    if (fread(&p.second, sizeof(double), 1, file)) {
+      return sizeof(char) + sizeof(double);
+    }
+  }
+  return EOF;
 }
 
 /*!
@@ -23,14 +28,14 @@ class LazyDeque : public std::deque<std::pair<Alphabet, double>>
 {
 private:
   std::size_t front = 0;
-  const std::size_t N;
+  std::size_t N;
   FILE* file;
-  void (*getElem)(FILE*, std::pair<Alphabet, double>&);
+  int (*getElem)(FILE*, std::pair<Alphabet, double>&);
 public:
   /*!
     @param N size of the file
    */
-  LazyDeque (const std::size_t N, FILE* file, bool isBinary = false) : N(N), file(file) {
+  LazyDeque (FILE* file, bool isBinary = false) : N(std::numeric_limits<std::size_t>::max()), file(file) {
     getElem = isBinary ? getOneBinary : getOne;
   }
   std::pair<Alphabet, double> operator[](std::size_t n) {
@@ -41,7 +46,10 @@ public:
     const int allocTimes = indInDeque - std::deque<std::pair<Alphabet, double>>::size() + 1;
     for (int i = 0; i < allocTimes; i++) {
       std::pair<Alphabet, double> elem;
-      getElem(file, elem);
+      if(getElem(file, elem) == EOF) {
+        N = front + std::deque<std::pair<Alphabet, double>>::size();
+        throw std::out_of_range("thrown at LazyDeque::operator[] ");        
+      }
       this->push_back(elem);
     }
     return std::deque<std::pair<Alphabet, double>>::at(indInDeque);

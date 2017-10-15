@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(timedFJS) {
   TA.maxConstraints = {1};
 
   FILE* file(fopen("../test/timed_word.txt", "r"));
-  WordVector<std::pair<Alphabet,double> > w(8, file, false);
+  WordVector<std::pair<Alphabet,double> > w(file, false);
   AnsVec<Zone> ans;
   timedFranekJenningsSmyth(w, TA, ans);
   BOOST_CHECK_EQUAL(ans.size(), 2);

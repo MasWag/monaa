@@ -9,7 +9,7 @@ private:
   FILE* file;
 public:
   // "a 1.1 b 3.2 c 5.3 d 7.4 e 9.5 f 11.6 g 13.7 h 15.8"
-  DQASCIIFixture() : file(fopen("../test/ascii_test.txt", "r")), dqAscii(8, file) {}
+  DQASCIIFixture() : file(fopen("../test/ascii_test.txt", "r")), dqAscii(file) {}
   LazyDeque dqAscii;
 };
 
@@ -18,7 +18,7 @@ private:
   FILE* file;
 public:
   // "0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15"
-  DQBinaryFixture() : file(fopen("../test/binary_test.bin", "r")), dqBinary(8, file, true) {}
+  DQBinaryFixture() : file(fopen("../test/binary_test.bin", "r")), dqBinary(file, true) {}
   LazyDeque dqBinary;
 };
 

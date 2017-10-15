@@ -1,6 +1,6 @@
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-register")
 
-project(tgrep CXX)
+project(MONAA CXX)
 
 cmake_minimum_required(VERSION 3.1)
 set(CMAKE_CXX_FLAGS "-Wall -std=c++14 -march=native")
@@ -27,8 +27,8 @@ FLEX_TARGET(tre_lexer
   ${CMAKE_CURRENT_BINARY_DIR}/tre_lexer.yy.cc)
 ADD_FLEX_BISON_DEPENDENCY(tre_lexer tre_parser)
 
-## Config for Main tgrep
-add_executable(tgrep
+## Config for Main monaa
+add_executable(monaa
   tgrep/main.cc
   tgrep/intersection.cc
   tgrep/ta2za.cc
@@ -37,15 +37,15 @@ add_executable(tgrep
   ${FLEX_tre_lexer_OUTPUTS}
   ${BISON_tre_parser_OUTPUTS})
 
-target_link_libraries(tgrep
+target_link_libraries(monaa
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   )
 
-target_include_directories(tgrep
+target_include_directories(monaa
   PRIVATE
   .
   ${CMAKE_CURRENT_BINARY_DIR})
-set_property(TARGET tgrep
+set_property(TARGET monaa
   PROPERTY CXX_STANDARD 14)
 
 ## Config for Test
