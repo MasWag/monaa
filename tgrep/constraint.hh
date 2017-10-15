@@ -20,7 +20,7 @@ struct Constraint {
   enum class Order {
     lt,le,ge,gt
   };
-    
+
   ClockVariables x;
   Order odr;
   int c;

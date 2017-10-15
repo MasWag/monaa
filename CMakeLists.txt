@@ -10,7 +10,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-flto -O3 -DRELEASE")
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 find_package(Boost REQUIRED COMPONENTS
-  program_options unit_test_framework iostreams)
+  program_options unit_test_framework iostreams graph)
 find_package(Eigen3 REQUIRED)
 
 include_directories(
@@ -76,6 +76,7 @@ add_executable(unit_test
   test/tre_test.cc
   test/intermediate_tre_test.cc
   test/interval_test.cc
+  test/timed_automaton_parser_test.cc
   ${FLEX_tre_lexer_OUTPUTS}
   ${BISON_tre_parser_OUTPUTS})
 

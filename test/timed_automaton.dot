@@ -1,0 +1,5 @@
+digraph G{
+1 [match=false];
+2 [match=true];
+1->2 [label='a', reset={'0'}, guard={}];
+}
