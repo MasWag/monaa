@@ -300,6 +300,7 @@ void convBoostTA(const BoostTimedAutomaton &BoostTA, TimedAutomaton &TA)
 {
   TA.states.clear();
   TA.initialStates.clear();
+  TA.maxConstraints.clear();
   auto vertex_range = boost::vertices(BoostTA);
   std::unordered_map<BoostTimedAutomaton::vertex_descriptor, std::shared_ptr<TAState>> stateConvMap;
   for (auto first = vertex_range.first, last = vertex_range.second; first != last; ++first) {
@@ -318,8 +319,11 @@ void convBoostTA(const BoostTimedAutomaton &BoostTA, TimedAutomaton &TA)
       transition.target = stateConvMap[boost::target(*firstEdge, BoostTA)];
       transition.guard = boost::get(&BoostTATransition::guard, BoostTA, *firstEdge);
       transition.resetVars = boost::get(&BoostTATransition::resetVars, BoostTA, *firstEdge).resetVars;
+      for (auto g: transition.guard) {
+        TA.maxConstraints.resize(std::max<std::size_t>(TA.maxConstraints.size(), g.x + 1));
+        TA.maxConstraints[g.x] = std::max(TA.maxConstraints[g.x], g.c);
+      }
       stateConvMap[*first]->next[boost::get(&BoostTATransition::c, BoostTA, *firstEdge)].emplace_back(std::move(transition));
     }
   }
-  // todo convert constraints
 }
