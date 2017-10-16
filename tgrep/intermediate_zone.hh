@@ -107,7 +107,7 @@ public:
    */
   void tighten(const ClockVariables x, const ClockVariables y, const Bounds &c) {
     value(x,y) = std::min(value(x, y), c);
-    if (newestClock != initialClock) {
+    if (value(x,y) == c && newestClock != initialClock) {
       close1(x);
       close1(y);
     }
