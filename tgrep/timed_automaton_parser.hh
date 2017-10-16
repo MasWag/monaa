@@ -13,6 +13,7 @@ namespace boost{
   enum edge_label_t {edge_label};
   enum edge_reset_t {edge_reset};
   enum edge_guard_t {edge_guard};
+  BOOST_INSTALL_PROPERTY(vertex, match);
   BOOST_INSTALL_PROPERTY(edge, label);
   BOOST_INSTALL_PROPERTY(edge, reset);
   BOOST_INSTALL_PROPERTY(edge, guard);
@@ -38,7 +39,7 @@ std::ostream& operator<<(std::ostream& os, const Constraint::Order& odr) {
 
 std::ostream& operator<<(std::ostream& os, const Constraint& p)
 {
-  os << int(p.x) << " " << p.odr << " " << p.c;
+  os << "x" << int(p.x) << " " << p.odr << " " << p.c;
   return os;
 }
 
@@ -60,6 +61,10 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& guard)
 
 std::istream& operator>>(std::istream& is, Constraint& p)
 {
+  if (is.get() != 'x') {
+    is.setstate(std::ios_base::failbit);
+    return is;
+  }
   int x;
   is >> x;
   p.x = x;
@@ -253,11 +258,17 @@ using BoostTimedAutomaton =
   boost::listS, boost::vecS, boost::directedS,
   TAState, BoostTATransition>;
 
+// using BoostTimedAutomaton = 
+//                           boost::adjacency_list<
+//   boost::listS, boost::vecS, boost::directedS,
+//   TAState, boost::no_property>;
+
 void parseTA(std::istream &file, TimedAutomaton &)
 {
   BoostTimedAutomaton BoostTA;
 
   boost::dynamic_properties dp(boost::ignore_other_properties);
+  // dp.property("match", boost::get(boost::vertex_match, BoostTA));
   dp.property("match", boost::get(&TAState::isMatch, BoostTA));
   dp.property("label", boost::get(&BoostTATransition::c, BoostTA));
   dp.property("reset", boost::get(&BoostTATransition::resetVars, BoostTA));
@@ -265,5 +276,14 @@ void parseTA(std::istream &file, TimedAutomaton &)
 
   boost::read_graphviz(file, BoostTA, dp, "id");
 
+
   std::cout << "isMatch: " << BoostTA[0].isMatch << std::endl;
+  std::cout << "isMatch: " << BoostTA[1].isMatch << std::endl;
+  std::cout << "label: " << boost::get(&BoostTATransition::c, BoostTA, boost::edge(boost::vertex(0, BoostTA), boost::vertex(1, BoostTA), BoostTA).first) << std::endl;
+  std::cout << "reset: " << boost::get(&BoostTATransition::resetVars, BoostTA, boost::edge(boost::vertex(0, BoostTA), boost::vertex(1, BoostTA), BoostTA).first).size() << std::endl;
+  std::cout << "reset0: " << int(boost::get(&BoostTATransition::resetVars, BoostTA, boost::edge(boost::vertex(0, BoostTA), boost::vertex(1, BoostTA), BoostTA).first)[0]) << std::endl;
+  std::cout << "guard: " << boost::get(&BoostTATransition::guard, BoostTA, boost::edge(boost::vertex(0, BoostTA), boost::vertex(1, BoostTA), BoostTA).first).size() << std::endl;
+
+  // std::cout << "isMatch: " << boost::get(boost::vertex_match, BoostTA, 0) << std::endl;
+  // std::cout << "isMatch: " << boost::get(boost::vertex_match, BoostTA, 1) << std::endl;
 }
