@@ -76,7 +76,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
               for (const auto &constraint: edge.guard) {
                 zone.tighten(1, constraint);
               }
-              if (zone.isSatisfiable()) {
+              if (zone.isSatisfiableCanonized()) {
                 init[c].push_back(std::move(zone));
               }
             }
@@ -206,7 +206,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
               tmpZ.alloc({word[j].second, false});
             }
             tmpZ.tighten(edge.guard, config.resetTime);
-            if (tmpZ.isSatisfiable()) {
+            if (tmpZ.isSatisfiableCanonized()) {
               Zone ansZone;
               tmpZ.toAns(ansZone);
               ans.push_back(ansZone);
@@ -225,7 +225,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
             }
             IntermediateZone tmpZ = config.z;
             tmpZ.tighten(edge.guard, config.resetTime, t);
-            if (tmpZ.isSatisfiable()) {
+            if (tmpZ.isSatisfiableCanonized()) {
               auto tmpResetTime = config.resetTime;
               for (ClockVariables x: edge.resetVars) {
                 tmpResetTime[x] = t;

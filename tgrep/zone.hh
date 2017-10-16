@@ -68,9 +68,10 @@ struct Zone {
 
   void close1(ClockVariables x) {
     for (int i = 0; i < value.rows(); i++) {
-      for (int j = 0; j < value.cols(); j++) {
-        value(i, j) = std::min(value(i, j), value(i, x) + value(x, j));
-      }
+      value.row(i) = value.row(i).array().min(value.row(x).array() + value(i, x));
+      //      for (int j = 0; j < value.cols(); j++) {
+      //        value(i, j) = std::min(value(i, j), value(i, x) + value(x, j));
+      //      }
     }
   }
   

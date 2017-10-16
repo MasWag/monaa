@@ -107,8 +107,10 @@ public:
    */
   void tighten(const ClockVariables x, const ClockVariables y, const Bounds &c) {
     value(x,y) = std::min(value(x, y), c);
-    close1(x);
-    close1(y);
+    if (newestClock != initialClock) {
+      close1(x);
+      close1(y);
+    }
   }
 
   void tighten(const ClockVariables x, const Constraint &c, const ClockVariables reset = 0) {
@@ -183,6 +185,10 @@ public:
         }
       }
     } 
+  }
+
+  bool isSatisfiableCanonized() {
+    return (value + value.transpose()).minCoeff() >= Bounds(0.0, true);
   }
 
   void deallocate(const ClockVariables x) {
