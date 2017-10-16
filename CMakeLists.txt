@@ -39,7 +39,7 @@ add_executable(monaa
 
 target_link_libraries(monaa
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  )
+  ${Boost_GRAPH_LIBRARY})
 
 target_include_directories(monaa
   PRIVATE

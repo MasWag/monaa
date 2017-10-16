@@ -22,6 +22,9 @@ public:
   void setFront(std::size_t n) {
     return vec.setFront(n);
   }
+  bool fetch(std::size_t n) {
+    return vec.fetch(n);
+  }
 };
 
 /*!
@@ -45,6 +48,9 @@ public:
   Vector(FILE*, bool) {
   }
   void setFront(std::size_t) {}
+  bool fetch(std::size_t n) {
+    return n < this->size();
+  }
 };
 
 template <class T>

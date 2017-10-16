@@ -75,19 +75,19 @@ public:
   void push_back(const Zone &ans) {
     count++;
     if (!isQuiet) {
-      std::cout << -ans.value(0, 1).first <<std::setw(10)<< 
-        (ans.value(0, 1).second ? " <= " : " < ") << "t" << 
-        (ans.value(1, 0).second ? " <= " : " < ") <<
-        ans.value(1, 0).first << std::endl;
-      std::cout << -ans.value(0, 2).first << std::setw(10)<< 
-        (ans.value(0, 2).second ? " <= " : " < ") << "t'" << 
-        (ans.value(2, 0).second ? " <= " : " < ") <<
-        ans.value(2, 0).first << std::endl;
-      std::cout << -ans.value(1, 2).first << std::setw(10)<< 
-        (ans.value(1, 2).second ? " <= " : " < ") << "t' - t" << 
-        (ans.value(2, 1).second ? " <= " : " < ") <<
-        ans.value(2, 1).first << std::endl;
-      std::cout << "=============================" << std::endl;
+      printf("%lg %8s t %s %lg\n", -ans.value(0, 1).first,
+             (ans.value(0, 1).second ? "<=" : "<"),
+             (ans.value(1, 0).second ? "<=" : "<"),
+             ans.value(1, 0).first);
+      printf("%lg %8s t' %s %lg\n", -ans.value(0, 2).first,
+             (ans.value(0, 2).second ? "<=" : "<"),
+             (ans.value(2, 0).second ? "<=" : "<"),
+             ans.value(2, 0).first);
+      printf("%lg %8s t' - t %s %lg\n", -ans.value(1, 2).first,
+             (ans.value(1, 2).second ? "<=" : "<"),
+             (ans.value(2, 1).second ? "<=" : "<"),
+             ans.value(2, 1).first);
+      puts("=============================");
     }
   }
   void clear() {

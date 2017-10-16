@@ -3,6 +3,7 @@
 
 #include "timedFJS.hh"
 #include "tre_driver.hh"
+#include "timed_automaton_parser.hh"
 
 using namespace boost::program_options;
 
@@ -96,7 +97,10 @@ int main(int argc, char *argv[])
     }
   } else {
     // parse TA
-    die("parse timed automaton is not implemented yet!", 100);
+    std::ifstream taStream(timedAutomatonFileName);
+    BoostTimedAutomaton BoostTA;
+    parseBoostTA(taStream, BoostTA);
+    convBoostTA(BoostTA, TA);
   }
 
   FILE* file = stdin;

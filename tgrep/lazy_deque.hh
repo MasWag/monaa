@@ -39,18 +39,9 @@ public:
     getElem = isBinary ? getOneBinary : getOne;
   }
   std::pair<Alphabet, double> operator[](std::size_t n) {
-    if (n < front || n >= N) {
-      throw std::out_of_range("thrown at LazyDeque::operator[] ");
-    }
     const std::size_t indInDeque = n - front;
-    const int allocTimes = indInDeque - std::deque<std::pair<Alphabet, double>>::size() + 1;
-    for (int i = 0; i < allocTimes; i++) {
-      std::pair<Alphabet, double> elem;
-      if(getElem(file, elem) == EOF) {
-        N = front + std::deque<std::pair<Alphabet, double>>::size();
-        throw std::out_of_range("thrown at LazyDeque::operator[] ");        
-      }
-      this->push_back(elem);
+    if (n < front || n >= N || indInDeque >= std::deque<std::pair<Alphabet, double>>::size()) {
+      throw std::out_of_range("thrown at LazyDeque::operator[] ");
     }
     return std::deque<std::pair<Alphabet, double>>::at(indInDeque);
   }
@@ -73,5 +64,21 @@ public:
       std::pair<Alphabet, double> elem;
       getElem(file, elem);
     }
+  }
+  bool fetch(std::size_t n) noexcept {
+    if (n < front || n >= N) {
+      return false;
+    }
+    const std::size_t indInDeque = n - front;
+    const int allocTimes = indInDeque - std::deque<std::pair<Alphabet, double>>::size() + 1;
+    for (int i = 0; i < allocTimes; i++) {
+      std::pair<Alphabet, double> elem;
+      if(getElem(file, elem) == EOF) {
+        N = front + std::deque<std::pair<Alphabet, double>>::size();
+        return false;
+      }
+      this->push_back(elem);
+    }
+    return true;
   }
 };

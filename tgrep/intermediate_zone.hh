@@ -19,8 +19,10 @@ public:
    */
   IntermediateZone(Zone zone, std::size_t currentNewestClock = 0) : Zone(std::move(zone)) {
     // The zone must have at least one variable
+#ifdef DEBUG
     assert(value.cols() == value.rows());
     assert(value.cols() > 1);
+#endif
     isAllocated.resize(value.cols(), false);
     if (currentNewestClock) {
       newestClock = currentNewestClock;
@@ -35,10 +37,12 @@ public:
     isAllocated[newestClock] = true;
   }
 
-  ClockVariables alloc(std::pair<double,bool> upperBound, std::pair<double,bool> lowerBound = {0, true}) {
+  ClockVariables alloc(const std::pair<double,bool> &upperBound, std::pair<double,bool> lowerBound = {0, true}) {
     static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
     const auto newPos = std::find(isAllocated.begin(), isAllocated.end(), false);
+#ifdef DEBUG
     assert(value.cols() == value.rows());
+#endif
 
     ClockVariables newClock;
     if (newPos != isAllocated.end()) {
@@ -60,12 +64,16 @@ public:
     value(0, newClock) = lowerBound;
     value(newClock, newestClock) = Bounds(infinity);
     value(newestClock, newClock) = {0, true};
+#ifdef DEBUG
     assert(value.cols() == value.rows());
+#endif
     return newestClock = newClock;
   }
 
   void update(const std::vector<boost::variant<double, ClockVariables>> &resetTime) {
+#ifdef DEBUG
     assert(value.cols() == value.rows());
+#endif
     std::fill(isAllocated.begin(), isAllocated.end(), false);
     isAllocated[0] = true;
     isAllocated[initialClock] = true;
@@ -97,13 +105,13 @@ public:
     @brief add the constraint x - y \le (c,s)
     @note This is different from Zone::tighten because we have to handle x0, too. That is unnecessary and harmful in zone construction.
    */
-  void tighten(ClockVariables x, ClockVariables y, Bounds c) {
+  void tighten(const ClockVariables x, const ClockVariables y, const Bounds &c) {
     value(x,y) = std::min(value(x, y), c);
     close1(x);
     close1(y);
   }
 
-  void tighten(ClockVariables x, const Constraint &c, ClockVariables reset = 0) {
+  void tighten(const ClockVariables x, const Constraint &c, const ClockVariables reset = 0) {
     switch (c.odr) {
     case Constraint::Order::lt:
       tighten(x, reset, Bounds{c.c, false});
@@ -120,7 +128,7 @@ public:
     }
   }
 
-  void tighten(ClockVariables x, const Constraint &c, const double t) {
+  void tighten(const ClockVariables x, const Constraint &c, const double t) {
     switch (c.odr) {
     case Constraint::Order::lt:
       tighten(x, 0, Bounds{c.c + t, false});

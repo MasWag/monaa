@@ -10,7 +10,7 @@
 
 using Bounds = std::pair<double, bool>;
 static inline Bounds
-operator+ (Bounds a,Bounds b) {
+operator+ (const Bounds &a,const Bounds &b) {
   return Bounds(a.first + b.first, a.second && b.second);
 }
 static inline void
