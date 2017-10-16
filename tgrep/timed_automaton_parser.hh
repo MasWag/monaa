@@ -179,9 +179,10 @@ std::istream& operator>>(std::istream& is, std::vector<ClockVariables>& resetVar
   return is;
 }
 
-std::istream& operator>>(std::istream& is, std::vector<Constraint>& guard)
+template <class T>
+std::istream& operator>>(std::istream& is, std::vector<T>& resetVars)
 {
-  guard.clear();
+  resetVars.clear();
   if (!is) {
     is.setstate(std::ios_base::failbit);
     return is;
@@ -198,9 +199,9 @@ std::istream& operator>>(std::istream& is, std::vector<Constraint>& guard)
   }
 
   while (true) {
-    Constraint g;
-    is >> g;
-    guard.emplace_back(std::move(g));
+    T x;
+    is >> x;
+    resetVars.emplace_back(std::move(x));
     if (!is) {
       is.setstate(std::ios_base::failbit);
       return is;
@@ -223,6 +224,7 @@ std::istream& operator>>(std::istream& is, std::vector<Constraint>& guard)
 
   return is;
 }
+
 
 namespace boost {
   template <class T>
@@ -248,42 +250,76 @@ namespace boost {
   }
 }
 
-struct BoostTATransition : public TATransition{
+struct ResetVars {
+  std::vector<ClockVariables> resetVars;
+};
+
+std::istream& operator>>(std::istream& is, ResetVars& resetVars)
+{
+  is >> resetVars.resetVars;
+  return is;
+}
+
+std::ostream& operator<<(std::ostream& os, const ResetVars& resetVars)
+{
+  os << resetVars.resetVars;
+  return os;
+}
+
+struct BoostTAState {
+  bool isInit;
+  bool isMatch;
+};
+
+struct BoostTATransition {
   Alphabet c;
-  std::string resetVars;
+  //! @note this structure is necessary because of some problem in boost graph
+  ResetVars resetVars;
+  std::vector<Constraint> guard;
 };
 
 using BoostTimedAutomaton = 
                           boost::adjacency_list<
   boost::listS, boost::vecS, boost::directedS,
-  TAState, BoostTATransition>;
+  BoostTAState, BoostTATransition>;
 
-// using BoostTimedAutomaton = 
-//                           boost::adjacency_list<
-//   boost::listS, boost::vecS, boost::directedS,
-//   TAState, boost::no_property>;
-
-void parseTA(std::istream &file, TimedAutomaton &)
+void parseBoostTA(std::istream &file, BoostTimedAutomaton &BoostTA)
 {
-  BoostTimedAutomaton BoostTA;
 
   boost::dynamic_properties dp(boost::ignore_other_properties);
-  // dp.property("match", boost::get(boost::vertex_match, BoostTA));
-  dp.property("match", boost::get(&TAState::isMatch, BoostTA));
+  dp.property("match", boost::get(&BoostTAState::isMatch, BoostTA));
+  dp.property("init",  boost::get(&BoostTAState::isInit, BoostTA));
   dp.property("label", boost::get(&BoostTATransition::c, BoostTA));
   dp.property("reset", boost::get(&BoostTATransition::resetVars, BoostTA));
   dp.property("guard", boost::get(&BoostTATransition::guard, BoostTA));
 
   boost::read_graphviz(file, BoostTA, dp, "id");
+}
 
+void convBoostTA(const BoostTimedAutomaton &BoostTA, TimedAutomaton &TA)
+{
+  TA.states.clear();
+  TA.initialStates.clear();
+  auto vertex_range = boost::vertices(BoostTA);
+  std::unordered_map<BoostTimedAutomaton::vertex_descriptor, std::shared_ptr<TAState>> stateConvMap;
+  for (auto first = vertex_range.first, last = vertex_range.second; first != last; ++first) {
+    BoostTimedAutomaton::vertex_descriptor v = *first;
+    stateConvMap[v] = std::make_shared<TAState>(boost::get(&BoostTAState::isMatch, BoostTA, v));
+    TA.states.emplace_back(stateConvMap[v]);
+    if (boost::get(&BoostTAState::isInit, BoostTA, v)) {
+      TA.initialStates.emplace_back(stateConvMap[v]);
+    }
+  }
 
-  std::cout << "isMatch: " << BoostTA[0].isMatch << std::endl;
-  std::cout << "isMatch: " << BoostTA[1].isMatch << std::endl;
-  std::cout << "label: " << boost::get(&BoostTATransition::c, BoostTA, boost::edge(boost::vertex(0, BoostTA), boost::vertex(1, BoostTA), BoostTA).first) << std::endl;
-  std::cout << "reset: " << boost::get(&BoostTATransition::resetVars, BoostTA, boost::edge(boost::vertex(0, BoostTA), boost::vertex(1, BoostTA), BoostTA).first).size() << std::endl;
-  std::cout << "reset0: " << int(boost::get(&BoostTATransition::resetVars, BoostTA, boost::edge(boost::vertex(0, BoostTA), boost::vertex(1, BoostTA), BoostTA).first)[0]) << std::endl;
-  std::cout << "guard: " << boost::get(&BoostTATransition::guard, BoostTA, boost::edge(boost::vertex(0, BoostTA), boost::vertex(1, BoostTA), BoostTA).first).size() << std::endl;
-
-  // std::cout << "isMatch: " << boost::get(boost::vertex_match, BoostTA, 0) << std::endl;
-  // std::cout << "isMatch: " << boost::get(boost::vertex_match, BoostTA, 1) << std::endl;
+  for (auto first = vertex_range.first, last = vertex_range.second; first != last; ++first) {
+    auto edge_range = boost::out_edges(*first, BoostTA);
+    for (auto firstEdge = edge_range.first, lastEdge = edge_range.second; firstEdge != lastEdge; ++firstEdge) {    
+      TATransition transition;
+      transition.target = stateConvMap[boost::target(*firstEdge, BoostTA)];
+      transition.guard = boost::get(&BoostTATransition::guard, BoostTA, *firstEdge);
+      transition.resetVars = boost::get(&BoostTATransition::resetVars, BoostTA, *firstEdge).resetVars;
+      stateConvMap[*first]->next[boost::get(&BoostTATransition::c, BoostTA, *firstEdge)].emplace_back(std::move(transition));
+    }
+  }
+  // todo convert constraints
 }

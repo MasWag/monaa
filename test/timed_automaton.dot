@@ -1,5 +1,5 @@
 digraph G{
-1 [match=0];
-2 [match=1];
-1->2 [label=a][reset="01"][guard="{x0 > 1, x2 < 10}"];
+1 [init=1][match=0];
+2 [init=0][match=1];
+1->2 [label=a][reset="{0, 1}"][guard="{x0 > 1, x2 < 10}"];
 }
