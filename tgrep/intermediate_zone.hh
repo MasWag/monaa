@@ -55,19 +55,23 @@ public:
     isAllocated[newestClock] = true;
   }
 
-  ClockVariables alloc(const std::pair<double,bool> &upperBound, std::pair<double,bool> lowerBound = {0, true}) {
+  //! @note lowerBound is not a bound but a cell in DBM
+  ClockVariables alloc(const std::pair<double,bool> &upperBound, const std::pair<double,bool> &lowerBound) {
     static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
     ClockVariables newClock;
+#define likely(x)   __builtin_expect(!!(x), 1)
+#ifdef __GNUC__
+    if (likely(useInterval && intervals.size() == 1)) {
+#else
     if (useInterval && intervals.size() == 1) {
+#endif
       // use intervals
-      intervals.resize(3);
-      intervals[1].upperBound = upperBound;
-      intervals[1].lowerBound = lowerBound;
-      intervals[1].lowerBound.first *= -1;
+      intervals.reserve(3);
+      intervals.emplace_back(std::move(lowerBound), std::move(upperBound));
       // value(2, 1) <= value(2, 0) + value(0, 1)
-      intervals[2].upperBound = intervals[1].upperBound + intervals[0].lowerBound;
       // value(1, 2) <= value(1, 0) + value(0, 2)
-      intervals[2].lowerBound = std::min(intervals[0].upperBound + intervals[1].lowerBound, Bounds{0, true});
+      intervals.emplace_back(std::min(intervals[0].upperBound + intervals[1].lowerBound, Bounds{0, true}),
+                             intervals[1].upperBound + intervals[0].lowerBound);
       return newestClock = 2;
     } else if (useInterval) {
       // convert intervals to a zone
@@ -85,9 +89,8 @@ public:
       value(2, 1) = intervals[2].upperBound;
       value(1, 2) = intervals[2].lowerBound;
       value(2, 3) = Bounds{0, true};
-      value(3, 0) = upperBound;
-      value(0, 3) = lowerBound;
-      value(0, 3).first *= -1;
+      value(3, 0) = std::move(upperBound);
+      value(0, 3) = std::move(lowerBound);
       intervals.clear();
       newClock = 3;
     } else {
@@ -112,9 +115,8 @@ public:
         value(newClock, newClock) = Bounds(0, true);
       }
       isAllocated[newClock] = true;
-      value(newClock, 0) = upperBound;
-      lowerBound.first = -lowerBound.first;
-      value(0, newClock) = lowerBound;
+      value(newClock, 0) = std::move(upperBound);
+      value(0, newClock) = std::move(lowerBound);
       value(newClock, newestClock) = Bounds(infinity);
       value(newestClock, newClock) = {0, true};
 #ifdef DEBUG

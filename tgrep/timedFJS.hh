@@ -170,11 +170,8 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
               }
               IntermediateZone tmpZ = econfig.z;
               ClockVariables newClock;
-              if (j > 0) {
-                newClock = tmpZ.alloc({word[j].second, true}, {word[j-1].second, false});
-              } else {
-                newClock = tmpZ.alloc({word[j].second, true});
-              }
+              tmpZ.alloc({word[j].second, true},
+                         ((j > 0) ? Bounds{-word[j-1].second, false} : Bounds{0, true}));
               tmpZ.tighten(edge.guard, econfig.resetTime);
               if (tmpZ.isSatisfiableCanonized()) {
                 auto tmpResetTime = econfig.resetTime;
@@ -202,11 +199,8 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
               continue;
             }
             IntermediateZone tmpZ = config.z;
-            if (j > 0) {
-              tmpZ.alloc({word[j].second, false}, {word[j-1].second, true});
-            } else {
-              tmpZ.alloc({word[j].second, false});
-            }
+            tmpZ.alloc({word[j].second, false},
+                       ((j > 0) ? Bounds{-word[j-1].second, true} : Bounds{0, true}));
             tmpZ.tighten(edge.guard, config.resetTime);
             if (tmpZ.isSatisfiableCanonized()) {
               Zone ansZone;

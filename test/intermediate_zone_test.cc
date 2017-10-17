@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(tightenAllocTest) {
 
   // new clock sould be allocated
   // Now we do not need explicit canonize after allocation
-  BOOST_CHECK_EQUAL(in.alloc({5.8, true}, {5.3, false}), 2);
+  BOOST_CHECK_EQUAL(in.alloc({5.8, true}, {-5.3, false}), 2);
   BOOST_TEST(bool(in.value(0, 0) == Bounds(0, true)));
   BOOST_TEST(bool(in.value(0, 1) == Bounds(-4.7, true)));
   BOOST_TEST(bool(in.value(0, 2) == Bounds(-5.3, false)));
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(tightenIntervalTest) {
 
   // new clock sould be allocated
   // Now we do not need explicit canonize after allocation
-  BOOST_CHECK_EQUAL(in.alloc({5.8, true}, {5.3, false}), 2);
+  BOOST_CHECK_EQUAL(in.alloc({5.8, true}, {-5.3, false}), 2);
   BOOST_CHECK_EQUAL(in.intervals.size(), 3);
   BOOST_CHECK_EQUAL(in.newestClock, 2);
   BOOST_TEST(bool(in.intervals[0].lowerBound == Bounds(-4.7, true)));
@@ -149,10 +149,10 @@ BOOST_AUTO_TEST_CASE(intervalToZoneTest) {
   Constraint guard = {ConstraintMaker(0) <= 1};
   in.tighten({guard}, resetTime, 5.8);
 
-  BOOST_CHECK_EQUAL(in.alloc({5.8, true}, {5.3, false}), 2);
+  BOOST_CHECK_EQUAL(in.alloc({5.8, true}, {-5.3, false}), 2);
   BOOST_TEST(in.useInterval);
   BOOST_CHECK_EQUAL(in.intervals.size(), 3);
-  BOOST_CHECK_EQUAL(in.alloc({6.3, true}, {5.8, false}), 3);
+  BOOST_CHECK_EQUAL(in.alloc({6.3, true}, {-5.8, false}), 3);
   BOOST_TEST(!in.useInterval);
   BOOST_CHECK_EQUAL(in.intervals.size(), 0);
   BOOST_CHECK_EQUAL(in.value.cols(), 4);
