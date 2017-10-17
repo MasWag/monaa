@@ -24,7 +24,7 @@ struct InternalState {
   std::vector<boost::variant<double, ClockVariables>> resetTime;
   IntermediateZone z;
   InternalState (std::shared_ptr<TAState> s, std::vector<boost::variant<double, ClockVariables>> resetTime, IntermediateZone z) :s(s), resetTime(resetTime), z(z) {}
-  InternalState (std::size_t numOfVar, std::shared_ptr<TAState> s, std::pair<double,bool> upperBound, std::pair<double,bool> lowerBound = {0, true}) : s(s), z(Zone::zero(numOfVar + 2), 1) {
+  InternalState (std::size_t numOfVar, std::shared_ptr<TAState> s, std::pair<double,bool> upperBound, std::pair<double,bool> lowerBound = {0, true}) : s(s), z(Zone::zero(numOfVar + 3), 1) {
     static std::vector<boost::variant<double, ClockVariables>> zeroResetTime(numOfVar);
     // Every clock variables are reset at t1 ( = t)
     std::fill(zeroResetTime.begin(), zeroResetTime.end(), ClockVariables(1));
@@ -100,7 +100,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
           for (auto zone: init[word[i].first]) {
             Zone ansZone;
             zone.value.col(0).fill({word[i].second, false});
-            if (zone.isSatisfiable()) {
+            if (zone.isSatisfiableCanonized()) {
               zone.toAns(ansZone);
               ans.push_back(std::move(ansZone));
             }
@@ -110,7 +110,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
             Zone ansZone;
             zone.value.col(0).fill({word[i].second, false});
             zone.value.row(0).fill({-word[i-1].second, true});
-            if (zone.isSatisfiable()) {
+            if (zone.isSatisfiableCanonized()) {
               zone.toAns(ansZone);
               ans.push_back(std::move(ansZone));
             }
@@ -173,7 +173,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
                 newClock = tmpZ.alloc({word[j].second, true});
               }
               tmpZ.tighten(edge.guard, econfig.resetTime);
-              if (tmpZ.isSatisfiable()) {
+              if (tmpZ.isSatisfiableCanonized()) {
                 auto tmpResetTime = econfig.resetTime;
                 for (ClockVariables x: edge.resetVars) {
                   tmpResetTime[x] = newClock;

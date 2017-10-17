@@ -56,6 +56,8 @@ public:
       value.conservativeResize(value.cols() + 1, value.cols() + 1);
       newClock = value.cols() - 1;
       isAllocated.resize(value.cols());
+      value.row(newClock).fill(infinity);
+      value.col(newClock).fill(infinity);
       value(newClock, newClock) = Bounds(0, true);
     }
     isAllocated[newClock] = true;
@@ -67,6 +69,17 @@ public:
 #ifdef DEBUG
     assert(value.cols() == value.rows());
 #endif
+    for (int i = 0; i < value.rows(); i++) {
+      // for (int x = 0; x < value.cols(); x++) {
+      //   value(i, newClock) = std::min(value(i, newClock), value(i, x) + value(x, newClock));
+      // }
+      value(i, newClock) = std::min(value(i, newClock), (value.row(i) + value.col(newClock).transpose()).minCoeff());
+    }
+    for (int x = 0; x < value.rows(); x++) {
+      for (int j = 0; j < value.cols(); j++) {
+        value(newClock, j) = std::min(value(newClock, j), value(newClock, x) + value(x, j));
+      }
+    }
     return newestClock = newClock;
   }
 

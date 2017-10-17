@@ -47,6 +47,9 @@ struct Zone {
   
   static Zone zero(int size) {
     static Zone zeroZone;
+    if (zeroZone.value.cols() == size) {
+      return zeroZone;
+    }
     zeroZone.value.resize(size, size);
     zeroZone.value.fill(Bounds(0, true));
     return zeroZone;

@@ -44,15 +44,16 @@ BOOST_AUTO_TEST_CASE(tightenAllocTest) {
   BOOST_TEST(bool(in.value(1, 1) == Bounds(0, true)));
 
   // new clock sould be allocated
+  // Now we do not need explicit canonize after allocation
   BOOST_CHECK_EQUAL(in.alloc({5.8, true}, {5.3, false}), 2);
   BOOST_TEST(bool(in.value(0, 0) == Bounds(0, true)));
   BOOST_TEST(bool(in.value(0, 1) == Bounds(-4.7, true)));
   BOOST_TEST(bool(in.value(0, 2) == Bounds(-5.3, false)));
   BOOST_TEST(bool(in.value(1, 0) == Bounds(5.3, false)));
   BOOST_TEST(bool(in.value(1, 1) == Bounds(0, true)));
-  BOOST_TEST(bool(in.value(1, 2) == Bounds(0, true)));
+  BOOST_TEST(bool(in.value(1, 2) == Bounds(0, false)));
   BOOST_TEST(bool(in.value(2, 0) == Bounds(5.8, true)));
-  BOOST_TEST(bool(in.value(2, 1) == Bounds(std::numeric_limits<double>::infinity(), false)));
+  BOOST_TEST(bool(in.value(2, 1) == Bounds(5.8 - 4.7, true)));
   BOOST_TEST(bool(in.value(2, 2) == Bounds(0, true)));
   in.canonize();
   BOOST_TEST(bool(in.value(0, 0) == Bounds(0, true)));

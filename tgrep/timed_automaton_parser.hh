@@ -19,6 +19,7 @@ namespace boost{
   BOOST_INSTALL_PROPERTY(edge, guard);
 }
 
+static inline 
 std::ostream& operator<<(std::ostream& os, const Constraint::Order& odr) {
   switch (odr) {
   case Constraint::Order::lt:
@@ -37,6 +38,7 @@ std::ostream& operator<<(std::ostream& os, const Constraint::Order& odr) {
   return os;
 }
 
+static inline 
 std::ostream& operator<<(std::ostream& os, const Constraint& p)
 {
   os << "x" << int(p.x) << " " << p.odr << " " << p.c;
@@ -44,6 +46,7 @@ std::ostream& operator<<(std::ostream& os, const Constraint& p)
 }
 
 template<class T>
+static inline 
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& guard)
 {
   bool first = true;
@@ -59,6 +62,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& guard)
   return os;
 }
 
+static inline 
 std::istream& operator>>(std::istream& is, Constraint& p)
 {
   if (is.get() != 'x') {
@@ -119,6 +123,7 @@ std::istream& operator>>(std::istream& is, Constraint& p)
   return is;
 }
 
+static inline 
 std::ostream& operator<<(std::ostream& os, const std::string& resetVars)
 {
   bool first = true;
@@ -134,6 +139,7 @@ std::ostream& operator<<(std::ostream& os, const std::string& resetVars)
   return os;
 }
 
+static inline 
 std::istream& operator>>(std::istream& is, std::vector<ClockVariables>& resetVars)
 {
   resetVars.clear();
@@ -180,6 +186,7 @@ std::istream& operator>>(std::istream& is, std::vector<ClockVariables>& resetVar
 }
 
 template <class T>
+static inline 
 std::istream& operator>>(std::istream& is, std::vector<T>& resetVars)
 {
   resetVars.clear();
@@ -228,6 +235,7 @@ std::istream& operator>>(std::istream& is, std::vector<T>& resetVars)
 
 namespace boost {
   template <class T>
+  static inline 
   std::ostream& operator<<(std::ostream& os, const boost::optional<T>& x)
   {
     if (x) {
@@ -240,6 +248,7 @@ namespace boost {
   }
 
   template <class T>
+  static inline 
   std::istream& operator>>(std::istream& is, boost::optional<T>& x)
   {
     T result;
@@ -254,12 +263,14 @@ struct ResetVars {
   std::vector<ClockVariables> resetVars;
 };
 
+static inline 
 std::istream& operator>>(std::istream& is, ResetVars& resetVars)
 {
   is >> resetVars.resetVars;
   return is;
 }
 
+static inline 
 std::ostream& operator<<(std::ostream& os, const ResetVars& resetVars)
 {
   os << resetVars.resetVars;
@@ -283,6 +294,7 @@ using BoostTimedAutomaton =
   boost::listS, boost::vecS, boost::directedS,
   BoostTAState, BoostTATransition>;
 
+static inline 
 void parseBoostTA(std::istream &file, BoostTimedAutomaton &BoostTA)
 {
 
@@ -296,6 +308,7 @@ void parseBoostTA(std::istream &file, BoostTimedAutomaton &BoostTA)
   boost::read_graphviz(file, BoostTA, dp, "id");
 }
 
+static inline 
 void convBoostTA(const BoostTimedAutomaton &BoostTA, TimedAutomaton &TA)
 {
   TA.states.clear();

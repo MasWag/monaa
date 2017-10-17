@@ -1,6 +1,8 @@
+#define BOOST_GRAPH_USE_SPIRIT_PARSER // for header only
 #include <boost/test/unit_test.hpp>
 
 #include "../tgrep/timedFJS.hh"
+#include "../tgrep/timed_automaton_parser.hh"
 
 BOOST_AUTO_TEST_SUITE(timedFJSTest)
 
@@ -61,6 +63,26 @@ BOOST_AUTO_TEST_CASE(timedFJSa0_1b0_1) {
   BOOST_CHECK_EQUAL(ansZone(1 ,0).first, 1.1);
   BOOST_CHECK_EQUAL(ansZone(0, 2).first, -1.1);
   BOOST_CHECK_EQUAL(ansZone(2 ,0).first, 2.1);
+  BOOST_CHECK_EQUAL(ansZone(1, 2).first, 0);
+  BOOST_CHECK_EQUAL(ansZone(2 ,1).first, 2);
+}
+
+BOOST_AUTO_TEST_CASE(timedFJSTorque) {
+  std::ifstream taStream("../test/torque.dot");
+  BoostTimedAutomaton BoostTA;
+  TimedAutomaton TA;
+  parseBoostTA(taStream, BoostTA);
+  convBoostTA(BoostTA, TA);
+
+  FILE* file(fopen("../test/torque_short.txt", "r"));
+  WordVector<std::pair<Alphabet,double> > w(file, false);
+
+  AnsVec<Zone> ans;
+  timedFranekJenningsSmyth(w, TA, ans);
+  BOOST_TEST(ans.size() >  1);
+  const auto ansZone = (++ans.begin())->value;
+  BOOST_CHECK_CLOSE(ansZone(1, 2).first, -1, 1e-6);
+  BOOST_CHECK_CLOSE(ansZone(2, 1).first, 1.00988, 1e-6);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
