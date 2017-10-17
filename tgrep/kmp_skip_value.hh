@@ -10,7 +10,7 @@
 
 class KMPSkipValue {
 private:
-  std::unordered_map<std::shared_ptr<TAState>, int> beta;
+  std::unordered_map<const TAState*, int> beta;
 public:
   KMPSkipValue(const TimedAutomaton &TA, int m) {
     ZoneAutomaton ZA2;
@@ -100,21 +100,31 @@ public:
         ta2za(A2, ZA2);
         ZA2.updateInitAccepting(A2.initialStates);
         if (!ZA2.empty()) {
-          beta[origState] = n;
+          beta[origState.get()] = n;
           break;
         }
       }
       // When the emptiness checking always failed, we set m
-      if (beta.find(origState) == beta.end()) {
-        beta[origState] = m;
+      if (beta.find(origState.get()) == beta.end()) {
+        beta[origState.get()] = m;
       }
     }
   }
 
-  int at(std::shared_ptr<TAState> s) const {
+  inline
+  int at(const TAState *s) const {
     return beta.at(s);
   }
-  int operator[](std::shared_ptr<TAState> s) const {
+  inline
+  int operator[](const TAState *s) const {
     return beta.at(s);
+  }
+  inline
+  int at(std::shared_ptr<TAState> s) const {
+    return beta.at(s.get());
+  }
+  inline
+  int operator[](std::shared_ptr<TAState> s) const {
+    return beta.at(s.get());
   }
 };

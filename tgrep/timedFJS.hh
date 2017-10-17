@@ -19,12 +19,12 @@
 
 // Internal state of BFS
 struct InternalState {
-  std::shared_ptr<TAState> s;
+  const TAState *s;
   // C -> (R or Z)
   std::vector<boost::variant<double, ClockVariables>> resetTime;
   IntermediateZone z;
-  InternalState (const std::shared_ptr<TAState> &s, const std::vector<boost::variant<double, ClockVariables>> &resetTime, const IntermediateZone &z) :s(std::move(s)), resetTime(std::move(resetTime)), z(std::move(z)) {}
-  InternalState (const std::size_t numOfVar, const std::shared_ptr<TAState> &s, const Interval &interval) : s(std::move(s)), z(std::move(interval)) {
+  InternalState (const TAState *s, const std::vector<boost::variant<double, ClockVariables>> &resetTime, const IntermediateZone &z) :s(std::move(s)), resetTime(std::move(resetTime)), z(std::move(z)) {}
+  InternalState (const std::size_t numOfVar, const TAState *s, const Interval &interval) : s(std::move(s)), z(std::move(interval)) {
     static const std::vector<boost::variant<double, ClockVariables>> zeroResetTime(numOfVar, ClockVariables(1));
     // Every clock variables are reset at t1 ( = t)
     resetTime = zeroResetTime;
@@ -136,13 +136,13 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
       CStates.clear ();
       if (word.fetch(i)) {
         InternalState istate = {A.clockSize(),
-                                std::make_shared<TAState>(),
+                                nullptr,
                                 Interval{((i <= 0) ? Bounds{0, true} :
                                           Bounds{word[i-1].second, true}),
                                          {word[i].second, false}}};
         CStates.resize(A.initialStates.size(), istate);
         for (std::size_t k = 0; k < A.initialStates.size(); k++) {
-          CStates[k].s = A.initialStates[k];
+          CStates[k].s = A.initialStates[k].get();
         }
       } else {
         break;
@@ -174,7 +174,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
                   tmpResetTime[x] = newClock;
                 }
                 tmpZ.update(tmpResetTime);
-                CurrEpsilonConf.emplace_back(target, tmpResetTime, tmpZ);
+                CurrEpsilonConf.emplace_back(target.get(), tmpResetTime, tmpZ);
               }
             }
           }
@@ -188,7 +188,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
       
         // try to go to an accepting state
         for (const auto &config : CStates) {
-          const std::shared_ptr<TAState> s = config.s;
+          const TAState *s = config.s;
           for (const auto &edge : s->next[c]) {
             auto target = edge.target.lock();
             if (!target || !target->isMatch) {
@@ -212,7 +212,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
         // try observable transitios (usual)
         LastStates = std::move(CStates);
         for (const auto &config : LastStates) {
-          const std::shared_ptr<TAState> s = config.s;
+          const TAState *s = config.s;
           for (const auto &edge : s->next[c]) {
             auto target = edge.target.lock();
             if (!target) {
@@ -226,7 +226,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
                 tmpResetTime[x] = t;
               }
               tmpZ.update(tmpResetTime);
-              CStates.emplace_back(target, std::move(tmpResetTime), std::move(tmpZ));
+              CStates.emplace_back(target.get(), std::move(tmpResetTime), std::move(tmpZ));
             }
           }
         }
