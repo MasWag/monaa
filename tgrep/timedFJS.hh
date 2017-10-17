@@ -23,15 +23,11 @@ struct InternalState {
   // C -> (R or Z)
   std::vector<boost::variant<double, ClockVariables>> resetTime;
   IntermediateZone z;
-  InternalState (std::shared_ptr<TAState> s, std::vector<boost::variant<double, ClockVariables>> resetTime, IntermediateZone z) :s(s), resetTime(resetTime), z(z) {}
-  InternalState (std::size_t numOfVar, std::shared_ptr<TAState> s, std::pair<double,bool> upperBound, std::pair<double,bool> lowerBound = {0, true}) : s(s), z(Interval{lowerBound, upperBound}) {
-    static std::vector<boost::variant<double, ClockVariables>> zeroResetTime(numOfVar);
+  InternalState (const std::shared_ptr<TAState> &s, const std::vector<boost::variant<double, ClockVariables>> &resetTime, const IntermediateZone &z) :s(std::move(s)), resetTime(std::move(resetTime)), z(std::move(z)) {}
+  InternalState (const std::size_t numOfVar, const std::shared_ptr<TAState> &s, const Interval &interval) : s(std::move(s)), z(std::move(interval)) {
+    static const std::vector<boost::variant<double, ClockVariables>> zeroResetTime(numOfVar, ClockVariables(1));
     // Every clock variables are reset at t1 ( = t)
-    std::fill(zeroResetTime.begin(), zeroResetTime.end(), ClockVariables(1));
     resetTime = zeroResetTime;
-    // lowerBound.first = -lowerBound.first;
-    // z.value(1, 0) = upperBound;
-    // z.value(0, 1) = lowerBound;
   }
 };
 
@@ -138,16 +134,15 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
 
       // KMP like Matching
       CStates.clear ();
-      CStates.reserve(A.initialStates.size());
       if (word.fetch(i)) {
-        if (i <= 0) {
-          for (const auto& s: A.initialStates) {
-            CStates.push_back({A.clockSize(), s, {word[i].second, false}});
-          }
-        } else {
-          for (const auto& s: A.initialStates) {
-            CStates.push_back({A.clockSize(), s, {word[i].second, false}, {word[i-1].second, true}});
-          }
+        InternalState istate = {A.clockSize(),
+                                std::make_shared<TAState>(),
+                                Interval{((i <= 0) ? Bounds{0, true} :
+                                          Bounds{word[i-1].second, true}),
+                                         {word[i].second, false}}};
+        CStates.resize(A.initialStates.size(), istate);
+        for (std::size_t k = 0; k < A.initialStates.size(); k++) {
+          CStates[k].s = A.initialStates[k];
         }
       } else {
         break;

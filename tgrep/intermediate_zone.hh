@@ -22,7 +22,7 @@ public:
     @brief construct an intermediate zone from an interval
 
    */
-  IntermediateZone(const Interval& interval) : intervals({interval}) {
+  IntermediateZone(const Interval& interval) : intervals({std::move(interval)}) {
     useInterval = true;
     intervals[0].lowerBound.first *= -1;
     newestClock = 1;
