@@ -13,6 +13,10 @@ static inline Bounds
 operator+ (const Bounds &a,const Bounds &b) {
   return Bounds(a.first + b.first, a.second && b.second);
 }
+static inline Bounds
+operator- (const Bounds &a,const Bounds &b) {
+  return Bounds(a.first - b.first, a.second && b.second);
+}
 static inline void
 operator+= (Bounds &a, const Bounds b) {
   a.first += b.first;

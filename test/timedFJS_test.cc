@@ -32,6 +32,14 @@ BOOST_AUTO_TEST_CASE(timedFJS) {
   AnsVec<Zone> ans;
   timedFranekJenningsSmyth(w, TA, ans);
   BOOST_CHECK_EQUAL(ans.size(), 2);
+
+  auto ansZone = ans.begin()->value;
+  BOOST_TEST(bool(ansZone(0, 1) == Bounds{0, true}));
+  BOOST_TEST(bool(ansZone(1, 0) == Bounds{2.4, false}));
+  BOOST_TEST(bool(ansZone(0, 2) == Bounds{-2.9, true}));
+  BOOST_TEST(bool(ansZone(2, 0) == Bounds{3.4, false}));
+  BOOST_TEST(bool(ansZone(1, 2) == Bounds{-0.5, false}));
+  BOOST_TEST(bool(ansZone(2, 1) == Bounds{3.4, false}));
 }
 
 BOOST_AUTO_TEST_CASE(timedFJSa0_1b0_1) {

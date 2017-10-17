@@ -24,14 +24,14 @@ struct InternalState {
   std::vector<boost::variant<double, ClockVariables>> resetTime;
   IntermediateZone z;
   InternalState (std::shared_ptr<TAState> s, std::vector<boost::variant<double, ClockVariables>> resetTime, IntermediateZone z) :s(s), resetTime(resetTime), z(z) {}
-  InternalState (std::size_t numOfVar, std::shared_ptr<TAState> s, std::pair<double,bool> upperBound, std::pair<double,bool> lowerBound = {0, true}) : s(s), z(Zone::zero(2), 1) {
+  InternalState (std::size_t numOfVar, std::shared_ptr<TAState> s, std::pair<double,bool> upperBound, std::pair<double,bool> lowerBound = {0, true}) : s(s), z(Interval{lowerBound, upperBound}) {
     static std::vector<boost::variant<double, ClockVariables>> zeroResetTime(numOfVar);
     // Every clock variables are reset at t1 ( = t)
     std::fill(zeroResetTime.begin(), zeroResetTime.end(), ClockVariables(1));
     resetTime = zeroResetTime;
-    lowerBound.first = -lowerBound.first;
-    z.value(1, 0) = upperBound;
-    z.value(0, 1) = lowerBound;
+    // lowerBound.first = -lowerBound.first;
+    // z.value(1, 0) = upperBound;
+    // z.value(0, 1) = lowerBound;
   }
 };
 
