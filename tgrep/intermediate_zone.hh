@@ -51,7 +51,7 @@ public:
     } else {
       // we have to alloc
       //! @note this allocation is expected to be avoided by preallocation
-      throw "monaa: Unexpected Variable Allocation";
+      // throw "monaa: Unexpected Variable Allocation";
       //! @note Eigen's resize changes the value.
       value.conservativeResize(value.cols() + 1, value.cols() + 1);
       newClock = value.cols() - 1;
