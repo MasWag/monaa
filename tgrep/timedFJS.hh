@@ -150,7 +150,15 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
       j = i;
       while (!CStates.empty () && word.fetch(j)) {
         // try unobservable transitions
-        std::vector<InternalState> CurrEpsilonConf = CStates;
+
+        // Correct the states have epsilon transitions
+        std::vector<InternalState> CurrEpsilonConf;
+        CurrEpsilonConf.reserve(CStates.size());
+        for (auto &istate: CStates) {
+          if (!istate.s->next[0].empty()) {
+            CurrEpsilonConf.push_back(istate);
+          }
+        }
         while (!CurrEpsilonConf.empty()) {
           std::vector<InternalState> PrevEpsilonConf = std::move(CurrEpsilonConf);
           CurrEpsilonConf.clear();
@@ -180,7 +188,6 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
           }
           CStates.insert(CStates.end(), CurrEpsilonConf.begin(), CurrEpsilonConf.end());
         }
-
 
 
         const Alphabet c = word[j].first;
