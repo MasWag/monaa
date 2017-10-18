@@ -27,9 +27,10 @@ public:
     }
 
     for (auto initialState: A0.initialStates) {
-      for (char c = 0; c < CHAR_MAX; ++c) {
-        for (TATransition edge: initialState->next[c]) {
+      for (auto it = initialState->next.begin(); it != initialState->next.end(); it++) {
+        for (TATransition edge: it->second) {
           // We can modify edge because it is copied
+          const Alphabet c = it->first;
           widen(edge.guard);
           extendedInitialStates[0]->next[c].push_back(std::move(edge));
         }
@@ -49,14 +50,14 @@ public:
       dummyAcceptingState->next[c].push_back({dummyAcceptingState, {}, {}});
     }
     for (auto &state: A0.states) {
-      for (char c = 0; c < CHAR_MAX; ++c) {
-        for (TATransition edge: state->next[c]) {
+      for (auto it = state->next.begin(); it != state->next.end(); it++) {
+        for (TATransition edge: it->second) {
           const auto target = edge.target.lock();
           // We can modify edge because it is copied
           if (target && target->isMatch) {
             edge.target = dummyAcceptingState;
             widen(edge.guard);
-            state->next[c].emplace_back(std::move(edge));
+            it->second.emplace_back(std::move(edge));
           }
         }
       }      

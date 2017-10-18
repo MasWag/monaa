@@ -155,7 +155,8 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
         std::vector<InternalState> CurrEpsilonConf;
         CurrEpsilonConf.reserve(CStates.size());
         for (auto &istate: CStates) {
-          if (!istate.s->next[0].empty()) {
+          auto it = istate.s->next.find(0);
+          if (it != istate.s->next.end()) {
             CurrEpsilonConf.push_back(istate);
           }
         }
@@ -163,7 +164,11 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
           std::vector<InternalState> PrevEpsilonConf = std::move(CurrEpsilonConf);
           CurrEpsilonConf.clear();
           for (const auto &econfig: PrevEpsilonConf) {
-            for (const auto &edge: econfig.s->next[0]) {
+            auto it = econfig.s->next.find(0);
+            if (it == econfig.s->next.end()) {
+              continue;
+            }
+            for (const auto &edge: it->second) {
               auto target = edge.target.lock();
               if (!target) {
                 continue;
@@ -193,7 +198,11 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
         // try to go to an accepting state
         for (const auto &config : CStates) {
           const TAState *s = config.s;
-          for (const auto &edge : s->next[c]) {
+          auto it = s->next.find(c);
+          if (it == s->next.end()) {
+            continue;
+          }
+          for (const auto &edge : it->second) {
             auto target = edge.target.lock();
             if (!target || !target->isMatch) {
               continue;
@@ -214,7 +223,11 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
         LastStates = std::move(CStates);
         for (const auto &config : LastStates) {
           const TAState *s = config.s;
-          for (const auto &edge : s->next[c]) {
+          auto it = s->next.find(c);
+          if (it == s->next.end()) {
+            continue;
+          }
+          for (const auto &edge : it->second) {
             auto target = edge.target.lock();
             if (!target) {
               continue;

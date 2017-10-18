@@ -78,13 +78,18 @@ void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, Timed
       }
 
       // Observable transitions
-      for (char c = 1; c < CHAR_MAX; c++) {
-        for (const auto &e1: s1->next[c]) {
+      for (auto it1 = s1->next.begin(); it1 != s1->next.end(); it1++) {
+        const Alphabet c = it1->first;
+        for (const auto &e1: it1->second) {
           auto nextS1 = e1.target.lock();
           if (!nextS1) {
               continue;
           }
-          for (const auto &e2: s2->next[c]) {
+          auto it2 = s2->next.find(c);
+          if (it2 == s2->next.end()) {
+            continue;
+          }
+          for (const auto &e2: it2->second) {
             auto nextS2 = e2.target.lock();
             if (!nextS2) {
               continue;
@@ -192,14 +197,19 @@ void intersectionSignalTA (const TimedAutomaton &in1, const TimedAutomaton &in2,
       }
 
       // Observable transitions
-      for (char c = 1; c < CHAR_MAX; c++) {
+      for (auto it1 = s1->next.begin(); it1 != s1->next.end(); it1++) {
+        const Alphabet c = it1->first;
         // Syncronous transition
-        for (const auto &e1: s1->next[c]) {
+        for (const auto &e1: it1->second) {
           auto nextS1 = e1.target.lock();
           if (!nextS1) {
             continue;
           }
-          for (const auto &e2: s2->next[c]) {
+          auto it2 = s2->next.find(c);
+          if (it2 == s2->next.end()) {
+            continue;
+          }
+          for (const auto &e2: it2->second) {
             auto nextS2 = e2.target.lock();
             if (!nextS2) {
               continue;
@@ -209,8 +219,8 @@ void intersectionSignalTA (const TimedAutomaton &in1, const TimedAutomaton &in2,
         }
 
         // Asyncronous transition
-        if (!s2->next[c].empty()) {
-          for (const auto &e1: s1->next[c]) {
+        if (s2->next.find(c) != s2->next.end()) {
+          for (const auto &e1: it1->second) {
             auto nextS1 = e1.target.lock();
             if (!nextS1) {
               continue;
@@ -218,14 +228,17 @@ void intersectionSignalTA (const TimedAutomaton &in1, const TimedAutomaton &in2,
             addProductTransition(s1, s2, nextS1, s2, e1, emptyTransition, 0);
           }
         }
-        if (!s1->next[c].empty()) {
-          for (const auto &e2: s2->next[c]) {
-            auto nextS2 = e2.target.lock();
-            if (!nextS2) {
-              continue;
-            }
-            addProductTransition(s1, s2, s1, nextS2, emptyTransition, e2, 0);
+
+        auto it2 = s2->next.find(c);
+        if (it2 == s2->next.end()) {
+          continue;
+        }
+        for (const auto &e2: it2->second) {
+          auto nextS2 = e2.target.lock();
+          if (!nextS2) {
+            continue;
           }
+          addProductTransition(s1, s2, s1, nextS2, emptyTransition, e2, 0);
         }
       }
     }

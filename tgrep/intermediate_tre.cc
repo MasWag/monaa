@@ -486,14 +486,14 @@ void AtomicTRE::toSignalTA(TimedAutomaton& out) const {
     expr->toSignalTA(out);
     for (auto &s: out.states) {
       for (auto &edges: s->next) {
-        for (auto &edge: edges) {
+        for (auto &edge: edges.second) {
           std::shared_ptr<TAState> target = edge.target.lock();
           if (target && target->isMatch) {
-            edges.reserve(edges.size() + out.initialStates.size());
+            edges.second.reserve(edges.second.size() + out.initialStates.size());
             for (auto initState: out.initialStates) {
               TATransition transition = edge;
               edge.target = target;
-              edges.emplace_back(std::move(transition));
+              edges.second.emplace_back(std::move(transition));
             }
           }
         }
@@ -516,9 +516,10 @@ void AtomicTRE::toSignalTA(TimedAutomaton& out) const {
     // add dummy initial state
     std::shared_ptr<TAState> dummyInitialState = std::make_shared<TAState>();
     for (auto initialState: out.initialStates) {
-      for (Alphabet c = 0; c < CHAR_MAX; c++) {
-        dummyInitialState->next[c].reserve(dummyInitialState->next[c].size() + initialState->next[c].size());
-        for (auto& edge: initialState->next[c]) {
+      for (const auto &initTransitionsPair: initialState->next) {
+        const Alphabet c = initTransitionsPair.first;
+        dummyInitialState->next[c].reserve(dummyInitialState->next[c].size() + initTransitionsPair.second.size());
+        for (auto& edge: initTransitionsPair.second) {
           TATransition transition = edge;
           transition.resetVars.push_back(out.clockSize());
           dummyInitialState->next[c].emplace_back(std::move(transition));
@@ -530,7 +531,7 @@ void AtomicTRE::toSignalTA(TimedAutomaton& out) const {
     dummyAcceptingState->isMatch = true;
     for (auto state: out.states) {
       for (auto& edges: state->next) {
-        for (auto& edge: edges) {
+        for (auto& edge: edges.second) {
           auto target = edge.target.lock();
           if (target && target->isMatch) {
             TATransition transition = edge;
@@ -548,7 +549,7 @@ void AtomicTRE::toSignalTA(TimedAutomaton& out) const {
             } else {
               transition.guard.emplace_back(TimedAutomaton::X(out.clockSize()) > within.second->lowerBound.first);
             }
-            edges.emplace_back(std::move(transition));
+            edges.second.emplace_back(std::move(transition));
           }
         }
       }

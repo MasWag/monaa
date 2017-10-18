@@ -14,11 +14,11 @@ struct TATransition;
 
 struct TAState {
   bool isMatch;
-  std::array<std::vector<TATransition>, CHAR_MAX> next;
+  std::unordered_map<Alphabet, std::vector<TATransition>> next;
   TAState (bool isMatch = false) : isMatch(isMatch) {
-    next.fill({});
+    next.clear();
   }
-  TAState (bool isMatch, std::array<std::vector<TATransition>, CHAR_MAX> next) : isMatch(isMatch), next(std::move(next)) {}
+  TAState (bool isMatch, std::unordered_map<Alphabet, std::vector<TATransition>> next) : isMatch(isMatch), next(std::move(next)) {}
 };
 
 struct TATransition {
@@ -55,7 +55,7 @@ struct TimedAutomaton : public Automaton<TAState> {
     // modify dest of transitions
     for (auto &state: dest.states) {
       for (auto &edges: state->next) {
-        for (auto &edge: edges) {
+        for (auto &edge: edges.second) {
           auto oldTarget = edge.target.lock();
           edge.target = old2new[oldTarget];
         }

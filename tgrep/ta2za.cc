@@ -68,8 +68,9 @@ void ta2za (const TimedAutomaton &TA, ZoneAutomaton &ZA, Zone initialZone)
       std::shared_ptr<TAState> taState = conf->taState;
       Zone nowZone = conf->zone;
       nowZone.elapse();
-      for (char c = 0; c < CHAR_MAX; c++) {
-        for (const auto &edge : taState->next[c]) {
+      for (auto it = taState->next.begin(); it != taState->next.end(); it++) {
+        const Alphabet c = it->first;
+        for (const auto &edge : it->second) {
         Zone nextZone = nowZone;
         auto nextState = edge.target.lock();
         if (!nextState) {
