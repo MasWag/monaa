@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(convBoostTATest)
   BOOST_CHECK_EQUAL(toAcceptingState.guard[1].x, 2);
   BOOST_CHECK_EQUAL(toAcceptingState.guard[1].c, 10);
   BOOST_CHECK_EQUAL(toAcceptingState.guard[1].odr, Constraint::Order::lt);
-  auto acceptingState = toAcceptingState.target.lock();
+  auto acceptingState = toAcceptingState.target;
   BOOST_TEST(acceptingState->isMatch);
 }
 

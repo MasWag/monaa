@@ -44,12 +44,12 @@ void concat2(TimedAutomaton &left, const TimedAutomaton &right) {
     for(auto &edges: s->next) {
       std::vector<TATransition> newTransitions;
       for (auto &edge: edges.second) {
-        std::shared_ptr<TAState> target = edge.target.lock();
+        TAState *target = edge.target;
         if (target && target->isMatch) {
           newTransitions.reserve(newTransitions.size() + right.initialStates.size());
           for (auto initState: right.initialStates) {
             TATransition transition = edge;
-            transition.target = initState;
+            transition.target = initState.get();
             transition.resetVars = rightClocks;
             newTransitions.emplace_back(std::move(transition));
           }
@@ -89,7 +89,7 @@ void TRE::toEventTA(TimedAutomaton& out) const {
     out.states[0]->isMatch = false;
     out.states[1]->isMatch = true;
 
-    out.states[0]->next[c].push_back({out.states[1], {}, {}});
+    out.states[0]->next[c].push_back({out.states[1].get(), {}, {}});
 
     out.maxConstraints.clear();
     break;
@@ -107,12 +107,12 @@ void TRE::toEventTA(TimedAutomaton& out) const {
     for (auto &s: out.states) {
       for (auto &edges: s->next) {
         for (auto &edge: edges.second) {
-          std::shared_ptr<TAState> target = edge.target.lock();
+          TAState *target = edge.target;
           if (target && target->isMatch) {
             edges.second.reserve(edges.second.size() + out.initialStates.size());
             for (auto initState: out.initialStates) {
               TATransition transition = edge;
-              edge.target = target;
+              transition.target = initState.get();
               edges.second.emplace_back(std::move(transition));
             }
           }
@@ -147,7 +147,7 @@ void TRE::toEventTA(TimedAutomaton& out) const {
   case op::conjunction: {
     TimedAutomaton tmpTA;
     TimedAutomaton another;
-    boost::unordered_map<std::pair<std::shared_ptr<TAState>,std::shared_ptr<TAState>>, std::shared_ptr<TAState>> toIState;
+    boost::unordered_map<std::pair<TAState*,TAState*>, std::shared_ptr<TAState>> toIState;
     regExprPair.first->toEventTA(tmpTA);
     regExprPair.second->toEventTA(another);
     intersectionTA(tmpTA, another, out, toIState);
@@ -172,15 +172,14 @@ void TRE::toEventTA(TimedAutomaton& out) const {
     out.states.emplace_back(std::move(dummyInitialState));
 
     // add dummy accepting state
-    std::shared_ptr<TAState> dummyAcceptingState = std::make_shared<TAState>();
-    dummyAcceptingState->isMatch = true;
+    std::shared_ptr<TAState> dummyAcceptingState = std::make_shared<TAState>(true);
     for (auto state: out.states) {
       for (auto& edges: state->next) {
         for (auto& edge: edges.second) {
-          auto target = edge.target.lock();
+          auto target = edge.target;
           if (target && target->isMatch) {
             TATransition transition = edge;
-            transition.target = dummyAcceptingState;
+            transition.target = dummyAcceptingState.get();
             transition.guard.reserve(transition.guard.size() + 2);
             // upper bound
             if (regExprWithin.second->upperBound.second) {
@@ -211,9 +210,9 @@ void TRE::toEventTA(TimedAutomaton& out) const {
 
 //! rename to epsilon transitions
 void renameToEpsilonTransitions(TimedAutomaton& out) {
-  std::unordered_map<std::shared_ptr<TAState>, std::shared_ptr<TAState>> toAccepting;
-  const auto haveToChangeToEpsilon = [](const std::shared_ptr<TAState> s, const Alphabet c) {
-    static std::unordered_map<std::shared_ptr<TAState>, Alphabet> output;
+  std::unordered_map<TAState*, std::shared_ptr<TAState>> toAccepting;
+  const auto haveToChangeToEpsilon = [](const TAState *s, const Alphabet c) {
+    static std::unordered_map<const TAState*, Alphabet> output;
     if (c != 0) {
       if (s->next.find(c) != s->next.end()) {
         output[s] = c;
@@ -228,7 +227,7 @@ void renameToEpsilonTransitions(TimedAutomaton& out) {
     for (auto &transitionsPair: s->next) {
       const Alphabet c = transitionsPair.first;
       for (auto it = transitionsPair.second.begin(); it != transitionsPair.second.end();) {
-        std::shared_ptr<TAState> target = it->target.lock();
+        TAState *target = it->target;
         if (target) {
           if (haveToChangeToEpsilon(target, c)) {
             s->next[0].push_back(*it);
@@ -237,7 +236,7 @@ void renameToEpsilonTransitions(TimedAutomaton& out) {
               if (ret == toAccepting.end()) {
                 toAccepting[target] = std::make_shared<TAState>(true);
               }
-              it->target = toAccepting[target];
+              it->target = toAccepting[target].get();
             } else {
               it = transitionsPair.second.erase(it);
             }

@@ -10,13 +10,13 @@ struct ZAState {
   bool isMatch;
   // An epsilon transition is denoted by the null character (\0)
   std::array<std::vector<std::weak_ptr<ZAState>>, CHAR_MAX> next;
-  std::shared_ptr<TAState> taState;
+  TAState *taState;
   Zone zone;
   ZAState () : isMatch(false), next({}) {}
-  ZAState (std::shared_ptr<TAState> taState, Zone zone) : isMatch(taState->isMatch), next({}), taState(taState), zone(std::move(zone)) {}
+  ZAState (TAState *taState, Zone zone) : isMatch(taState->isMatch), next({}), taState(taState), zone(std::move(zone)) {}
   ZAState (bool isMatch) : isMatch(isMatch), next({}) {}
   ZAState (bool isMatch, std::array<std::vector<std::weak_ptr<ZAState>>, CHAR_MAX> next) : isMatch(isMatch), next(next) {}
-  bool operator==(std::pair<std::shared_ptr<TAState>, Zone> pair) {
+  bool operator==(std::pair<TAState*, Zone> pair) {
     return pair.first == taState && pair.second == zone;
   }
 };
@@ -110,7 +110,8 @@ struct ZoneAutomaton : public Automaton<ZAState> {
     // update initial states
     initialStates.clear();
     for (std::shared_ptr<ZAState> s: states) {
-      if (std::binary_search(taInitialStates.begin(), taInitialStates.end(), s->taState)) {
+      if (std::find_if(taInitialStates.begin(), taInitialStates.end(), [&](std::shared_ptr<TAState> taS) {
+            return taS.get() == s->taState;}) != taInitialStates.end()) {
         initialStates.push_back(s);
       }
     }

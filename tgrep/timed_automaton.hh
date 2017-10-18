@@ -22,7 +22,7 @@ struct TAState {
 };
 
 struct TATransition {
-  std::weak_ptr<TAState> target;
+  TAState *target;
   std::vector<ClockVariables> resetVars;
   std::vector<Constraint> guard;
 };
@@ -39,25 +39,25 @@ struct TimedAutomaton : public Automaton<TAState> {
   /*!
     @brief make a deep copy of this timed automaton.
    */
-  void deepCopy(TimedAutomaton& dest, std::unordered_map<std::shared_ptr<TAState>, std::shared_ptr<TAState>> &old2new) const {
+  void deepCopy(TimedAutomaton& dest, std::unordered_map<TAState*, std::shared_ptr<TAState>> &old2new) const {
     // copy states
     old2new.reserve(stateSize());
     dest.states.reserve(stateSize());
     for (auto oldState: states) {
       dest.states.emplace_back(std::make_shared<TAState>(*oldState));
-      old2new[oldState] = dest.states.back();
+      old2new[oldState.get()] = dest.states.back();
     }
     // copy initial states
     dest.initialStates.reserve(initialStates.size());
     for (auto oldInitialState: initialStates) {
-      dest.initialStates.emplace_back(old2new[oldInitialState]);
+      dest.initialStates.emplace_back(old2new[oldInitialState.get()]);
     }
     // modify dest of transitions
     for (auto &state: dest.states) {
       for (auto &edges: state->next) {
         for (auto &edge: edges.second) {
-          auto oldTarget = edge.target.lock();
-          edge.target = old2new[oldTarget];
+          auto oldTarget = edge.target;
+          edge.target = old2new[oldTarget].get();
         }
       }
 
@@ -72,25 +72,29 @@ struct TimedAutomaton : public Automaton<TAState> {
     @note If there are epsilon transitions, this does not work.
    */
   bool isMember(const std::vector<std::pair<Alphabet, double>> &w) const {
-    std::vector<std::pair<std::shared_ptr<TAState>, std::valarray<double>>> CStates;
+    std::vector<std::pair<TAState*, std::valarray<double>>> CStates;
     CStates.reserve(initialStates.size());
     for (const auto& s: initialStates) {
-      CStates.emplace_back(s, std::valarray<double>(0.0, clockSize()));
+      CStates.emplace_back(s.get(), std::valarray<double>(0.0, clockSize()));
     }
     for (std::size_t i = 0; i < w.size(); i++) {
-      std::vector<std::pair<std::shared_ptr<TAState>, std::valarray<double>>> NextStates;
-      for (std::pair<std::shared_ptr<TAState>, std::valarray<double>> &config: CStates) {
+      std::vector<std::pair<TAState*, std::valarray<double>>> NextStates;
+      for (std::pair<TAState*, std::valarray<double>> &config: CStates) {
         if (i > 0) {
           config.second += w[i].second - w[i-1].second;
         } else {
           config.second += w[i].second;
         }
-        for (const auto &edge: config.first->next[w[i].first]) {
+        auto it = config.first->next.find(w[i].first);
+        if (it == config.first->next.end()) {
+          continue;
+        }
+        for (const auto &edge: it->second) {
           if (std::all_of(edge.guard.begin(), edge.guard.end(), [&](const Constraint &g) {
                 return g.satisfy(config.second[g.x]);
               })) {
             auto tmpConfig = config;
-            tmpConfig.first = edge.target.lock();
+            tmpConfig.first = edge.target;
             if (tmpConfig.first) {
               for (ClockVariables x: edge.resetVars) {
                 tmpConfig.second[x] = 0; 
@@ -102,7 +106,7 @@ struct TimedAutomaton : public Automaton<TAState> {
       }
       CStates = std::move(NextStates);
     }
-    return std::any_of(CStates.begin(), CStates.end(), [](std::pair<std::shared_ptr<TAState>, std::valarray<double>> p) {
+    return std::any_of(CStates.begin(), CStates.end(), [](std::pair<const TAState*, std::valarray<double>> p) {
         return p.first->isMatch;
       });
   }

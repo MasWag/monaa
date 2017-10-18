@@ -464,7 +464,7 @@ void AtomicTRE::toSignalTA(TimedAutomaton& out) const {
         }
         maxConstraint = std::max(maxConstraint, int(interval->upperBound.first));
       }
-      out.states[0]->next[singleton->c].push_back({out.states[1], {}, guard});
+      out.states[0]->next[singleton->c].push_back({out.states[1].get(), {}, guard});
     }
 
     if (maxConstraint != -1) {
@@ -487,7 +487,7 @@ void AtomicTRE::toSignalTA(TimedAutomaton& out) const {
     for (auto &s: out.states) {
       for (auto &edges: s->next) {
         for (auto &edge: edges.second) {
-          std::shared_ptr<TAState> target = edge.target.lock();
+          TAState *target = edge.target;
           if (target && target->isMatch) {
             edges.second.reserve(edges.second.size() + out.initialStates.size());
             for (auto initState: out.initialStates) {
@@ -532,10 +532,10 @@ void AtomicTRE::toSignalTA(TimedAutomaton& out) const {
     for (auto state: out.states) {
       for (auto& edges: state->next) {
         for (auto& edge: edges.second) {
-          auto target = edge.target.lock();
+          auto target = edge.target;
           if (target && target->isMatch) {
             TATransition transition = edge;
-            transition.target = dummyAcceptingState;
+            transition.target = dummyAcceptingState.get();
             transition.guard.reserve(transition.guard.size() + 2);
             // upper bound
             if (within.second->upperBound.second) {

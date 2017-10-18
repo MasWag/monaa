@@ -290,8 +290,8 @@ BOOST_AUTO_TEST_CASE(renameToEpsilonTransitionsSimpleConcat)
   TA.states[2]->isMatch = true;
   TA.initialStates = {TA.states[0]};
 
-  TA.states[0]->next['a'].emplace_back(TATransition{TA.states[1], {0}, {TimedAutomaton::X(0) < 10}});
-  TA.states[1]->next['a'].emplace_back(TATransition{TA.states[2], {1}, {TimedAutomaton::X(1) > 1}});
+  TA.states[0]->next['a'].emplace_back(TATransition{TA.states[1].get(), {0}, {TimedAutomaton::X(0) < 10}});
+  TA.states[1]->next['a'].emplace_back(TATransition{TA.states[2].get(), {1}, {TimedAutomaton::X(1) > 1}});
   TA.maxConstraints = {10};
 
   renameToEpsilonTransitions(TA);
@@ -301,12 +301,12 @@ BOOST_AUTO_TEST_CASE(renameToEpsilonTransitionsSimpleConcat)
   const auto firstTransition = initialState->next[0][0];
   BOOST_CHECK_EQUAL(firstTransition.guard.size(), 1);
   BOOST_CHECK_EQUAL(firstTransition.resetVars.size(), 1);
-  const auto secondState = firstTransition.target.lock();
+  const auto secondState = firstTransition.target;
   BOOST_CHECK_EQUAL(secondState->next['a'].size(), 1);
   const auto secondTransition = secondState->next['a'][0];
   BOOST_CHECK_EQUAL(secondTransition.guard.size(), 1);
   BOOST_CHECK_EQUAL(secondTransition.resetVars.size(), 1);
-  const auto acceptingState = secondTransition.target.lock();
+  const auto acceptingState = secondTransition.target;
   BOOST_TEST(acceptingState->isMatch);
 }
 
@@ -354,7 +354,7 @@ BOOST_AUTO_TEST_CASE(renameToEpsilonTransitionsSimpleConcat)
     A.states[1]->isMatch = true;
     A.initialStates = {A.states[0]};
 
-    A.states[0]->next['a'].emplace_back(TATransition{A.states[1], {0}, {TimedAutomaton::X(0) < 10}});
+    A.states[0]->next['a'].emplace_back(TATransition{A.states[1].get(), {0}, {TimedAutomaton::X(0) < 10}});
     A.maxConstraints = {10};
   }
 
@@ -365,12 +365,12 @@ BOOST_AUTO_TEST_CASE(renameToEpsilonTransitionsSimpleConcat)
   const auto firstTransition = initialState->next['a'][1];
   BOOST_CHECK_EQUAL(firstTransition.guard.size(), 1);
   BOOST_CHECK_EQUAL(firstTransition.resetVars.size(), 1);
-  const auto secondState = firstTransition.target.lock();
+  const auto secondState = firstTransition.target;
   BOOST_CHECK_EQUAL(secondState->next['a'].size(), 1);
   const auto secondTransition = secondState->next['a'][0];
   BOOST_CHECK_EQUAL(secondTransition.guard.size(), 1);
   BOOST_CHECK_EQUAL(secondTransition.resetVars.size(), 1);
-  const auto acceptingState = secondTransition.target.lock();
+  const auto acceptingState = secondTransition.target;
   BOOST_TEST(acceptingState->isMatch);
 }
 BOOST_AUTO_TEST_SUITE_END()

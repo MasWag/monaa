@@ -22,7 +22,7 @@ void ta2za (const TimedAutomaton &TA, ZoneAutomaton &ZA, Zone initialZone)
   if (!ZA.states.empty()) {
     for (auto it = initialStates.begin(); it != initialStates.end();) {
       if (std::find_if(ZA.states.begin(), ZA.states.end(), [&it, &initialZone](std::shared_ptr<ZAState> zaState) { 
-            return *zaState == std::make_pair(*it, initialZone);
+            return *zaState == std::make_pair(it->get(), initialZone);
           }) != ZA.states.end()) {
         it = initialStates.erase(it);
       } else {
@@ -50,7 +50,7 @@ void ta2za (const TimedAutomaton &TA, ZoneAutomaton &ZA, Zone initialZone)
   ZA.states.reserve(ZA.stateSize() + initialStates.size());
   ZA.initialStates.reserve(ZA.initialStates.size() + initialStates.size());
   for (const auto &taState : initialStates ) {
-    ZA.states.push_back(std::make_shared<ZAState>(taState, initialZone));
+    ZA.states.push_back(std::make_shared<ZAState>(taState.get(), initialZone));
     ZA.initialStates.push_back(ZA.states.back());
     nextConf.push_back(ZA.states.back());
   }
@@ -65,14 +65,14 @@ void ta2za (const TimedAutomaton &TA, ZoneAutomaton &ZA, Zone initialZone)
     std::vector<std::shared_ptr<ZAState>> currentConf = nextConf;
     nextConf.clear();
     for (const auto &conf : currentConf) {
-      std::shared_ptr<TAState> taState = conf->taState;
+      TAState *taState = conf->taState;
       Zone nowZone = conf->zone;
       nowZone.elapse();
       for (auto it = taState->next.begin(); it != taState->next.end(); it++) {
         const Alphabet c = it->first;
         for (const auto &edge : it->second) {
         Zone nextZone = nowZone;
-        auto nextState = edge.target.lock();
+        auto nextState = edge.target;
         if (!nextState) {
           continue;
         }          

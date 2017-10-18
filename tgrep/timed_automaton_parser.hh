@@ -329,7 +329,7 @@ void convBoostTA(const BoostTimedAutomaton &BoostTA, TimedAutomaton &TA)
     auto edge_range = boost::out_edges(*first, BoostTA);
     for (auto firstEdge = edge_range.first, lastEdge = edge_range.second; firstEdge != lastEdge; ++firstEdge) {    
       TATransition transition;
-      transition.target = stateConvMap[boost::target(*firstEdge, BoostTA)];
+      transition.target = stateConvMap[boost::target(*firstEdge, BoostTA)].get();
       transition.guard = boost::get(&BoostTATransition::guard, BoostTA, *firstEdge);
       transition.resetVars = boost::get(&BoostTATransition::resetVars, BoostTA, *firstEdge).resetVars;
       for (auto g: transition.guard) {

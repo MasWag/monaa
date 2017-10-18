@@ -25,12 +25,12 @@ public:
     TA.states[3]->isMatch = true;
 
     // Transitions
-    TA.states[0]->next['a'].push_back({TA.states[1], {1}, {}});
-    TA.states[1]->next['b'].push_back({TA.states[2], {}, {{{TimedAutomaton::X(1) >= 1}, {TimedAutomaton::X(1) <= 1}}}});
-    TA.states[1]->next['c'].push_back({TA.states[3], {}, {{TimedAutomaton::X(0) < 1}}});
-    TA.states[2]->next['c'].push_back({TA.states[3], {}, {{TimedAutomaton::X(0) < 1}}});
-    TA.states[3]->next['a'].push_back({TA.states[1], {1}, {{TimedAutomaton::X(1) < 1}}});
-    TA.states[3]->next['d'].push_back({TA.states[3], {}, {{{TimedAutomaton::X(0) > 1}}}});
+    TA.states[0]->next['a'].push_back({TA.states[1].get(), {1}, {}});
+    TA.states[1]->next['b'].push_back({TA.states[2].get(), {}, {{{TimedAutomaton::X(1) >= 1}, {TimedAutomaton::X(1) <= 1}}}});
+    TA.states[1]->next['c'].push_back({TA.states[3].get(), {}, {{TimedAutomaton::X(0) < 1}}});
+    TA.states[2]->next['c'].push_back({TA.states[3].get(), {}, {{TimedAutomaton::X(0) < 1}}});
+    TA.states[3]->next['a'].push_back({TA.states[1].get(), {1}, {{TimedAutomaton::X(1) < 1}}});
+    TA.states[3]->next['d'].push_back({TA.states[3].get(), {}, {{{TimedAutomaton::X(0) > 1}}}});
   
     TA.maxConstraints = {1,1}; 
   }

@@ -6,7 +6,7 @@
   * x = x1 or x2 + |C|
   * in1 and in2 can be same.
 */
-void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out, boost::unordered_map<std::pair<std::shared_ptr<TAState>, std::shared_ptr<TAState>>, std::shared_ptr<TAState>> &toIState)
+void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out, boost::unordered_map<std::pair<TAState*, TAState*>, std::shared_ptr<TAState>> &toIState)
 {
   // toIState :: (in1.State, in2.State) -> out.State
 
@@ -15,8 +15,8 @@ void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, Timed
   out.states.reserve(in1.stateSize() * in2.stateSize());
   for (auto s1: in1.states) {
     for (auto s2: in2.states) {
-      toIState[std::make_pair(s1,s2)] = std::make_shared<TAState>(s1->isMatch && s2->isMatch);      
-      out.states.push_back(toIState[std::make_pair(s1,s2)]);
+      toIState[std::make_pair(s1.get(), s2.get())] = std::make_shared<TAState>(s1->isMatch && s2->isMatch);      
+      out.states.push_back(toIState[std::make_pair(s1.get(), s2.get())]);
     }
   }
 
@@ -25,7 +25,7 @@ void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, Timed
   out.initialStates.reserve (in1.initialStates.size() * in2.initialStates.size());
   for (auto s1: in1.initialStates) {
     for (auto s2: in2.initialStates) {
-      out.initialStates.push_back(toIState[std::make_pair(s1,s2)]);
+      out.initialStates.push_back(toIState[std::make_pair(s1.get(), s2.get())]);
     }
   }
 
@@ -34,9 +34,9 @@ void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, Timed
   out.maxConstraints.insert( out.maxConstraints.end(), in1.maxConstraints.begin(), in1.maxConstraints.end() );
   out.maxConstraints.insert( out.maxConstraints.end(), in2.maxConstraints.begin(), in2.maxConstraints.end() );
 
-  const auto addProductTransition = [&] (std::shared_ptr<TAState> s1, std::shared_ptr<TAState> s2, std::shared_ptr<TAState> nextS1, std::shared_ptr<TAState> nextS2, const TATransition &e1, const TATransition &e2, char c) {
+  const auto addProductTransition = [&] (TAState *s1, TAState *s2, TAState *nextS1, TAState *nextS2, const TATransition &e1, const TATransition &e2, char c) {
     TATransition transition;
-    transition.target = toIState[std::make_pair(nextS1, nextS2)];
+    transition.target = toIState[std::make_pair(nextS1, nextS2)].get();
 
     //concat resetVars
     transition.resetVars.reserve (e1.resetVars.size() + e2.resetVars.size());
@@ -63,25 +63,25 @@ void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, Timed
     for (auto s2: in2.states) {
       // Epsilon transitions
       for (const auto &e1: s1->next[0]) {
-        auto nextS1 = e1.target.lock();
+        auto nextS1 = e1.target;
         if (!nextS1) {
           continue;
         }
-        addProductTransition(s1, s2, nextS1, s2, e1, emptyTransition, 0);
+        addProductTransition(s1.get(), s2.get(), nextS1, s2.get(), e1, emptyTransition, 0);
       }
       for (const auto &e2: s2->next[0]) {
-        auto nextS2 = e2.target.lock();
+        auto nextS2 = e2.target;
         if (!nextS2) {
           continue;
         }
-        addProductTransition(s1, s2, s1, nextS2, emptyTransition, e2, 0);
+        addProductTransition(s1.get(), s2.get(), s1.get(), nextS2, emptyTransition, e2, 0);
       }
 
       // Observable transitions
       for (auto it1 = s1->next.begin(); it1 != s1->next.end(); it1++) {
         const Alphabet c = it1->first;
         for (const auto &e1: it1->second) {
-          auto nextS1 = e1.target.lock();
+          auto nextS1 = e1.target;
           if (!nextS1) {
               continue;
           }
@@ -90,11 +90,11 @@ void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, Timed
             continue;
           }
           for (const auto &e2: it2->second) {
-            auto nextS2 = e2.target.lock();
+            auto nextS2 = e2.target;
             if (!nextS2) {
               continue;
             }
-            addProductTransition(s1, s2, nextS1, nextS2, e1, e2, c);
+            addProductTransition(s1.get(), s2.get(), nextS1, nextS2, e1, e2, c);
           }
         }
       }
@@ -102,13 +102,13 @@ void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, Timed
   }
 }
 
-void updateInitAccepting(const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out, boost::unordered_map<std::pair<std::shared_ptr<TAState>, std::shared_ptr<TAState>>, std::shared_ptr<TAState>> toIState) {
+void updateInitAccepting(const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out, boost::unordered_map<std::pair<TAState*, TAState*>, std::shared_ptr<TAState>> toIState) {
   // update initial states
   out.initialStates.clear();
   out.initialStates.reserve(in1.initialStates.size() * in2.initialStates.size());
   for (auto init1: in1.initialStates) {
     for (auto init2: in2.initialStates) {
-      out.initialStates.push_back(toIState[std::make_pair(init1, init2)]);
+      out.initialStates.push_back(toIState[std::make_pair(init1.get(), init2.get())]);
     }
   }
 
@@ -127,15 +127,15 @@ void updateInitAccepting(const TimedAutomaton &in1, const TimedAutomaton &in2, T
 void intersectionSignalTA (const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out)
 {
   // toIState :: (in1.State, in2.State) -> out.State
-  boost::unordered_map<std::pair<std::shared_ptr<TAState>, std::shared_ptr<TAState>>, std::shared_ptr<TAState>> toIState;
+  boost::unordered_map<std::pair<TAState*, TAState*>, std::shared_ptr<TAState>> toIState;
 
   // make states
   toIState.reserve(in1.stateSize() * in2.stateSize());
   out.states.reserve(in1.stateSize() * in2.stateSize());
   for (auto s1: in1.states) {
     for (auto s2: in2.states) {
-      toIState[std::make_pair(s1,s2)] = std::make_shared<TAState>(s1->isMatch && s2->isMatch);      
-      out.states.push_back(toIState[std::make_pair(s1,s2)]);
+      toIState[std::make_pair(s1.get(), s2.get())] = std::make_shared<TAState>(s1->isMatch && s2->isMatch);      
+      out.states.push_back(toIState[std::make_pair(s1.get(), s2.get())]);
     }
   }
 
@@ -144,7 +144,7 @@ void intersectionSignalTA (const TimedAutomaton &in1, const TimedAutomaton &in2,
   out.initialStates.reserve (in1.initialStates.size() * in2.initialStates.size());
   for (auto s1: in1.initialStates) {
     for (auto s2: in2.initialStates) {
-      out.initialStates.push_back(toIState[std::make_pair(s1,s2)]);
+      out.initialStates.push_back(toIState[std::make_pair(s1.get(), s2.get())]);
     }
   }
 
@@ -153,9 +153,9 @@ void intersectionSignalTA (const TimedAutomaton &in1, const TimedAutomaton &in2,
   out.maxConstraints.insert( out.maxConstraints.end(), in1.maxConstraints.begin(), in1.maxConstraints.end() );
   out.maxConstraints.insert( out.maxConstraints.end(), in2.maxConstraints.begin(), in2.maxConstraints.end() );
 
-  const auto addProductTransition = [&] (std::shared_ptr<TAState> s1, std::shared_ptr<TAState> s2, std::shared_ptr<TAState> nextS1, std::shared_ptr<TAState> nextS2, const TATransition &e1, const TATransition &e2, char c) {
+  const auto addProductTransition = [&] (TAState *s1, TAState *s2, TAState *nextS1, TAState *nextS2, const TATransition &e1, const TATransition &e2, char c) {
     TATransition transition;
-    transition.target = toIState[std::make_pair(nextS1, nextS2)];
+    transition.target = toIState[std::make_pair(nextS1, nextS2)].get();
 
     //concat resetVars
     transition.resetVars.reserve (e1.resetVars.size() + e2.resetVars.size());
@@ -182,18 +182,18 @@ void intersectionSignalTA (const TimedAutomaton &in1, const TimedAutomaton &in2,
     for (auto s2: in2.states) {
       // Epsilon transitions
       for (const auto &e1: s1->next[0]) {
-        auto nextS1 = e1.target.lock();
+        auto nextS1 = e1.target;
         if (!nextS1) {
           continue;
         }
-        addProductTransition(s1, s2, nextS1, s2, e1, emptyTransition, 0);
+        addProductTransition(s1.get(), s2.get(), nextS1, s2.get(), e1, emptyTransition, 0);
       }
       for (const auto &e2: s2->next[0]) {
-        auto nextS2 = e2.target.lock();
+        auto nextS2 = e2.target;
         if (!nextS2) {
           continue;
         }
-        addProductTransition(s1, s2, s1, nextS2, emptyTransition, e2, 0);
+        addProductTransition(s1.get(), s2.get(), s1.get(), nextS2, emptyTransition, e2, 0);
       }
 
       // Observable transitions
@@ -201,7 +201,7 @@ void intersectionSignalTA (const TimedAutomaton &in1, const TimedAutomaton &in2,
         const Alphabet c = it1->first;
         // Syncronous transition
         for (const auto &e1: it1->second) {
-          auto nextS1 = e1.target.lock();
+          auto nextS1 = e1.target;
           if (!nextS1) {
             continue;
           }
@@ -210,22 +210,22 @@ void intersectionSignalTA (const TimedAutomaton &in1, const TimedAutomaton &in2,
             continue;
           }
           for (const auto &e2: it2->second) {
-            auto nextS2 = e2.target.lock();
+            auto nextS2 = e2.target;
             if (!nextS2) {
               continue;
             }
-            addProductTransition(s1, s2, nextS1, nextS2, e1, e2, c);
+            addProductTransition(s1.get(), s2.get(), nextS1, nextS2, e1, e2, c);
           }
         }
 
         // Asyncronous transition
         if (s2->next.find(c) != s2->next.end()) {
           for (const auto &e1: it1->second) {
-            auto nextS1 = e1.target.lock();
+            auto nextS1 = e1.target;
             if (!nextS1) {
               continue;
             }
-            addProductTransition(s1, s2, nextS1, s2, e1, emptyTransition, 0);
+            addProductTransition(s1.get(), s2.get(), nextS1, s2.get(), e1, emptyTransition, 0);
           }
         }
 
@@ -234,11 +234,11 @@ void intersectionSignalTA (const TimedAutomaton &in1, const TimedAutomaton &in2,
           continue;
         }
         for (const auto &e2: it2->second) {
-          auto nextS2 = e2.target.lock();
+          auto nextS2 = e2.target;
           if (!nextS2) {
             continue;
           }
-          addProductTransition(s1, s2, s1, nextS2, emptyTransition, e2, 0);
+          addProductTransition(s1.get(), s2.get(), s1.get(), nextS2, emptyTransition, e2, 0);
         }
       }
     }

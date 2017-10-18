@@ -169,7 +169,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
               continue;
             }
             for (const auto &edge: it->second) {
-              auto target = edge.target.lock();
+              auto target = edge.target;
               if (!target) {
                 continue;
               }
@@ -184,7 +184,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
                   tmpResetTime[x] = newClock;
                 }
                 tmpZ.update(tmpResetTime);
-                CurrEpsilonConf.emplace_back(target.get(), tmpResetTime, tmpZ);
+                CurrEpsilonConf.emplace_back(target, tmpResetTime, tmpZ);
               }
             }
           }
@@ -203,7 +203,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
             continue;
           }
           for (const auto &edge : it->second) {
-            auto target = edge.target.lock();
+            auto target = edge.target;
             if (!target || !target->isMatch) {
               continue;
             }
@@ -228,7 +228,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
             continue;
           }
           for (const auto &edge : it->second) {
-            auto target = edge.target.lock();
+            auto target = edge.target;
             if (!target) {
               continue;
             }
@@ -240,7 +240,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
                 tmpResetTime[x] = t;
               }
               tmpZ.update(tmpResetTime);
-              CStates.emplace_back(target.get(), std::move(tmpResetTime), std::move(tmpZ));
+              CStates.emplace_back(target, std::move(tmpResetTime), std::move(tmpZ));
             }
           }
         }
