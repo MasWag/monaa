@@ -38,7 +38,7 @@ add_executable(monaa
   ${BISON_tre_parser_OUTPUTS})
 
 target_link_libraries(monaa
-#  profiler
+  profiler
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${Boost_GRAPH_LIBRARY})
 
