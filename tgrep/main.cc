@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
   if (timedAutomatonFileName.empty()) {
     // parse TRE
     TREDriver driver;
-    treStream << tre;
+    treStream << tre.c_str();
     if (!driver.parse(treStream)) {
       die("Failed to parse TRE", 2);
     }
