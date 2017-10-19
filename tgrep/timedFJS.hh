@@ -42,10 +42,7 @@ struct IntervalInternalState {
 inline bool isValidConstraint (const std::pair<double,bool>& upperConstraint,
                                const std::pair<double,bool>& lowerConstraint)
 {
-  return upperConstraint.first > lowerConstraint.first ||
-    (upperConstraint.first == lowerConstraint.first &&
-     upperConstraint.second &&
-     lowerConstraint.second);
+  return upperConstraint + lowerConstraint >= Bounds{0, true};
 }
 
 /*!
@@ -118,8 +115,8 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
     std::vector<std::pair<std::pair<double,bool>,std::pair<double,bool> > > init;
     std::vector<IntervalInternalState> CStates;
     std::vector<IntervalInternalState> LastStates;
-    const std::pair<double,bool> upperMaxConstraint = {INFINITY,false};
-    const std::pair<double,bool> lowerMinConstraint = {0,true};
+    const Bounds inftyBounds = {std::numeric_limits<double>::infinity(), false};
+    const Bounds zeroBounds = {0,true};
   
     // When there can be immidiate accepting
     // @todo This optimization is not yet when we have epsilon transitions
@@ -199,14 +196,15 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
       CStates.reserve(A.initialStates.size());
       std::vector<double> zeroResetTime(A.clockSize(), 0);
       if (word.fetch(i)) {
-        if (i <= 0) {
-          for (const auto& s: A.initialStates) {
-            CStates.push_back ({s.get(), zeroResetTime,{word[i].second,false},{0,true}});
-          }
-        } else {
-          for (const auto& s: A.initialStates) {
-            CStates.push_back ({s.get(), zeroResetTime,{word[i].second,false},{word[i-1].second,true}});
-          }
+        IntervalInternalState istate = {nullptr,
+                                        zeroResetTime,
+                                        {word[i].second, false},
+                                        ((i <= 0) ? zeroBounds :
+                                         Bounds{-word[i-1].second, true})};
+
+        CStates.resize(A.initialStates.size(), istate);
+        for (std::size_t k = 0; k < A.initialStates.size(); k++) {
+          CStates[k].s = A.initialStates[k].get();
         }
       } else {
         break;
@@ -230,28 +228,55 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
             }
             std::pair<double,bool> upperBeginConstraint = config.upperConstraint;
             std::pair<double,bool> lowerBeginConstraint = config.lowerConstraint;
-            std::pair<double,bool> upperEndConstraint = upperMaxConstraint;
+            std::pair<double,bool> upperEndConstraint = inftyBounds;
             std::pair<double,bool> lowerEndConstraint = {word[j].second,false};
                 
             if (word.size() <= j || word.fetch(j+1)) {
               upperEndConstraint = {word[j+1].second,true};
             }
 
-            std::pair<double,bool> upperDeltaConstraint = upperEndConstraint - lowerBeginConstraint;
-            std::pair<double,bool> lowerDeltaConstraint = std::max(lowerEndConstraint - upperBeginConstraint, Bounds{0, true});
+            // value(2, 1) <= value(2, 0) + value(0, 1)
+            Bounds upperDeltaConstraint = upperEndConstraint + lowerBeginConstraint;
+            // value(1, 2) <= value(1, 0) + value(0, 2)
+            Bounds lowerDeltaConstraint = std::min(lowerEndConstraint + upperBeginConstraint, zeroBounds);
 
             auto tmpResetTime = config.resetTime;
             // solve delta
             for (const auto& delta: edge.guard) {
               if (tmpResetTime[delta.x]) {
-                const double delta_t = delta.c + tmpResetTime[delta.x];
-                updateConstraint (upperEndConstraint,lowerEndConstraint,delta,delta_t);
-                upperDeltaConstraint = std::min(upperDeltaConstraint, upperEndConstraint - lowerBeginConstraint);
-                lowerDeltaConstraint = std::max(lowerDeltaConstraint, lowerEndConstraint - upperBeginConstraint);
+                switch (delta.odr) {
+                case Constraint::Order::lt:
+                case Constraint::Order::le:
+                  upperEndConstraint = std::min(upperEndConstraint, Bounds{delta.c + tmpResetTime[delta.x], {delta.odr == Constraint::Order::le}});
+                  upperDeltaConstraint = std::min(upperDeltaConstraint, upperEndConstraint + lowerBeginConstraint);
+                  upperBeginConstraint = std::min(upperBeginConstraint, lowerDeltaConstraint + upperEndConstraint);
+                  break;
+                case Constraint::Order::gt:
+                case Constraint::Order::ge:
+                  lowerEndConstraint = std::min(lowerEndConstraint, Bounds{-delta.c - tmpResetTime[delta.x], {delta.odr == Constraint::Order::ge}});
+                  lowerDeltaConstraint = std::min(lowerDeltaConstraint, lowerEndConstraint + upperBeginConstraint);
+                  lowerBeginConstraint = std::min(lowerBeginConstraint, lowerEndConstraint + upperDeltaConstraint);
+                  break;
+                }
               } else {
-                updateConstraint (upperDeltaConstraint,lowerDeltaConstraint,delta,delta.c);
-                upperEndConstraint = std::min(upperEndConstraint, upperDeltaConstraint + upperBeginConstraint);
-                lowerEndConstraint = std::max(lowerEndConstraint, lowerDeltaConstraint + lowerBeginConstraint);
+                switch (delta.odr) {
+                case Constraint::Order::lt:
+                case Constraint::Order::le:
+                  upperDeltaConstraint = std::min(upperDeltaConstraint, Bounds{delta.c, {delta.odr == Constraint::Order::le}});
+                  // (2, 0) <= (2, 1) + (1, 0)
+                  upperEndConstraint = std::min(upperEndConstraint, upperDeltaConstraint + upperBeginConstraint);
+                  // (0, 1) <= (0, 2) + (2, 1)
+                  lowerBeginConstraint = std::min(lowerBeginConstraint, lowerEndConstraint + upperDeltaConstraint);
+                  break;
+                case Constraint::Order::gt:
+                case Constraint::Order::ge:
+                  lowerDeltaConstraint = std::min(lowerDeltaConstraint, Bounds{-delta.c, {delta.odr == Constraint::Order::ge}});
+                  // (1, 0) <= (1, 2) + (2, 0)
+                  upperBeginConstraint = std::min(upperBeginConstraint, lowerDeltaConstraint + upperEndConstraint);
+                  // (0, 2) <= (0, 1) + (1, 2)
+                  lowerEndConstraint = std::min(lowerEndConstraint, lowerBeginConstraint + lowerDeltaConstraint);
+                  break;
+                }
               }
             }
 
@@ -269,10 +294,6 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
             ansZone.value(1, 2) = std::move(lowerDeltaConstraint);
             ansZone.value(2, 1) = std::move(upperDeltaConstraint);
 
-            ansZone.value(0, 1).first *= -1;
-            ansZone.value(0, 2).first *= -1;
-            ansZone.value(1, 2).first *= -1;
-
             ans.push_back(std::move(ansZone));
           }
         }
@@ -285,15 +306,15 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
           if (it == s->next.end()) {
             continue;
           }
-          for (const auto &edge : it->second) {
-            auto target = edge.target;
+          for (auto &edge : it->second) {
+            const auto target = edge.target;
             if (!target) {
               continue;
             }
 
 
-            std::pair<double,bool> upperBeginConstraint = config.upperConstraint;
-            std::pair<double,bool> lowerBeginConstraint = config.lowerConstraint;
+            Bounds upperBeginConstraint = config.upperConstraint;
+            Bounds lowerBeginConstraint = config.lowerConstraint;
             bool transitable = true;
 
             for (const auto& delta: edge.guard) {
@@ -303,29 +324,18 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
                   break;
                 }
               } else {
-                const double delta_t = t - delta.c;
                 switch (delta.odr) {
                 case Constraint::Order::lt:
+                  upperBeginConstraint = std::min(upperBeginConstraint, Bounds{delta.c + t, false});
+                  break;
                 case Constraint::Order::le:
-                  if (lowerBeginConstraint.first < delta_t) {
-                    lowerBeginConstraint.first = delta_t;
-                    lowerBeginConstraint.second = 
-                      delta.odr == Constraint::Order::le;
-                  } else if (lowerBeginConstraint.first == delta_t) {
-                    lowerBeginConstraint.second = 
-                      lowerBeginConstraint.second && delta.odr == Constraint::Order::le;
-                  }
+                  upperBeginConstraint = std::min(upperBeginConstraint, Bounds{delta.c + t, true});
                   break;
                 case Constraint::Order::gt:
+                  lowerBeginConstraint = std::min(lowerBeginConstraint, Bounds{-delta.c - t, false});
+                  break;
                 case Constraint::Order::ge:
-                  if (upperBeginConstraint.first > delta_t) {
-                    upperBeginConstraint.first = delta_t;
-                    upperBeginConstraint.second = 
-                      delta.odr == Constraint::Order::ge;
-                  } else if (upperBeginConstraint.first == delta_t) {
-                    upperBeginConstraint.second = 
-                      upperBeginConstraint.second && delta.odr == Constraint::Order::ge;
-                  }
+                  lowerBeginConstraint = std::min(lowerBeginConstraint, Bounds{-delta.c - t, false});
                   break;
                 }
               }
@@ -340,7 +350,7 @@ void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
               tmpResetTime[i] = t;
             }
             
-            CStates.push_back ({edge.target,tmpResetTime,upperBeginConstraint,lowerBeginConstraint});
+            CStates.push_back({edge.target, std::move(tmpResetTime), std::move(upperBeginConstraint), std::move(lowerBeginConstraint)});
           }
         }
         j++;
