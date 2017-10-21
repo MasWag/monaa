@@ -6,7 +6,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "timed_automaton.hh"
+#include "../libmonaa/timed_automaton.hh"
 
 namespace boost{
   enum vertex_match_t {vertex_match};

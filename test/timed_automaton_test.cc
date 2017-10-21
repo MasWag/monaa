@@ -1,7 +1,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "../tgrep/timed_automaton.hh"
+#include "../libmonaa/timed_automaton.hh"
 
 BOOST_AUTO_TEST_SUITE(timedAutomatonTests)
 

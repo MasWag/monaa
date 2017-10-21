@@ -1,7 +1,7 @@
 #define BOOST_GRAPH_USE_SPIRIT_PARSER // for header only
 
 #include <boost/test/unit_test.hpp>
-#include "../tgrep/timed_automaton_parser.hh"
+#include "../monaa/timed_automaton_parser.hh"
 
 std::ostream& operator<<(std::ostream& os, const std::vector<ClockVariables> &resetVars);
 

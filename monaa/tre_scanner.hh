@@ -17,10 +17,10 @@ public:
   using FlexLexer::yylex;
 
   virtual
-  int yylex( tgrep::TREParser::semantic_type * const lval, 
-             tgrep::TREParser::location_type *location );
+  int yylex( MONAA::TREParser::semantic_type * const lval, 
+             MONAA::TREParser::location_type *location );
 
 private:
-  tgrep::TREParser::semantic_type *yylval = nullptr;
+  MONAA::TREParser::semantic_type *yylval = nullptr;
 };
 

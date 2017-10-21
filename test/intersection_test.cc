@@ -1,8 +1,8 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "../tgrep/timed_automaton.hh"
-#include "../tgrep/intersection.hh"
+#include "../libmonaa/timed_automaton.hh"
+#include "../libmonaa/intersection.hh"
 
 BOOST_AUTO_TEST_SUITE(intersectionTests)
 

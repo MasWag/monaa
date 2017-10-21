@@ -55,11 +55,11 @@ private:
   std::shared_ptr<TRE> result;
   bool parse_helper( std::istream &stream ) {
     TREScanner scanner(&stream);
-    tgrep::TREParser parser( scanner /* scanner */, 
+    MONAA::TREParser parser( scanner /* scanner */, 
                             (*this) /* driver */ );
 
     return parser.parse() == 0;
   }
 
-  friend tgrep::TREParser;
+  friend MONAA::TREParser;
 };

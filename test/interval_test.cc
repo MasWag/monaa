@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
-#include "../tgrep/interval.hh"
+#include "../libmonaa/interval.hh"
 
 BOOST_AUTO_TEST_SUITE(intervalTests)
 

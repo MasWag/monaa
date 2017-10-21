@@ -4,9 +4,9 @@
 /* Implementation of yyFlexScanner */ 
 #include "tre_scanner.hh"
 #undef  YY_DECL
-#define YY_DECL int TREScanner::yylex( tgrep::TREParser::semantic_type * const lval, tgrep::TREParser::location_type *loc )
+#define YY_DECL int TREScanner::yylex( MONAA::TREParser::semantic_type * const lval, MONAA::TREParser::location_type *loc )
 
-using token = tgrep::TREParser::token;
+using token = MONAA::TREParser::token;
 
 #define yyterminate() return( token::END )
 

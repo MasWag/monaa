@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <sstream>
-#include "../tgrep/tre_driver.hh"
-#include "../tgrep/intermediate_tre.hh"
+#include "../monaa/tre_driver.hh"
+#include "../monaa/intermediate_tre.hh"
 
 extern void renameToEpsilonTransitions(TimedAutomaton& out);
 extern void concat2(TimedAutomaton &left, const TimedAutomaton &right);

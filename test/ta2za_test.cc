@@ -1,9 +1,9 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "../tgrep/timed_automaton.hh"
-#include "../tgrep/zone_automaton.hh"
-#include "../tgrep/ta2za.hh"
+#include "../libmonaa/timed_automaton.hh"
+#include "../libmonaa/zone_automaton.hh"
+#include "../libmonaa/ta2za.hh"
 
 BOOST_AUTO_TEST_SUITE(ta2zaTests)
 

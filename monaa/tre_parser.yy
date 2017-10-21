@@ -2,7 +2,7 @@
 %require  "3.0"
 %debug 
 %defines 
-%define api.namespace {tgrep}
+%define api.namespace {MONAA}
 %define parser_class_name {TREParser}
 
 %code requires{
@@ -72,7 +72,7 @@ interval : LPAREN INT COMMA INT RPAREN { $$ = std::make_shared<Interval>($2, $4)
 
 
 
-void tgrep::TREParser::error( const location_type &l, const std::string &err_message )
+void MONAA::TREParser::error( const location_type &l, const std::string &err_message )
 {
    std::cerr << "Error: " << err_message << " at " << l << "\n";
 }

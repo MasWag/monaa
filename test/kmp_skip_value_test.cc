@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 
-#include "../tgrep/timed_automaton.hh"
-#include "../tgrep/kmp_skip_value.hh"
+#include "../libmonaa/timed_automaton.hh"
+#include "../libmonaa/kmp_skip_value.hh"
 
 BOOST_AUTO_TEST_SUITE(kmpSkipValueTests)
 

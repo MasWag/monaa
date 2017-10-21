@@ -1,8 +1,8 @@
 #define BOOST_GRAPH_USE_SPIRIT_PARSER // for header only
 #include <boost/test/unit_test.hpp>
 
-#include "../tgrep/timedFJS.hh"
-#include "../tgrep/timed_automaton_parser.hh"
+#include "../libmonaa/monaa.hh"
+#include "../monaa/timed_automaton_parser.hh"
 
 BOOST_AUTO_TEST_SUITE(timedFJSTest)
 

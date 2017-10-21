@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
-#include "../tgrep/zone.hh"
+#include "../libmonaa/zone.hh"
 
 BOOST_AUTO_TEST_SUITE(ZoneTest)
 

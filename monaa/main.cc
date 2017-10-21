@@ -1,7 +1,7 @@
 #include <iostream>
 #include <boost/program_options.hpp>
 
-#include "timedFJS.hh"
+#include "monaa.hh"
 #include "tre_driver.hh"
 #include "timed_automaton_parser.hh"
 

@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/mpl/list.hpp>
-#include "../tgrep/constraint.hh"
+#include "../libmonaa/constraint.hh"
 
 BOOST_AUTO_TEST_SUITE(ConstraintTest)
 

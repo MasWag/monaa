@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 
-#include "../tgrep/intermediate_zone.hh"
+#include "../libmonaa/intermediate_zone.hh"
 
 BOOST_AUTO_TEST_SUITE(IntermediateZoneTest)
 

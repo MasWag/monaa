@@ -1,8 +1,8 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "../tgrep/zone_automaton.hh"
-#include "../tgrep/ta2za.hh"
+#include "../libmonaa/zone_automaton.hh"
+#include "../libmonaa/ta2za.hh"
 
 BOOST_AUTO_TEST_SUITE(ZoneAutomatonTests)
 

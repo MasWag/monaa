@@ -14,26 +14,27 @@ find_package(Boost REQUIRED COMPONENTS
 find_package(Eigen3 REQUIRED)
 
 include_directories(
-  tgrep/
+  monaa/
+  libmonaa/
   ${PROJECT_BINARY_DIR}
   ${Boost_INCLUDE_DIRS}
   ${Eigen3_INCLUDE_DIRS})
 
 BISON_TARGET(tre_parser
-  tgrep/tre_parser.yy
+  monaa/tre_parser.yy
   ${CMAKE_CURRENT_BINARY_DIR}/tre_parser.tab.cc)
 FLEX_TARGET(tre_lexer
-  tgrep/tre_lexer.l
+  monaa/tre_lexer.l
   ${CMAKE_CURRENT_BINARY_DIR}/tre_lexer.yy.cc)
 ADD_FLEX_BISON_DEPENDENCY(tre_lexer tre_parser)
 
 ## Config for Main monaa
 add_executable(monaa
-  tgrep/main.cc
-  tgrep/intersection.cc
-  tgrep/ta2za.cc
-  tgrep/tre.cc
-  tgrep/intermediate_tre.cc
+  monaa/main.cc
+  libmonaa/intersection.cc
+  libmonaa/ta2za.cc
+  monaa/tre.cc
+  monaa/intermediate_tre.cc
   ${FLEX_tre_lexer_OUTPUTS}
   ${BISON_tre_parser_OUTPUTS})
 
@@ -49,14 +50,20 @@ target_include_directories(monaa
 set_property(TARGET monaa
   PROPERTY CXX_STANDARD 14)
 
+## Config for libmonaa
+add_library(libmonaa STATIC
+  libmonaa/intersection.cc
+  libmonaa/ta2za.cc
+)
+
 ## Config for Test
 enable_testing()
 
 add_executable(unit_test
-  tgrep/intersection.cc
-  tgrep/ta2za.cc
-  tgrep/tre.cc
-  tgrep/intermediate_tre.cc
+  libmonaa/intersection.cc
+  libmonaa/ta2za.cc
+  monaa/tre.cc
+  monaa/intermediate_tre.cc
   test/unit_test.cc
   test/zone_automaton_test.cc
   test/ta2za_test.cc

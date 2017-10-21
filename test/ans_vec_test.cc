@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/mpl/list.hpp>
-#include "../tgrep/ans_vec.hh"
+#include "../libmonaa/ans_vec.hh"
 
 BOOST_AUTO_TEST_SUITE(AnsContainerTest)
 

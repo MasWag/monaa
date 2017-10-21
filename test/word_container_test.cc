@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/mpl/list.hpp>
 #include <sstream>
-#include "../tgrep/word_container.hh"
+#include "../libmonaa/word_container.hh"
 
 BOOST_AUTO_TEST_SUITE(WordContainerTest)
 

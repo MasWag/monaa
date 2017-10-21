@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <cstdio>
-#include "../tgrep/lazy_deque.hh"
+#include "../libmonaa/lazy_deque.hh"
 
 BOOST_AUTO_TEST_SUITE(LazyDequeTest)
 
