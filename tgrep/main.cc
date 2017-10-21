@@ -105,16 +105,9 @@ int main(int argc, char *argv[])
 
   FILE* file = stdin;
   AnsPrinter ans(vm.count("quiet"));
-  if (timedWordFileName != "stdin") {
-    // offline mode
-    file = fopen(timedWordFileName.c_str(), "r");
-    WordVector<std::pair<Alphabet,double> > w(file, isBinary);
-    timedFranekJenningsSmyth (w, TA, ans);
-  } else {
-    // online mode
-    WordLazyDeque w(file, isBinary);
-    timedFranekJenningsSmyth (w, TA, ans);
-  }
+  // online mode
+  WordLazyDeque w(file, isBinary);
+  monaa(w, TA, ans);
 
   return 0;
 

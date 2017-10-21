@@ -12,8 +12,16 @@
 
 struct TATransition;
 
+/*!
+  @brief A state of timed automata
+ */
 struct TAState {
+  //! @brief The value is true if and only if the state is an accepting state.
   bool isMatch;
+  /*! 
+    @brief An mapping of a character to the transitions.
+    @note Because of non-determinism, the second element is a vector.
+   */
   std::unordered_map<Alphabet, std::vector<TATransition>> next;
   TAState (bool isMatch = false) : isMatch(isMatch) {
     next.clear();
@@ -21,23 +29,33 @@ struct TAState {
   TAState (bool isMatch, std::unordered_map<Alphabet, std::vector<TATransition>> next) : isMatch(isMatch), next(std::move(next)) {}
 };
 
+/*!
+  @brief A state of timed automata
+ */
 struct TATransition {
+  //! @brief The pointer to the target state.
   TAState *target;
+  //! @brief The clock variables reset after this transition.
   std::vector<ClockVariables> resetVars;
+  //! @brief The guard for this transition.
   std::vector<Constraint> guard;
 };
 
 /*!
-  @brief Timed Automaton
+  @brief A timed automaton
  */
 struct TimedAutomaton : public Automaton<TAState> {
   using X = ConstraintMaker;
   using TATransition = TATransition;
   using State = ::TAState;
 
+  //! @brief The maximum constraints for each clock variables.
   std::vector<int> maxConstraints;
   /*!
     @brief make a deep copy of this timed automaton.
+
+    @param [out] dest The destination of the deep copy.
+    @param [out] old2new The mapping from the original state to the corresponding new state.
    */
   void deepCopy(TimedAutomaton& dest, std::unordered_map<TAState*, std::shared_ptr<TAState>> &old2new) const {
     // copy states
@@ -64,6 +82,7 @@ struct TimedAutomaton : public Automaton<TAState> {
     }
     dest.maxConstraints = maxConstraints;
   }
+  //! @brief Returns the number of clock variables used in the timed automaton.
   inline size_t clockSize() const {return maxConstraints.size ();}
 
   /*!

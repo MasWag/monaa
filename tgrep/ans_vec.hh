@@ -5,23 +5,51 @@
 
 #include "zone.hh"
 
+/*!
+  @brief Container class for the output zones.
+
+  @note This class just defines the interface of the container. The actual definition must be done in the class Container passed by template argument.
+  @note This class does not require to contain the zones but just have the interface to push_back.
+*/
 template<class Container>
 class AnsContainer
 {
 protected:
+  //! @brief The actual container of the zones.
   Container vec;
 public:
+  //! @brief Constructor
   AnsContainer(const Container vec) : vec(vec) {}
+  //! @brief Constructor
   AnsContainer() : vec() {}
+  /*!
+    @brief Returns the number of the contained zones.
+
+    @return The number of the contained zones.
+  */
   std::size_t size() const {
     return vec.size();
   }
+  /*!
+    @brief Append a zone to the container.
+
+    @param [in] in A zone to be appended.
+  */
   void push_back(typename Container::value_type in) {
     vec.push_back(in);
   }
+  /*!
+    @brief Remove all the contained zones.
+  */
   void clear() {
     vec.clear();
   }
+  /*!
+    @brief Reserve the space to contain zones.
+    @note If the container does not need to reserve its space, this function does nothing.
+
+    @param [in] n The size of the reserved space of the container.
+  */
   void reserve(std::size_t n) {
     vec.reserve(n);
   }
@@ -75,15 +103,15 @@ public:
   void push_back(const Zone &ans) {
     count++;
     if (!isQuiet) {
-      printf("%lg %8s t %s %lg\n", -ans.value(0, 1).first,
+      printf("%10lf %8s t %s %10lf\n", -ans.value(0, 1).first,
              (ans.value(0, 1).second ? "<=" : "<"),
              (ans.value(1, 0).second ? "<=" : "<"),
              ans.value(1, 0).first);
-      printf("%lg %8s t' %s %lg\n", -ans.value(0, 2).first,
+      printf("%10lf %8s t' %s %10lf\n", -ans.value(0, 2).first,
              (ans.value(0, 2).second ? "<=" : "<"),
              (ans.value(2, 0).second ? "<=" : "<"),
              ans.value(2, 0).first);
-      printf("%lg %8s t' - t %s %lg\n", -ans.value(1, 2).first,
+      printf("%10lf %8s t' - t %s %10lf\n", -ans.value(1, 2).first,
              (ans.value(1, 2).second ? "<=" : "<"),
              (ans.value(2, 1).second ? "<=" : "<"),
              ans.value(2, 1).first);

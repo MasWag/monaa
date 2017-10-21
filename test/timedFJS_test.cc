@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(timedFJS) {
   FILE* file(fopen("../test/timed_word.txt", "r"));
   WordVector<std::pair<Alphabet,double> > w(file, false);
   AnsVec<Zone> ans;
-  timedFranekJenningsSmyth(w, TA, ans);
+  monaa(w, TA, ans);
   BOOST_CHECK_EQUAL(ans.size(), 2);
 
   auto ansZone = ans.begin()->value;
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(timedFJSa0_1b0_1) {
   FILE* file(fopen("../test/ascii_test.txt", "r"));
   WordVector<std::pair<Alphabet,double> > w(file, false);
   AnsVec<Zone> ans;
-  timedFranekJenningsSmyth(w, TA, ans);
+  monaa(w, TA, ans);
   BOOST_CHECK_EQUAL(ans.size(), 1);
   const auto ansZone = ans.begin()->value;
   BOOST_CHECK_CLOSE(ansZone(0, 1).first, -0.1, 1e-6);
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(timedFJSTorque) {
   WordVector<std::pair<Alphabet,double> > w(file, false);
 
   AnsVec<Zone> ans;
-  timedFranekJenningsSmyth(w, TA, ans);
+  monaa(w, TA, ans);
   BOOST_TEST(ans.size() >  1);
   const auto ansZone = (++ans.begin())->value;
   BOOST_CHECK_CLOSE(ansZone(1, 2).first, -1, 1e-6);

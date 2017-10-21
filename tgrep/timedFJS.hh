@@ -88,12 +88,15 @@ inline void updateConstraint(std::pair<double,bool>& upperConstraint,
 }
 
 /*!
-  @brief Boyer-Moore type algorithm for timed pattern matching
+  @brief Execute the timed FJS algorithm.
+  @param [in] word A container of a timed word representing a log.
+  @param [in] A A timed automaton used as a pattern.
+  @param [out] ans A container for the answer zone.
 */
 template <class InputContainer, class OutputContainer>
-void timedFranekJenningsSmyth (WordContainer<InputContainer> word,
-                               TimedAutomaton A,
-                               AnsContainer<OutputContainer> &ans)
+void monaa(WordContainer<InputContainer> word,
+           TimedAutomaton A,
+           AnsContainer<OutputContainer> &ans)
 {
   // Sunday's Skip value
   // Char -> Skip Value
