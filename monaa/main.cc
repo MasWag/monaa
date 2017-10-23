@@ -110,26 +110,4 @@ int main(int argc, char *argv[])
   monaa(w, TA, ans);
 
   return 0;
-
-#if 0
-  // print result
-  std::cout << "Results" << std::endl;
-  for (const auto &a : ans) {
-    std::cout << a.lowerBeginConstraint.first <<std::setw(10)<< 
-      (a.lowerBeginConstraint.second ? " <= " : " < ") << "t" << 
-      (a.upperBeginConstraint.second ? " <= " : " < ") <<
-      a.upperBeginConstraint.first << std::endl;
-    std::cout << a.lowerEndConstraint.first << std::setw(10)<< 
-      (a.lowerEndConstraint.second ? " <= " : " < ") << "t'" << 
-      (a.upperEndConstraint.second ? " <= " : " < ") <<
-      a.upperEndConstraint.first << std::endl;
-    std::cout << a.lowerDeltaConstraint.first << std::setw(10)<< 
-      (a.lowerDeltaConstraint.second ? " <= " : " < ") << "t' - t" << 
-      (a.upperDeltaConstraint.second ? " <= " : " < ") <<
-      a.upperDeltaConstraint.first << std::endl;
-    std::cout << "=============================" << std::endl;
-  }
-#endif
-
-  return 0;
 }

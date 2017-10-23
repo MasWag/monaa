@@ -1,3 +1,0 @@
-
-* Make the target weak_ptr -> raw ptr
-* Non-epsilon mode

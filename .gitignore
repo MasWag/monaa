@@ -36,3 +36,8 @@
 
 # build directory
 build/
+
+# GTAGS
+GPATH
+GRTAGS
+GTAGS

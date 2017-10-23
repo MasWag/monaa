@@ -1,10 +1,10 @@
 digraph G{
 1 [init=1][match=0];
-2 [init=1][match=0];
-3 [init=1][match=0];
-4 [init=1][match=0];
-5 [init=1][match=0];
-6 [init=1][match=0];
+2 [init=0][match=0];
+3 [init=0][match=0];
+4 [init=0][match=0];
+5 [init=0][match=0];
+6 [init=0][match=0];
 7 [init=0][match=1];
 1->2 [label=b][reset="{0}"];
 2->3 [label=a][guard="{x0 < 1}"];
