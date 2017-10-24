@@ -7,27 +7,25 @@ build:
         code: |
           mkdir build
           cd build && cmake .. && make
-
 gcc_unit_test:
   steps:
     - script:
         name: set_gcc_env
         code: |
-          export CC=gcc
-          export CXX=g++
+          export CC=/usr/bin/gcc
+          export CXX=/usr/bin/g++
     - script:
         name: build_and_test
         code: |
           mkdir build
           cd build && cmake .. && make && make test
-
 clang_unit_test:
   steps:
     - script:
         name: set_clang_env
         code: |
-          export CC=clang
-          export CXX=clang++
+          export CC=/usr/bin/clang
+          export CXX=/usr/bin/clang++
     - script:
         name: build_and_test
         code: |
