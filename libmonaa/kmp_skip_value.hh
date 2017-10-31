@@ -16,7 +16,7 @@ public:
     ZoneAutomaton ZA2;
     TimedAutomaton A2;
     boost::unordered_map<std::pair<TAState*, TAState*>, std::shared_ptr<TAState>> toIState;
-    //! @brief A0 is the automaton in A_{+n}^* in the paper. What we do is: 1) construct a dummy accepting state, and 2) construct m-dummy states to the original intial states
+    // A0 is the automaton in A_{+n}^* in the paper. What we do is: 1) construct a dummy accepting state, and 2) construct m-dummy states to the original intial states
     TimedAutomaton A0;
     std::unordered_map<TAState*, std::shared_ptr<TAState>> old2new0;
     TA.deepCopy(A0, old2new0);
@@ -66,7 +66,7 @@ public:
     A0.states.push_back(dummyAcceptingState);
     A0.states.insert(A0.states.end(), extendedInitialStates.begin(), extendedInitialStates.end());
     
-    //! @brief As is the automaton in A_{s}^* in the paper. What we do is to construct a dummy state for each state s.
+    // As is the automaton in A_{s}^* in the paper. What we do is to construct a dummy state for each state s.
     TimedAutomaton As;
     std::unordered_map<TAState*, std::shared_ptr<TAState>> old2newS;
     old2newS.reserve(TA.states.size());

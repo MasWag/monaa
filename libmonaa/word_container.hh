@@ -6,7 +6,7 @@
 /*!
   @brief Container class for the input timed word.
 
-  @note This class just defines the interface of the container. The actual definition must be done in the class Container passed by template argument.
+  @note This class just defines the interface of the container. The actual definition must be done in the class Container passed by template argument. An example is @link LazyDeque @endlink.
 */
 template <class Container>
 class WordContainer

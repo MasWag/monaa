@@ -22,7 +22,7 @@ static inline int getOneBinary(FILE* file, std::pair<Alphabet, double> &p) {
 }
 
 /*!
-  @brief A Wrapper of FILE Reading.
+  @brief A Wrapper of FILE Reading. This class is given to @link WordContainer @endlink class as its template argument.
  */
 class LazyDeque : public std::deque<std::pair<Alphabet, double>>
 {
@@ -33,7 +33,8 @@ private:
   int (*getElem)(FILE*, std::pair<Alphabet, double>&);
 public:
   /*!
-    @param N size of the file
+    @param [in] file The FILE-pointer of the file in which the input timed word is.
+    @param [in] isBinary A flag if the input is in a binary file.
    */
   LazyDeque (FILE* file, bool isBinary = false) : N(std::numeric_limits<std::size_t>::max()), file(file) {
     getElem = isBinary ? getOneBinary : getOne;

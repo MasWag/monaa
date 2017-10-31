@@ -8,8 +8,8 @@
 /*!
   @brief Container class for the output zones.
 
-  @note This class just defines the interface of the container. The actual definition must be done in the class Container passed by template argument.
-  @note This class does not require to contain the zones but just have the interface to push_back.
+  @note This class just defines the interface of the container. The actual definition must be done in the class Container passed by template argument. An example is @link PrintContainer @endlink.
+  @note This class does not require to contain the zones but just have the interface to @link push_back @endlink.
 */
 template<class Container>
 class AnsContainer
@@ -90,13 +90,24 @@ public:
 template<class T>
 using AnsNum = AnsContainer<IntContainer<T>>;
 
+/*!
+  @brief A pseudo-container class to print the given zone to stdout. This is given to @link AnsContainer @endlink.
+
+  @note This class does not contain any zones, but just print to stdout and counts the number.
+ */
 class PrintContainer 
 {
 private:
   std::size_t count = 0;
   bool isQuiet = false;
 public:
+  /*!
+    @brief Constructor
+    
+    @param [in] isQuiet If isQuiet is true, this class does not print anything.
+  */
   PrintContainer(bool isQuiet) : isQuiet(isQuiet) {}
+  //! @brief Returns the count of output zones.
   std::size_t size() const {
     return count;
   }
@@ -118,9 +129,11 @@ public:
       puts("=============================");
     }
   }
+  //! @brief Resets the count of output zones.
   void clear() {
     count = 0;
   }
+  //! @brief Does nothing.
   void reserve(std::size_t) {}
   using value_type = Zone;
 };
