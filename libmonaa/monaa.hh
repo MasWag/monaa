@@ -4,7 +4,7 @@
 
   @mainpage Reference Manual of libmonaa
   
-  This is the reference manual of libmonaa. For documentation on how to install libmonaa, see the <a href="https://github.com/MasWag/monaa/blob/master/libmonaa/README">README</a>.
+  This is the reference manual of libmonaa. For documentation on how to install libmonaa, see the <a href="https://github.com/MasWag/monaa/blob/master/libmonaa/README.md">README</a>.
 
   @section Overview
 

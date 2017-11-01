@@ -1,4 +1,4 @@
-MONAA --- A Tool for Timed Patten Matching with Automata-Based Acceleration [![wercker status](https://app.wercker.com/status/5179a3c60c6d9988fcb04fad81aa1d4c/s/master "wercker status")](https://app.wercker.com/project/byKey/5179a3c60c6d9988fcb04fad81aa1d4c)
+MONAA --- A Tool for Timed Patten Matching with Automata-Based Acceleration [![wercker status](https://app.wercker.com/status/cda3497531906ac6356d64e6706afc4f/s/master "wercker status")](https://app.wercker.com/project/byKey/cda3497531906ac6356d64e6706afc4f)
 ============================================================================================================================================================================================
 
 This is the source code repository for MONAA --- A Tool for Timed Patten Matching with Automata-Based Acceleration.
