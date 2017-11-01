@@ -17,8 +17,8 @@ gcc_unit_test:
     - script:
         name: build_and_test
         code: |
-          mkdir build
-          cd build && cmake .. && make && make test
+          mkdir gcc_build
+          cd gcc_build && cmake .. && make && make test
 clang_unit_test:
   steps:
     - script:
@@ -29,14 +29,14 @@ clang_unit_test:
     - script:
         name: build_and_test
         code: |
-          mkdir build
-          cd build && cmake .. && make && make test
+          mkdir gcc_build
+          cd gcc_build && cmake .. && make && make test
 update_doxygen:
   steps:
     - script:
         name: setup
         code: |
-          sudo pacman -S doxygen --noconfirm
+          sudo pacman -Sy doxygen git --noconfirm
     - script:
         name: clone_doc
         code: |
