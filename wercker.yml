@@ -1,4 +1,4 @@
-box: maswag/tgrep-env
+box: maswag/monaa-test-env
 
 build:
   steps:
@@ -36,7 +36,7 @@ update_doxygen:
     - script:
         name: install_dependencies
         code: |
-          sudo pacman -Sy doxygen git openssh --noconfirm
+          sudo pacman -Sy doxygen --noconfirm
     - script:
         name: build_doxygen
         code: |
