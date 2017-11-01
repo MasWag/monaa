@@ -31,3 +31,22 @@ clang_unit_test:
         code: |
           mkdir build
           cd build && cmake .. && make && make test
+update_doxygen:
+  steps:
+    - script:
+        name: setup
+        code: |
+          sudo pacman -S doxygen --noconfirm
+    - script:
+        name: clone_doc
+        code: |
+          git clone -b gh-pages git@github.com:MasWag/monaa.git ~/monaa-doc
+    - script:
+        name: build_doxygen
+        code: |
+          mkdir libmonaa/build
+          cd libmonaa/build && cmake .. && make doc && cp -r doc/html ~/monaa-doc
+    - script:
+        name: push_doc
+        code: |
+          cd ~/monaa-doc/ && git ci -am 'doxygen updated'; git push
