@@ -150,7 +150,7 @@ void reduceStates(TimedAutomaton &out) {
   for(;;) {
     const auto size = out.states.size();
     removeStuckStates(out);
-    removeUnreachableStates(out);
+    //removeUnreachableStates(out);
     if (size == out.states.size()) {
       return;
     }
