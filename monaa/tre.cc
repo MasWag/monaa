@@ -77,6 +77,86 @@ void concat2(TimedAutomaton &left, const TimedAutomaton &right) {
   }
 }
 
+void removeStuckStates(TimedAutomaton &out) {
+  std::vector<TAState*> stuckStates;
+  for (auto &s: out.states) {
+    if (!s->isMatch && s->next.empty()) {
+      stuckStates.push_back(s.get());
+    }
+  }
+  std::sort(stuckStates.begin(), stuckStates.end());
+  for (auto &source: out.states) {
+    for (auto &transitionVectorPair: source->next) {
+      transitionVectorPair.second.erase(std::remove_if(transitionVectorPair.second.begin(), transitionVectorPair.second.end(), [&stuckStates] (const TATransition &transition) {
+            return std::binary_search(stuckStates.begin(), stuckStates.end(), transition.target);
+          }), transitionVectorPair.second.end());
+    }
+    for(auto it = source->next.begin(); it != source->next.end();) {
+      if (it->second.empty()) {
+        it = source->next.erase(it);
+      } else {
+        ++it;
+      }
+    }
+  }
+  out.states.erase(std::remove_if(out.states.begin(), out.states.end(), [&stuckStates] (const std::shared_ptr<TAState> s) {
+        return std::binary_search(stuckStates.begin(), stuckStates.end(), s.get());
+      }), out.states.end());
+}
+
+void removeUnreachableStates(TimedAutomaton &out) {
+  std::vector<TAState*> reachableStates;
+  std::vector<TAState*> newReachableStates;
+  std::transform(out.initialStates.begin(), out.initialStates.end(), newReachableStates.begin(), std::mem_fn(&std::shared_ptr<TAState>::get));
+  std::sort(newReachableStates.begin(), newReachableStates.end());
+  reachableStates = newReachableStates;
+
+  while (!newReachableStates.empty()) {
+    {
+      std::vector<TAState*> c;
+      std::set_union(std::make_move_iterator(reachableStates.begin()), 
+                     std::make_move_iterator(reachableStates.end()), 
+                     newReachableStates.begin(), newReachableStates.end(), 
+                     std::inserter(c, c.begin()));
+      reachableStates.swap(c);
+    }
+    std::vector<TAState*> nextReachableStates;
+    for (TAState* source: newReachableStates) {
+      for (auto &transitionVectorPair: source->next) {
+        for (auto &transition: transitionVectorPair.second) {
+          nextReachableStates.push_back(transition.target);
+        }
+      }
+    }
+    std::sort(nextReachableStates.begin(), nextReachableStates.end());
+    std::unique(nextReachableStates.begin(), nextReachableStates.end());
+    {
+      std::vector<TAState*> c;
+      std::set_difference(std::make_move_iterator(nextReachableStates.begin()), 
+                          std::make_move_iterator(nextReachableStates.end()), 
+                          reachableStates.begin(), reachableStates.end(), 
+                          std::inserter(c, c.begin()));
+      nextReachableStates.swap(c);
+    }
+    newReachableStates = std::move(nextReachableStates);
+  }
+
+  out.states.erase(std::remove_if(out.states.begin(), out.states.end(), [&reachableStates] (const std::shared_ptr<TAState> s) {
+        return std::binary_search(reachableStates.begin(), reachableStates.end(), s.get());
+      }), out.states.end());
+}
+
+void reduceStates(TimedAutomaton &out) {
+  for(;;) {
+    const auto size = out.states.size();
+    removeStuckStates(out);
+    removeUnreachableStates(out);
+    if (size == out.states.size()) {
+      return;
+    }
+  }
+}
+
 void TRE::toEventTA(TimedAutomaton& out) const {
   switch(tag) {
   case op::atom: {
@@ -206,6 +286,29 @@ void TRE::toEventTA(TimedAutomaton& out) const {
     break;
   }
   }
+  // Merge accepting states w/o outgoing transitions
+  std::vector<TAState*> terminalAcceptingStates;
+  for (auto &s: out.states) {
+    if (s->isMatch && s->next.empty()) {
+      terminalAcceptingStates.push_back(s.get());
+    }
+  }
+  std::sort(terminalAcceptingStates.begin(), terminalAcceptingStates.end());
+  for (auto &source: out.states) {
+    for (auto &transitionVectorPair: source->next) {
+      for (auto &transition: transitionVectorPair.second) {
+        if (std::binary_search(terminalAcceptingStates.begin(), terminalAcceptingStates.end(), transition.target)) {
+          transition.target = terminalAcceptingStates.front();
+        }
+      }
+    }
+  }
+  if (terminalAcceptingStates.size() > 1) {
+    out.states.erase(std::remove_if(out.states.begin(), out.states.end(), [&terminalAcceptingStates] (const std::shared_ptr<TAState> s) {
+        return std::binary_search(std::next(terminalAcceptingStates.begin()), terminalAcceptingStates.end(), s.get());
+        }), out.states.end());
+  }
+  reduceStates(out);
 }
 
 //! rename to epsilon transitions
