@@ -393,7 +393,7 @@ void monaa(WordContainer<InputContainer> word,
     auto end = std::chrono::system_clock::now();
     auto dur = end - start;
     auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count();
-    std::cout << "main computation: " << nsec / 1000000.0 << " ms" << std::endl;
+    //    std::cout << "main computation: " << nsec / 1000000.0 << " ms" << std::endl;
   } else {
     // When there are some epsilon transitions
     auto start = std::chrono::system_clock::now();
@@ -606,6 +606,6 @@ void monaa(WordContainer<InputContainer> word,
     auto end = std::chrono::system_clock::now();
     auto dur = end - start;
     auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count();
-    std::cout << "main computation: " << nsec / 1000000.0 << " ms" << std::endl;
+    //    std::cout << "main computation: " << nsec / 1000000.0 << " ms" << std::endl;
   }
 }
