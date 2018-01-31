@@ -46,19 +46,18 @@ BOOST_FIXTURE_TEST_CASE(toEventTATimed, ConstructTA)
   BOOST_TEST( bool(TA.initialStates[0]->isMatch));
   BOOST_TEST(!bool(TA.initialStates[1]->isMatch));
   const auto initialState = TA.initialStates[1];
-  BOOST_CHECK_EQUAL(initialState->next['a'].size(), 2);
+  BOOST_CHECK_EQUAL(initialState->next['a'].size(), 1);
   BOOST_TEST(!bool(initialState->next['a'][0].target->isMatch));
-  BOOST_TEST(!bool(initialState->next['a'][1].target->isMatch));
-  const auto toSecondState = initialState->next['a'][1];
+  const auto toSecondState = initialState->next['a'][0];
   const auto secondState = toSecondState.target;
-  BOOST_CHECK_EQUAL(secondState->next['b'].size(), 2);
+  BOOST_CHECK_EQUAL(secondState->next['b'].size(), 1);
   BOOST_TEST(!bool(secondState->next['b'][0].target->isMatch));
   BOOST_TEST(!bool(secondState->next['b'][1].target->isMatch));
   const auto toThirdState = secondState->next['b'][1];
   const auto thirdState = toThirdState.target;
-  BOOST_CHECK_EQUAL(thirdState->next['a'].size(), 3);
-  BOOST_TEST(!bool(thirdState->next['a'][0].target->isMatch));
-  BOOST_TEST( bool(thirdState->next['a'][1].target->isMatch));
+  BOOST_CHECK_EQUAL(thirdState->next['a'].size(), 2);
+  BOOST_TEST( bool(thirdState->next['a'][0].target->isMatch));
+  BOOST_TEST(!bool(thirdState->next['a'][1].target->isMatch));
   const auto toAcceptingState = thirdState->next['a'][1];
   BOOST_CHECK_EQUAL(toAcceptingState.guard.size(), 2);
   BOOST_CHECK_EQUAL(toAcceptingState.guard[0].c, 2);
@@ -86,10 +85,9 @@ BOOST_FIXTURE_TEST_CASE(toEventTATimedSigleton, ConstructTA)
 
   BOOST_CHECK_EQUAL(TA.initialStates.size(), 1);
   const auto initialState = TA.initialStates[0];
-  BOOST_CHECK_EQUAL(initialState->next['a'].size(), 2);
-  BOOST_TEST(!bool(initialState->next['a'][0].target->isMatch));
-  BOOST_TEST(bool(initialState->next['a'][1].target->isMatch));
-  const auto toAcceptingState = initialState->next['a'][1];
+  BOOST_CHECK_EQUAL(initialState->next['a'].size(), 1);
+  BOOST_TEST(bool(initialState->next['a'][0].target->isMatch));
+  const auto toAcceptingState = initialState->next['a'][0];
   BOOST_CHECK_EQUAL(toAcceptingState.guard.size(), 2);
   BOOST_CHECK_EQUAL(toAcceptingState.guard[0].c, 1);
   BOOST_CHECK_EQUAL(toAcceptingState.guard[1].c, 0);
@@ -106,10 +104,9 @@ BOOST_FIXTURE_TEST_CASE(toEventTATimedSigleton1_2, ConstructTA)
 
   BOOST_CHECK_EQUAL(TA.initialStates.size(), 1);
   const auto initialState = TA.initialStates[0];
-  BOOST_CHECK_EQUAL(initialState->next['a'].size(), 2);
-  BOOST_TEST(!bool(initialState->next['a'][0].target->isMatch));
-  BOOST_TEST(bool(initialState->next['a'][1].target->isMatch));
-  const auto toAcceptingState = initialState->next['a'][1];
+  BOOST_CHECK_EQUAL(initialState->next['a'].size(), 1);
+  BOOST_TEST(bool(initialState->next['a'][0].target->isMatch));
+  const auto toAcceptingState = initialState->next['a'][0];
   BOOST_CHECK_EQUAL(toAcceptingState.guard.size(), 2);
   BOOST_CHECK_EQUAL(toAcceptingState.guard[0].c, 2);
   BOOST_CHECK_EQUAL(toAcceptingState.guard[1].c, 1);
@@ -126,21 +123,18 @@ BOOST_FIXTURE_TEST_CASE(toEventTAConcatIntervals, ConstructTA)
 
   BOOST_CHECK_EQUAL(TA.initialStates.size(), 1);
   const auto initialState = TA.initialStates[0];
-  BOOST_CHECK_EQUAL(initialState->next['a'].size(), 3);
+  BOOST_CHECK_EQUAL(initialState->next['a'].size(), 1);
   BOOST_TEST(!bool(initialState->next['a'][0].target->isMatch));
-  BOOST_TEST(!bool(initialState->next['a'][1].target->isMatch));
-  BOOST_TEST(!bool(initialState->next['a'][2].target->isMatch));
-  const auto toSecondState = initialState->next['a'][2];
+  const auto toSecondState = initialState->next['a'][0];
   const auto secondState = toSecondState.target;
   BOOST_CHECK_EQUAL(toSecondState.resetVars.size(), 1);
   BOOST_CHECK_EQUAL(toSecondState.guard.size(), 2);
   BOOST_CHECK_EQUAL(toSecondState.guard[0].c, 1);
   BOOST_CHECK_EQUAL(toSecondState.guard[1].c, 0);
 
-  BOOST_CHECK_EQUAL(secondState->next['b'].size(), 2);
-  BOOST_TEST(!bool(secondState->next['b'][0].target->isMatch));
-  BOOST_TEST( bool(secondState->next['b'][1].target->isMatch));
-  const auto toAcceptingState = secondState->next['b'][1];
+  BOOST_CHECK_EQUAL(secondState->next['b'].size(), 1);
+  BOOST_TEST(bool(secondState->next['b'][0].target->isMatch));
+  const auto toAcceptingState = secondState->next['b'][0];
   BOOST_CHECK_EQUAL(toAcceptingState.guard.size(), 2);
   BOOST_CHECK_EQUAL(toAcceptingState.guard[0].c, 1);
   BOOST_CHECK_EQUAL(toAcceptingState.guard[1].c, 0);
