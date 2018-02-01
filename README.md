@@ -33,7 +33,7 @@ MONAA is tested on Arch Linux and Mac OSX 10.11.6
 ### Requirements
 
 * C++ compiler supporting C++14 and the corresponding libraries.
-* Boost
+* Boost (>= 1.59)
 * Eigen
 * CMake
 * Bison
