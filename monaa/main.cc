@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
     ("help,h", "help")
     ("quiet,q", "quiet")
     ("ascii,a", "ascii mode (default)")
+    ("dollar,D", "dollar mode")
     ("binary,b", "binary mode")
     ("version,V", "version")
     ("event,E", "event mode (default)")
@@ -107,7 +108,11 @@ int main(int argc, char *argv[])
   AnsPrinter ans(vm.count("quiet"));
   // online mode
   WordLazyDeque w(file, isBinary);
-  monaa(w, TA, ans);
+  if (vm.count("dollar")) {
+    monaaDollar(w, TA, ans);
+  } else {
+    monaa(w, TA, ans);
+  }
 
   return 0;
 }
