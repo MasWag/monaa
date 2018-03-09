@@ -30,6 +30,47 @@ BOOST_AUTO_TEST_CASE(parseBoostTATest)
   BOOST_CHECK_EQUAL(boost::get(&BoostTATransition::guard, BoostTA, transition)[1].odr, Constraint::Order::lt);
 }
 
+BOOST_AUTO_TEST_CASE(parseBoostTASimpleTest)
+{
+  BoostTimedAutomaton BoostTA;
+  std::ifstream file("../test/small.dot");
+  parseBoostTA(file, BoostTA);
+
+  std::array<bool, 4> initResult  = {{true, false, false, false}};
+  std::array<bool, 4> matchResult = {{false, false, false, true}};
+
+  for (int i = 0; i < 4; i++) {
+    BOOST_CHECK_EQUAL(BoostTA[i].isInit,  initResult[i]);
+    BOOST_CHECK_EQUAL(BoostTA[i].isMatch, matchResult[i]);
+  }
+
+  std::array<BoostTimedAutomaton::edge_descriptor, 4> transitions = {{
+      boost::edge(boost::vertex(0, BoostTA), boost::vertex(1, BoostTA), BoostTA).first,
+      boost::edge(boost::vertex(1, BoostTA), boost::vertex(2, BoostTA), BoostTA).first,
+      boost::edge(boost::vertex(2, BoostTA), boost::vertex(1, BoostTA), BoostTA).first,
+      boost::edge(boost::vertex(2, BoostTA), boost::vertex(3, BoostTA), BoostTA).first
+    }};
+
+  std::array<Alphabet, 4> labelResult  = {{'l', 'h', 'l', '$'}};
+  std::array<std::size_t, 4> resetVarNumResult  = {{0, 0, 0, 0}};
+  std::array<std::size_t, 4> guardNumResult  = {{1, 1, 1, 1}};
+  std::array<int, 4> guardXResult  = {{0, 0, 0, 0}};
+  std::array<int, 4> guardCResult  = {{1, 1, 1, 1}};
+  std::array<Constraint::Order, 4> guardOdrResult  = {{Constraint::Order::lt,
+                                                       Constraint::Order::lt, 
+                                                       Constraint::Order::lt, 
+                                                       Constraint::Order::lt}};
+
+  for (int i = 0; i < 4; i++) {
+    BOOST_CHECK_EQUAL(boost::get(&BoostTATransition::c, BoostTA, transitions[i]), labelResult[i]);
+    BOOST_CHECK_EQUAL(boost::get(&BoostTATransition::resetVars, BoostTA, transitions[i]).resetVars.size(), resetVarNumResult[i]);
+    BOOST_CHECK_EQUAL(boost::get(&BoostTATransition::guard, BoostTA, transitions[i]).size(), guardNumResult[i]);
+    BOOST_CHECK_EQUAL(boost::get(&BoostTATransition::guard, BoostTA, transitions[i])[0].x, guardXResult[i]);
+    BOOST_CHECK_EQUAL(boost::get(&BoostTATransition::guard, BoostTA, transitions[i])[0].c, guardCResult[i]);
+    BOOST_CHECK_EQUAL(boost::get(&BoostTATransition::guard, BoostTA, transitions[i])[0].odr, guardOdrResult[i]);
+  }
+}
+
 BOOST_AUTO_TEST_CASE(convBoostTATest)
 {
   BoostTimedAutomaton BoostTA;
