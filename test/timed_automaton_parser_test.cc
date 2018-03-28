@@ -6,6 +6,26 @@
 std::ostream& operator<<(std::ostream& os, const std::vector<ClockVariables> &resetVars);
 
 BOOST_AUTO_TEST_SUITE(timedAutomatonParserTests)
+BOOST_AUTO_TEST_CASE(parseBoostPhi7TATest)
+{
+  BoostTimedAutomaton BoostTA;
+  std::ifstream file("../test/phi7.dot");
+  parseBoostTA(file, BoostTA);
+
+  BOOST_TEST(!BoostTA[0].isMatch);
+  BOOST_TEST(!BoostTA[1].isMatch);
+  BOOST_TEST( BoostTA[2].isMatch);
+  BOOST_TEST( BoostTA[0].isInit);
+  BOOST_TEST(!BoostTA[1].isInit);
+  BOOST_TEST(!BoostTA[2].isInit);
+  auto transition = boost::edge(boost::vertex(0, BoostTA), boost::vertex(1, BoostTA), BoostTA).first;
+  BOOST_CHECK_EQUAL(boost::get(&BoostTATransition::c, BoostTA, transition), 'A');
+  BOOST_CHECK_EQUAL(boost::get(&BoostTATransition::resetVars, BoostTA, transition).resetVars.size(), 1);
+  BOOST_CHECK_EQUAL(boost::get(&BoostTATransition::resetVars, BoostTA, transition).resetVars[0], 0);
+
+  BOOST_CHECK_EQUAL(boost::get(&BoostTATransition::guard, BoostTA, transition).size(), 0);
+}
+
 BOOST_AUTO_TEST_CASE(parseBoostTATest)
 {
   BoostTimedAutomaton BoostTA;
