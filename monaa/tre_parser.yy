@@ -54,7 +54,7 @@
 unit : expr END { driver.result = $1; }
 
 /* The order matters */
-expr : ATOM { $$ = std::make_shared<TRE>(TRE::op::atom, $1); }
+expr : ATOM { $$ = std::make_shared<TRE>(TRE::op::atom, std::vector<char>{$1}); }
      | LPAREN expr RPAREN { $$ = $2; }
      | expr PLUS { $$ = std::make_shared<TRE>(TRE::op::plus, $1); }
      | expr STAR { $$ = std::make_shared<TRE>(TRE::op::disjunction, 

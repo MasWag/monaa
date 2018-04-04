@@ -25,13 +25,13 @@ public:
 
   static const std::shared_ptr<TRE> epsilon;
 
-  // Atom
+  // Epsilon
   TRE(op tag) : tag(tag) {
     assert(tag == op::epsilon);
   }
 
   // Atom
-  TRE(op tag, char c) : tag(tag), c(c) {
+  TRE(op tag, const std::vector<char> &c) : tag(tag), c(c) {
     assert(tag == op::atom);
   }
 
@@ -41,8 +41,23 @@ public:
   }
 
   // Concat, Disjunction, and Conjunction
-  TRE(op tag, const std::shared_ptr<TRE> expr0, const std::shared_ptr<TRE> expr1) : tag(tag), regExprPair(std::pair<std::shared_ptr<TRE>, std::shared_ptr<TRE>>(expr0, expr1)) {
+  TRE(const op tag, const std::shared_ptr<TRE> expr0, const std::shared_ptr<TRE> expr1) : tag(tag), regExprPair(std::pair<std::shared_ptr<TRE>, std::shared_ptr<TRE>>(expr0, expr1)) {
     assert(tag == op::disjunction || tag == op::conjunction || tag == op::concat);
+    // Optimizatio for disjunction of atoms
+    if (tag == op::disjunction && expr0->tag == op::atom && expr1->tag == op::atom) {
+      this->tag = op::atom;
+      std::sort(expr0->c.begin(), expr0->c.end());
+      std::sort(expr1->c.begin(), expr1->c.end());
+      regExprPair.first.reset();
+      regExprPair.second.reset();
+      std::vector<char> leftC = expr0->c;
+      std::vector<char> rightC = expr1->c;
+      c = std::vector<char>();
+      c.reserve(leftC.size() + rightC.size());
+      std::set_union(leftC.begin(), leftC.end(),
+                     rightC.begin(), rightC.end(),
+                     std::inserter(c, c.end()));
+    }
   }
 
   // Within
@@ -78,10 +93,10 @@ public:
 
 private:
 
-  const op tag;
+  op tag;
 
   const union {
-    char c;
+    std::vector<char> c;
     std::shared_ptr<TRE> regExpr;
     std::pair<std::shared_ptr<TRE>, std::shared_ptr<TRE>> regExprPair;
     std::pair<std::shared_ptr<TRE>, std::shared_ptr<Interval>>  regExprWithin;

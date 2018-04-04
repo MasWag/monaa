@@ -9,7 +9,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-flto -O3 -DRELEASE")
 
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
-find_package(Boost REQUIRED COMPONENTS
+find_package(Boost 1.59.0 REQUIRED COMPONENTS
   program_options unit_test_framework iostreams graph)
 find_package(Eigen3 REQUIRED)
 

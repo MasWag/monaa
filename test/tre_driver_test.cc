@@ -12,6 +12,14 @@ struct SampleTRE {
   std::stringstream stream;
 };
 
+struct DisjunctionAtomTRE {
+  DisjunctionAtomTRE() {
+    stream << "a|b|c";
+  }
+
+  std::stringstream stream;
+};
+
 struct SimpleTimedExpression {
   SimpleTimedExpression() {
     stream << "(aba)%(1,2)";
@@ -38,6 +46,15 @@ BOOST_FIXTURE_TEST_CASE(simpleTimedParse, SimpleTimedExpression)
   driver.parse(stream);
   result << *(driver.getResult());
   BOOST_CHECK_EQUAL(result.str(), "((a(ba))%((1, 0),(2, 0)))");
+}
+
+BOOST_FIXTURE_TEST_CASE(disjunctionAtomParse, DisjunctionAtomTRE)
+{
+  TREDriver driver;
+  std::stringstream result;
+  driver.parse(stream);
+  result << *(driver.getResult());
+  BOOST_CHECK_EQUAL(result.str(), "{a, b, c, }");
 }
 BOOST_AUTO_TEST_SUITE_END()
 

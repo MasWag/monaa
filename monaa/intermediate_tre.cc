@@ -50,7 +50,10 @@ void SyntacticDecision::concat(std::shared_ptr<SyntacticDecision> in) {
 DNFTRE::DNFTRE(const std::shared_ptr<const TRE> tre) {
   switch(tre->tag) {
   case TRE::op::atom: {
-    list = {{std::make_shared<AtomicTRE>(tre->c)}};
+    list.clear();
+    for (const char c: tre->c) {
+      list.emplace_back(c);
+    }
     break;
   }
   case TRE::op::epsilon: {

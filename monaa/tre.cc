@@ -9,7 +9,15 @@ operator<<( std::ostream &stream, const TRE& expr)
 {
   switch(expr.tag) {
   case TRE::op::atom:
-    stream << expr.c;
+    if (expr.c.size() == 1) {
+      stream << expr.c.front();      
+    } else {
+      stream << "{";
+      for (const auto c: expr.c) {
+        stream << c << ", ";
+      }
+      stream << "}";
+    }
     break;
   case TRE::op::epsilon:
     stream << '@';
@@ -169,7 +177,9 @@ void TRE::toEventTA(TimedAutomaton& out) const {
     out.states[0]->isMatch = false;
     out.states[1]->isMatch = true;
 
-    out.states[0]->next[c].push_back({out.states[1].get(), {}, {}});
+    for (const auto label: c) {
+      out.states[0]->next[label].push_back({out.states[1].get(), {}, {}});
+    }
 
     out.maxConstraints.clear();
     break;
