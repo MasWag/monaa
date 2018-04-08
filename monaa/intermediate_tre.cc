@@ -52,7 +52,7 @@ DNFTRE::DNFTRE(const std::shared_ptr<const TRE> tre) {
   case TRE::op::atom: {
     list.clear();
     for (const char c: tre->c) {
-      list.emplace_back(c);
+      list.push_back({std::make_shared<AtomicTRE>(c)});
     }
     break;
   }
@@ -68,7 +68,7 @@ DNFTRE::DNFTRE(const std::shared_ptr<const TRE> tre) {
   case TRE::op::concat: {
     std::shared_ptr<DNFTRE> subfmlLeft = std::make_shared<DNFTRE>(tre->regExprPair.first);
     std::shared_ptr<DNFTRE> subfmlRight = std::make_shared<DNFTRE>(tre->regExprPair.second);
-      
+
     for (const auto& conjunctionsLeft: subfmlLeft->list) {
       for (const auto& conjunctionsRight: subfmlRight->list) {
         std::list<std::shared_ptr<AtomicTRE>> conjunctions;

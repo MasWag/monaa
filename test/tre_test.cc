@@ -162,6 +162,51 @@ BOOST_FIXTURE_TEST_CASE(disjunctions, ConstructTA)
   BOOST_TEST(bool(initialState->next['c'][0].target->isMatch));
 }
 
+BOOST_FIXTURE_TEST_CASE(disjunctionsPlus, ConstructTA)
+{
+  constructEventTA("(a|b|c)+");
+
+  BOOST_CHECK_EQUAL(TA.states.size(), 2);
+  BOOST_CHECK_EQUAL(TA.initialStates.size(), 1);
+  const auto initialState = TA.initialStates[0];
+  BOOST_CHECK_EQUAL(initialState->next['a'].size(), 2);
+  BOOST_CHECK_EQUAL(initialState->next['b'].size(), 2);
+  BOOST_CHECK_EQUAL(initialState->next['c'].size(), 2);
+  BOOST_TEST(bool(initialState->next['a'][0].target->isMatch));
+  BOOST_TEST(bool(initialState->next['b'][0].target->isMatch));
+  BOOST_TEST(bool(initialState->next['c'][0].target->isMatch));
+
+  BOOST_CHECK_EQUAL(initialState->next['a'][1].target, initialState.get());
+  BOOST_CHECK_EQUAL(initialState->next['b'][1].target, initialState.get());
+  BOOST_CHECK_EQUAL(initialState->next['c'][1].target, initialState.get());
+}
+
+BOOST_FIXTURE_TEST_CASE(disjunctionsStar, ConstructTA)
+{
+  constructEventTA("(a|b|c)*");
+
+  BOOST_CHECK_EQUAL(TA.states.size(), 2);
+  BOOST_CHECK_EQUAL(TA.initialStates.size(), 2);
+  {
+    const auto initialState = TA.initialStates[0];
+    BOOST_CHECK_EQUAL(initialState->next['a'].size(), 0);
+    BOOST_CHECK_EQUAL(initialState->next['b'].size(), 0);
+    BOOST_CHECK_EQUAL(initialState->next['c'].size(), 0);
+  }
+  {
+    const auto initialState = TA.initialStates[1];
+    BOOST_CHECK_EQUAL(initialState->next['a'].size(), 2);
+    BOOST_CHECK_EQUAL(initialState->next['b'].size(), 2);
+    BOOST_CHECK_EQUAL(initialState->next['c'].size(), 2);
+
+    BOOST_TEST(bool(initialState->next['a'][0].target->isMatch));
+    BOOST_TEST(bool(initialState->next['b'][0].target->isMatch));
+    BOOST_TEST(bool(initialState->next['c'][0].target->isMatch));
+    BOOST_CHECK_EQUAL(initialState->next['a'][1].target, initialState.get());
+    BOOST_CHECK_EQUAL(initialState->next['b'][1].target, initialState.get());
+    BOOST_CHECK_EQUAL(initialState->next['c'][1].target, initialState.get());
+  }
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()
