@@ -1,0 +1,28 @@
+/*
+<>_{[0,4]}((v >= 120) /\ [](omega < 4500))
+
+A: (v < 120) /\ (omega < 4500)
+B: (v < 120) /\ (omega >= 4500)
+C: (v >= 120) /\ (omega < 4500)
+D: (v >= 120) /\ (omega >= 4500)
+Montre TRE: (A|B|C|D)%(0,400);C;(C|D)
+MONAA TRE: ((A|B|C|D)*C)%(0,4)((C|D)*)
+*/
+digraph G {
+        0 [init=1][match=0];
+        1 [init=0][match=0];
+        2 [init=0][match=1];
+        0->1 [label=A][reset="{0}"];
+        0->1 [label=B][reset="{0}"];
+        0->1 [label=C][reset="{0}"];
+        0->1 [label=D][reset="{0}"];
+
+        1->1 [label=A][guard="{x0 < 4}"];
+        1->1 [label=B][guard="{x0 < 4}"];
+        1->1 [label=C][guard="{x0 < 4}"];
+        1->1 [label=D][guard="{x0 < 4}"];
+
+        1->2 [label=C][guard="{x0 < 4}"];
+        2->2 [label=C];
+        2->2 [label=D];
+}
