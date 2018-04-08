@@ -253,7 +253,6 @@ void TRE::toEventTA(TimedAutomaton& out) const {
         dummyInitialState->next[c].reserve(dummyInitialState->next[c].size() + initTransitionsPair.second.size());
         for (auto& edge: initTransitionsPair.second) {
           TATransition transition = edge;
-          transition.resetVars.push_back(out.clockSize());
           dummyInitialState->next[c].emplace_back(std::move(transition));
         }
       }

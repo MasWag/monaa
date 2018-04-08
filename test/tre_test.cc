@@ -65,7 +65,8 @@ BOOST_FIXTURE_TEST_CASE(toEventTATimed, ConstructTA)
 
 
   BOOST_TEST(TA.isMember({}));
-  BOOST_TEST(TA.isMember({{'a', 1.2}, {'b', 2.0}, {'a', 3.0}}));
+  BOOST_TEST( TA.isMember({{'a', 1.2}, {'b', 1.5}, {'a', 1.9}}));
+  BOOST_TEST(!TA.isMember({{'a', 1.2}, {'b', 2.0}, {'a', 3.0}}));
   BOOST_TEST(!TA.isMember({{'a', 1.2}, {'b', 2.0}, {'a', 3.3}}));
 }
 
@@ -212,7 +213,7 @@ BOOST_FIXTURE_TEST_CASE(intervalTest, ConstructTA)
 {
   constructEventTA("(abc)%(1,2)");
 
-  BOOST_TEST(!TA.isMember({{'a', 1.0}, {'b', 1.2},{'c', 1.9}}));
+  BOOST_TEST( TA.isMember({{'a', 1.0}, {'b', 1.2},{'c', 1.9}}));
   BOOST_TEST(!TA.isMember({{'a', 1.2}, {'b', 2.0},{'c', 2.1}}));
 }
 
