@@ -208,5 +208,13 @@ BOOST_FIXTURE_TEST_CASE(disjunctionsStar, ConstructTA)
   }
 }
 
+BOOST_FIXTURE_TEST_CASE(intervalTest, ConstructTA)
+{
+  constructEventTA("(abc)%(1,2)");
+
+  BOOST_TEST(!TA.isMember({{'a', 1.0}, {'b', 1.2},{'c', 1.9}}));
+  BOOST_TEST(!TA.isMember({{'a', 1.2}, {'b', 2.0},{'c', 2.1}}));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()
