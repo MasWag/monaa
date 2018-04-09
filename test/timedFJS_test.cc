@@ -3,6 +3,8 @@
 
 #include "../libmonaa/monaa.hh"
 #include "../monaa/timed_automaton_parser.hh"
+#include "ans_vec.hh"
+#include "../monaa/word_lazy_deque.hh"
 
 BOOST_AUTO_TEST_SUITE(timedFJSTest)
 

@@ -4,6 +4,8 @@
 #include "monaa.hh"
 #include "tre_driver.hh"
 #include "timed_automaton_parser.hh"
+#include "zone_printer.hh"
+#include "word_lazy_deque.hh"
 
 using namespace boost::program_options;
 
@@ -104,9 +106,8 @@ int main(int argc, char *argv[])
     convBoostTA(BoostTA, TA);
   }
 
-  FILE* file = stdin;
-  AnsPrinter ans(vm.count("quiet"));
-  // online mode
+  FILE* file = fopen(timedWordFileName.c_str(), "r");
+  ZonePrinter ans(vm.count("quiet"));
   WordLazyDeque w(file, isBinary);
   if (vm.count("dollar")) {
     monaaDollar(w, TA, ans);

@@ -31,6 +31,7 @@ ADD_FLEX_BISON_DEPENDENCY(tre_lexer tre_parser)
 ## Config for Main monaa
 add_executable(monaa
   monaa/main.cc
+  libmonaa/monaa.cc
   libmonaa/intersection.cc
   libmonaa/ta2za.cc
   monaa/tre.cc
@@ -52,6 +53,7 @@ set_property(TARGET monaa
 
 ## Config for libmonaa
 add_library(libmonaa STATIC
+  libmonaa/monaa.cc
   libmonaa/intersection.cc
   libmonaa/ta2za.cc
 )
@@ -62,6 +64,7 @@ enable_testing()
 add_executable(unit_test
   libmonaa/intersection.cc
   libmonaa/ta2za.cc
+  libmonaa/monaa.cc
   monaa/tre.cc
   monaa/intermediate_tre.cc
   test/unit_test.cc
@@ -69,7 +72,6 @@ add_executable(unit_test
   test/ta2za_test.cc
   test/lazy_deque_test.cc
 # test/word_container_test.cc
-  test/ans_vec_test.cc
   test/intersection_test.cc
   test/timed_automaton_test.cc
   test/constraint_test.cc

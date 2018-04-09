@@ -1,5 +1,6 @@
 #pragma once
-#include<vector>
+
+#include <vector>
 #include <iostream>
 #include <iomanip>
 
@@ -12,7 +13,7 @@
   @note This class does not require to contain the zones but just have the interface to @link push_back @endlink.
 */
 template<class Container>
-class AnsContainer
+class AnsContainer : public AbstractAbsZoneContainer
 {
 protected:
   //! @brief The actual container of the zones.
