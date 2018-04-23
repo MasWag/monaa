@@ -37,7 +37,8 @@ add_executable(monaa
   monaa/tre.cc
   monaa/intermediate_tre.cc
   ${FLEX_tre_lexer_OUTPUTS}
-  ${BISON_tre_parser_OUTPUTS})
+  ${BISON_tre_parser_OUTPUTS}
+)
 
 target_link_libraries(monaa
 #  profiler
@@ -50,13 +51,6 @@ target_include_directories(monaa
   ${CMAKE_CURRENT_BINARY_DIR})
 set_property(TARGET monaa
   PROPERTY CXX_STANDARD 14)
-
-## Config for libmonaa
-add_library(libmonaa STATIC
-  libmonaa/monaa.cc
-  libmonaa/intersection.cc
-  libmonaa/ta2za.cc
-)
 
 ## Config for Test
 enable_testing()
