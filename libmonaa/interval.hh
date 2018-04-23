@@ -34,11 +34,29 @@ struct Interval {
     plusIntervals.emplace_back(std::make_shared<Interval>(Bounds{lowerBound.first * m, lowerBound.second},
                                                           Bounds{std::numeric_limits<double>::infinity(), false}));
   }
+
+  /*!
+    @brief merge two intervals
+    @param [in] i The interval to merge
+    @return false if it cannot merge
+   */
+  bool merge (const Interval &i) {
+    if ((i.upperBound < lowerBound || upperBound < i.lowerBound) && 
+        i.upperBound.first != lowerBound.first &&       
+        i.lowerBound.first != upperBound.first) {
+      return false;
+    }
+    upperBound = std::max(upperBound, i.upperBound);
+    lowerBound = std::min(lowerBound, i.lowerBound);
+    return true;
+  }
 };
 
 inline static Interval
 operator&&( const Interval &left, const Interval &right) {
-  Interval ret = Interval{std::max(left.lowerBound, right.lowerBound),
+  Interval ret = Interval{(left.lowerBound.first != right.lowerBound.first ?
+                           std::max(left.lowerBound, right.lowerBound) :
+    Bounds{left.lowerBound.first, left.lowerBound.second && right.lowerBound.second}),
                           std::min(left.upperBound, right.upperBound)};
   return ret; 
 }
@@ -70,8 +88,11 @@ land( std::vector<std::shared_ptr<Interval>> &left, const std::vector<std::share
 
 inline static Interval
 operator+( Interval left, const Interval &right) {
-  left.lowerBound += right.lowerBound;
-  left.upperBound += right.upperBound;
+  left.lowerBound.first += right.lowerBound.first;
+  left.lowerBound.second = left.lowerBound.second && right.lowerBound.second;
+
+  left.upperBound.first += right.upperBound.first;
+  left.upperBound.second = left.upperBound.second && right.upperBound.second;
   return left;
 }
 

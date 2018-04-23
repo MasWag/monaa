@@ -29,6 +29,21 @@ BOOST_AUTO_TEST_CASE(intervalsLand1_2)
   BOOST_CHECK_EQUAL(intervals[0]->upperBound.first, 2);
   BOOST_CHECK_EQUAL(intervals[0]->upperBound.second, false);
 }
+
+BOOST_AUTO_TEST_CASE(intervalLand1_2OpenClosed)
+{
+  Interval intervalL(1,2);
+  Interval intervalR(1,2);
+  intervalL.lowerBound.second = true;
+  intervalR.upperBound.second = true;
+
+  Interval andInterval = intervalL && intervalR;
+  BOOST_CHECK_EQUAL(andInterval.lowerBound.first, 1);
+  BOOST_CHECK_EQUAL(andInterval.lowerBound.second, false);
+  BOOST_CHECK_EQUAL(andInterval.upperBound.first, 2);
+  BOOST_CHECK_EQUAL(andInterval.upperBound.second, false);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(intervalPlusTests)
