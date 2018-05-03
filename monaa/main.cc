@@ -9,6 +9,74 @@
 
 using namespace boost::program_options;
 
+inline static std::ostream& 
+operator<<( std::ostream &stream, const std::vector<ClockVariables> &resetVars) {
+  if (!resetVars.empty()) {
+    stream << "reset=\"{";
+    bool notFirst = false;
+    for (const auto &x: resetVars) {
+      if (notFirst) {
+        stream << ", ";
+      }
+      stream << static_cast<int>(x);
+      notFirst = true;
+    }
+    stream << "}\"]";
+  }
+  return stream;
+}
+
+inline static std::ostream& 
+operator<<( std::ostream &stream, const std::vector<Constraint> &guard) {
+  if (!guard.empty()) {
+    stream << "guard=\"{";
+    bool notFirst = false;
+    for (const auto &x: guard) {
+      if (notFirst) {
+        stream << ", ";
+      }
+      stream << x;
+      notFirst = true;
+    }
+    stream << "}\"]";
+  }
+  return stream;
+}
+
+inline static std::ostream& 
+operator<<( std::ostream &stream, const TimedAutomaton& A)
+{
+  std::unordered_map<TAState*, int> rev_map;
+  std::vector<bool> init_vec;
+  for (int i = 0; i < A.states.size(); i++) {
+    rev_map[A.states[i].get()] = i;
+  }
+  init_vec.resize(A.states.size(), false);
+  for (const auto &s: A.initialStates) {
+    init_vec[rev_map[s.get()]] = true;
+  }
+  stream << "digraph G {\n";
+  for (int i = 0; i < A.states.size(); i++) {
+    stream << "        " << i 
+           << " [init=" << init_vec[i] << "][match=" << A.states[i]->isMatch << "];\n";
+  }
+  for (const auto &s: A.states) {
+    for (const auto& edgesPair: s->next) {
+      for (const auto& transition: edgesPair.second) {
+        stream << "        " << rev_map[s.get()] << "->" << rev_map[transition.target]
+               << " [label=" << edgesPair.first << "]"
+               << transition.resetVars
+               << transition.guard;
+                                                   //[match=" << A.states[i]->isMatch; ]
+        stream << ";\n";
+      }
+    }
+  }
+  //    "        6->7 [label=a][guard=\"{x0 > 1}\"];\n"
+  stream << "}";
+  return stream;
+}
+
 int main(int argc, char *argv[])
 {
   const auto programName = "monaa";
@@ -106,13 +174,29 @@ int main(int argc, char *argv[])
     convBoostTA(BoostTA, TA);
   }
 
-  FILE* file = fopen(timedWordFileName.c_str(), "r");
+  FILE* file = timedWordFileName == "stdin" ? stdin : fopen(timedWordFileName.c_str(), "r");
   ZonePrinter ans(vm.count("quiet"));
   WordLazyDeque w(file, isBinary);
   if (vm.count("dollar")) {
     monaaDollar(w, TA, ans);
   } else {
+#ifdef DEBUG
+    std::cout << TA.states.size() << std::endl;
+    for (const auto &s : TA.states) {
+      std::cout << s->next.size() << " " 
+                << (s->next.empty() ? 0 : s->next.begin()->second.size()) << std::endl;
+    }
+    std::cout << TA << std::endl;
+    std::cout << TA.clockSize() << std::endl;
+    auto start = std::chrono::system_clock::now();
+#endif
     monaa(w, TA, ans);
+#ifdef DEBUG
+    auto end = std::chrono::system_clock::now();
+    auto dur = end - start;
+    auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(dur).count();
+    std::cout << "parse TRE: " << nsec / 1000000.0 << " ms" << std::endl;
+#endif
   }
 
   return 0;

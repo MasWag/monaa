@@ -12,12 +12,19 @@ BOOST_AUTO_TEST_CASE(parseBoostPhi7TATest)
   std::ifstream file("../test/phi7.dot");
   parseBoostTA(file, BoostTA);
 
+  BOOST_CHECK_EQUAL(boost::num_vertices(BoostTA), 3);
+  BOOST_CHECK_EQUAL(boost::num_edges(BoostTA), 11);
   BOOST_TEST(!BoostTA[0].isMatch);
   BOOST_TEST(!BoostTA[1].isMatch);
   BOOST_TEST( BoostTA[2].isMatch);
   BOOST_TEST( BoostTA[0].isInit);
   BOOST_TEST(!BoostTA[1].isInit);
   BOOST_TEST(!BoostTA[2].isInit);
+
+  BOOST_CHECK_EQUAL(boost::out_degree(boost::vertex(0, BoostTA), BoostTA), 4);
+  BOOST_CHECK_EQUAL(boost::out_degree(boost::vertex(1, BoostTA), BoostTA), 5);
+  BOOST_CHECK_EQUAL(boost::out_degree(boost::vertex(2, BoostTA), BoostTA), 2);
+
   auto transition = boost::edge(boost::vertex(0, BoostTA), boost::vertex(1, BoostTA), BoostTA).first;
   BOOST_CHECK_EQUAL(boost::get(&BoostTATransition::c, BoostTA, transition), 'A');
   BOOST_CHECK_EQUAL(boost::get(&BoostTATransition::resetVars, BoostTA, transition).resetVars.size(), 1);
@@ -119,5 +126,40 @@ BOOST_AUTO_TEST_CASE(convBoostTATest)
   auto acceptingState = toAcceptingState.target;
   BOOST_TEST(acceptingState->isMatch);
 }
+
+BOOST_AUTO_TEST_CASE(convBoostPhi7TATest)
+{
+  BoostTimedAutomaton BoostTA;
+  TimedAutomaton TA;
+  std::ifstream file("../test/phi7.dot");
+  parseBoostTA(file, BoostTA);
+  convBoostTA(BoostTA, TA);
+
+  BOOST_CHECK_EQUAL(TA.stateSize(), 3);
+  BOOST_CHECK_EQUAL(TA.initialStates.size(), 1);
+  BOOST_CHECK_EQUAL(TA.clockSize(), 1);
+  auto initialState = TA.initialStates[0];
+
+  BOOST_TEST(!initialState->isMatch);
+  BOOST_CHECK_EQUAL(initialState->next['A'].size(), 1);
+  BOOST_CHECK_EQUAL(initialState->next['B'].size(), 1);
+  BOOST_CHECK_EQUAL(initialState->next['C'].size(), 1);
+  BOOST_CHECK_EQUAL(initialState->next['D'].size(), 1);
+
+  auto secondState = initialState->next['A'][0].target; 
+  BOOST_TEST(!secondState->isMatch);
+  BOOST_CHECK_EQUAL(secondState->next['A'].size(), 1);
+  BOOST_CHECK_EQUAL(secondState->next['B'].size(), 1);
+  BOOST_CHECK_EQUAL(secondState->next['C'].size(), 2);
+  BOOST_CHECK_EQUAL(secondState->next['D'].size(), 1);  
+
+  auto acceptingState = secondState->next['C'].at(1).target; 
+  BOOST_TEST(acceptingState->isMatch);
+  BOOST_CHECK_EQUAL(acceptingState->next['A'].size(), 0);
+  BOOST_CHECK_EQUAL(acceptingState->next['B'].size(), 0);
+  BOOST_CHECK_EQUAL(acceptingState->next['C'].size(), 1);
+  BOOST_CHECK_EQUAL(acceptingState->next['D'].size(), 1);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
