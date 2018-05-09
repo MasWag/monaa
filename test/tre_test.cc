@@ -22,7 +22,8 @@ public:
   TimedAutomaton TA;
   void constructEventTA(const char* tre) {
     parse(tre);
-    driver.getResult()->toEventTA(TA);
+    boost::unordered_map<TAState*, uint32_t> indegree;
+    driver.getResult()->toEventTA(TA, indegree);
   }
 };
 
@@ -65,7 +66,9 @@ BOOST_FIXTURE_TEST_CASE(toEventTATimed, ConstructTA)
 
 
   BOOST_TEST(TA.isMember({}));
-  BOOST_TEST(TA.isMember({{'a', 1.2}, {'b', 2.0}, {'a', 3.0}}));
+  BOOST_TEST(TA.isMember({{'a', 1.2}, {'b', 1.3}, {'a', 1.9}}));
+  BOOST_TEST(TA.isMember({{'a', 0.2}, {'b', 0.3}, {'a', 1.1}, {'a', 1.2}, {'b', 1.3}, {'a', 2.3}}));
+  BOOST_TEST(TA.isMember({{'a', 1.2}, {'b', 1.3}, {'a', 1.9}, {'a', 2.2}, {'b', 2.3}, {'a', 3.2}}));
   BOOST_TEST(!TA.isMember({{'a', 1.2}, {'b', 2.0}, {'a', 3.3}}));
 }
 

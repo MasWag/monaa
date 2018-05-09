@@ -4,7 +4,7 @@
 #include "../monaa/intermediate_tre.hh"
 
 extern void renameToEpsilonTransitions(TimedAutomaton& out);
-extern void concat2(TimedAutomaton &left, const TimedAutomaton &right);
+void concat2(TimedAutomaton &left, boost::unordered_map<TAState*, uint32_t> &indegree, const TimedAutomaton &right);
 
 BOOST_AUTO_TEST_SUITE(IntermediateTRETest)
 class ParseTRE {
@@ -358,7 +358,8 @@ BOOST_AUTO_TEST_CASE(renameToEpsilonTransitionsSimpleConcat)
     A.maxConstraints = {10};
   }
 
-  concat2(TA[0], TA[1]);
+  boost::unordered_map<TAState*, uint32_t> indegree;
+  concat2(TA[0], indegree, TA[1]);
   BOOST_CHECK_EQUAL(TA[0].initialStates.size(), 1);
   const auto initialState = TA[0].initialStates[0];
   BOOST_CHECK_EQUAL(initialState->next['a'].size(), 2);

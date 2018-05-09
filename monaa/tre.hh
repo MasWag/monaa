@@ -53,7 +53,8 @@ public:
   /*!
     @brief construct an event TA without unnecessary states (every states are reachable from an initial state and reachable to an accepting state)
   */
-  void toEventTA(TimedAutomaton& out) const;
+  void toEventTA(TimedAutomaton& out, 
+                 boost::unordered_map<TAState*, uint32_t> &indegree) const;
 
   ~TRE() {
     switch(tag) {

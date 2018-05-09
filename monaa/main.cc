@@ -164,7 +164,8 @@ int main(int argc, char *argv[])
     if (isSignal) {
       toSignalTA(driver.getResult(), TA);
     } else {
-      driver.getResult()->toEventTA(TA);
+      boost::unordered_map<TAState*, uint32_t> indegree;
+      driver.getResult()->toEventTA(TA, indegree);
     }
   } else {
     // parse TA

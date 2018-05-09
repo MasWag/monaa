@@ -32,7 +32,8 @@ public:
     TAs[1].maxConstraints = {1}; 
 
     // Run
-    intersectionTA (TAs[0], TAs[1], out, toIState);
+    boost::unordered_map<TAState*, uint32_t> indegree;
+    intersectionTA (TAs[0], TAs[1], out, toIState, indegree);
   }
 };
 

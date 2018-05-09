@@ -86,7 +86,8 @@ public:
       As.states.push_back(dummyState.second);
     }
     
-    intersectionTA (A0, As, A2, toIState);
+    boost::unordered_map<TAState*, uint32_t> indegree;
+    intersectionTA (A0, As, A2, toIState, indegree);
 
     // Calculate KMP-type skip value
     for (auto origState: TA.states) {

@@ -1,5 +1,6 @@
 #include <numeric>
 #include <ostream>
+#include <boost/unordered/unordered_map.hpp>
 
 #include "tre.hh"
 #include "intermediate_tre.hh"
@@ -36,7 +37,9 @@ operator<<( std::ostream &stream, const TRE& expr)
 
 const std::shared_ptr<TRE> TRE::epsilon = std::make_shared<TRE>(op::epsilon);
 
-void concat2(TimedAutomaton &left, const TimedAutomaton &right) {
+void concat2(TimedAutomaton &left, 
+             boost::unordered_map<TAState*, uint32_t> &indegree,
+             const TimedAutomaton &right) {
   // make a transition to an accepting state of left to a transition to an initial state of right
   std::vector<ClockVariables> rightClocks (right.clockSize());
   std::iota(rightClocks.begin(), rightClocks.end(), 0);
@@ -51,6 +54,7 @@ void concat2(TimedAutomaton &left, const TimedAutomaton &right) {
             TATransition transition = edge;
             transition.target = initState.get();
             transition.resetVars = rightClocks;
+            indegree[initState.get()]++;
             newTransitions.emplace_back(std::move(transition));
           }
         }
@@ -157,10 +161,12 @@ void reduceStates(TimedAutomaton &out) {
   }
 }
 
-void TRE::toEventTA(TimedAutomaton& out) const {
+void TRE::toEventTA(TimedAutomaton& out,
+                    boost::unordered_map<TAState*, uint32_t> &indegree) const {
   switch(tag) {
   case op::atom: {
     out.states.resize(2);
+    indegree.clear();
     for (auto &state: out.states) {
       state = std::make_shared<TAState>();
     }
@@ -172,18 +178,25 @@ void TRE::toEventTA(TimedAutomaton& out) const {
     out.states[0]->next[c].push_back({out.states[1].get(), {}, {}});
 
     out.maxConstraints.clear();
+    indegree[out.states[0].get()] = 0;
+    indegree[out.states[1].get()] = 1;
     break;
   }
   case op::epsilon: {
     out.states.resize(1);
+    indegree.clear();
     out.states[0] = std::make_shared<TAState>();
     out.initialStates = {out.states[0]};
     out.states[0]->isMatch = true;
+    indegree[out.states[0].get()] = 0;
     out.maxConstraints.clear();
     break;
   }
   case op::plus: {
-    regExpr->toEventTA(out);
+    regExpr->toEventTA(out, indegree);
+    std::vector<ClockVariables> allReset;
+    allReset.resize(out.clockSize());
+    std::iota(allReset.begin(), allReset.end(), 0);
     for (auto &s: out.states) {
       for (auto &edges: s->next) {
         for (auto &edge: edges.second) {
@@ -193,7 +206,9 @@ void TRE::toEventTA(TimedAutomaton& out) const {
             for (auto initState: out.initialStates) {
               TATransition transition = edge;
               transition.target = initState.get();
+              transition.resetVars = allReset;
               edges.second.emplace_back(std::move(transition));
+              indegree[initState.get()]++;
             }
           }
         }
@@ -202,23 +217,27 @@ void TRE::toEventTA(TimedAutomaton& out) const {
     break;
   }
   case op::concat: {
-    regExprPair.first->toEventTA(out);
+    regExprPair.first->toEventTA(out, indegree);
+    boost::unordered_map<TAState*, uint32_t> anotherIndegree;
     TimedAutomaton another;
-    regExprPair.second->toEventTA(another);
-    concat2(out, another);
+    regExprPair.second->toEventTA(another, anotherIndegree);
+    indegree.merge(std::move(anotherIndegree));
+    concat2(out, indegree, another);
 
     break;
   }
   case op::disjunction: {
-    regExprPair.first->toEventTA(out);
+    regExprPair.first->toEventTA(out, indegree);
     TimedAutomaton another;
-    regExprPair.second->toEventTA(another);
+    boost::unordered_map<TAState*, uint32_t> anotherIndegree;
+    regExprPair.second->toEventTA(another, anotherIndegree);
     out.states.insert(out.states.end(), another.states.begin(), another.states.end());
     out.initialStates.insert(out.initialStates.end(), another.initialStates.begin(), another.initialStates.end());
 
     // we can reuse variables since we have no overwrapping constraints
     out.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
     another.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
+    indegree.merge(std::move(anotherIndegree));
     for (std::size_t i = 0; i < out.maxConstraints.size(); ++i) {
       out.maxConstraints[i] = std::max(out.maxConstraints[i], another.maxConstraints[i]);
     }
@@ -226,31 +245,38 @@ void TRE::toEventTA(TimedAutomaton& out) const {
   }
   case op::conjunction: {
     TimedAutomaton tmpTA;
+    boost::unordered_map<TAState*, uint32_t> tmpIndegree;
     TimedAutomaton another;
+    boost::unordered_map<TAState*, uint32_t> anotherIndegree;
     boost::unordered_map<std::pair<TAState*,TAState*>, std::shared_ptr<TAState>> toIState;
-    regExprPair.first->toEventTA(tmpTA);
-    regExprPair.second->toEventTA(another);
-    intersectionTA(tmpTA, another, out, toIState);
+    regExprPair.first->toEventTA(tmpTA, tmpIndegree);
+    regExprPair.second->toEventTA(another, anotherIndegree);
+    intersectionTA(tmpTA, another, out, toIState, indegree);
     break;
   }
   case op::within: {
-    regExprWithin.first->toEventTA(out);
-    // add dummy initial state
-    std::shared_ptr<TAState> dummyInitialState = std::make_shared<TAState>();
-    for (auto initialState: out.initialStates) {
-      for (const auto &initTransitionsPair: initialState->next) {
-        const Alphabet c = initTransitionsPair.first;
-        dummyInitialState->next[c].reserve(dummyInitialState->next[c].size() + initTransitionsPair.second.size());
-        for (auto& edge: initTransitionsPair.second) {
-          TATransition transition = edge;
-          transition.resetVars.push_back(out.clockSize());
-          dummyInitialState->next[c].emplace_back(std::move(transition));
+    regExprWithin.first->toEventTA(out, indegree);
+    if (std::any_of(out.initialStates.begin(), out.initialStates.end(), 
+                    [&indegree](const std::shared_ptr<TAState> s) {
+                      return indegree[s.get()] > 0;
+                    })) {
+      // add dummy initial state
+      std::shared_ptr<TAState> dummyInitialState = std::make_shared<TAState>();
+      for (auto initialState: out.initialStates) {
+        for (const auto &initTransitionsPair: initialState->next) {
+          const Alphabet c = initTransitionsPair.first;
+          dummyInitialState->next[c].reserve(dummyInitialState->next[c].size() + initTransitionsPair.second.size());
+          for (auto& edge: initTransitionsPair.second) {
+            TATransition transition = edge;
+            transition.resetVars.push_back(out.clockSize());
+            dummyInitialState->next[c].emplace_back(std::move(transition));
+          }
         }
       }
+      out.initialStates = {dummyInitialState};
+      out.states.emplace_back(std::move(dummyInitialState));
     }
-    out.initialStates = {dummyInitialState};
-    out.states.emplace_back(std::move(dummyInitialState));
-
+    
     // add dummy accepting state
     std::shared_ptr<TAState> dummyAcceptingState = std::make_shared<TAState>(true);
     for (auto state: out.states) {

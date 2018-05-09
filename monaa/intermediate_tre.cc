@@ -2,7 +2,7 @@
 
 #include "intermediate_tre.hh"
 
-void concat2(TimedAutomaton &left, const TimedAutomaton &right);
+void concat2(TimedAutomaton &left, boost::unordered_map<TAState*, uint32_t> &indegree, const TimedAutomaton &right);
 
 void SyntacticDecision::concat(std::shared_ptr<SyntacticDecision> in) {
   std::vector<Alphabet> ansChars (chars.size() + in->chars.size());
@@ -507,7 +507,8 @@ void AtomicTRE::toSignalTA(TimedAutomaton& out) const {
     for (it++; it != list.end(); it++) {
       TimedAutomaton another; 
       (*it)->toSignalTA(another);
-      concat2(out, another);
+      boost::unordered_map<TAState*, uint32_t> indegree;
+      concat2(out, indegree, another);
     }
     break;
   }

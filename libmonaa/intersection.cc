@@ -6,7 +6,7 @@
   * x = x1 or x2 + |C|
   * in1 and in2 can be same.
 */
-void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out, boost::unordered_map<std::pair<TAState*, TAState*>, std::shared_ptr<TAState>> &toIState)
+void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out, boost::unordered_map<std::pair<TAState*, TAState*>, std::shared_ptr<TAState>> &toIState, boost::unordered_map<TAState*, uint32_t> &indegree)
 {
   // toIState :: (in1.State, in2.State) -> out.State
 
@@ -54,6 +54,7 @@ void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, Timed
                    transition.guard.end(),
                    [&] (Constraint &guard) { guard.x += in1.clockSize();});
 
+    indegree[transition.target]++;
     toIState[std::make_pair(s1, s2)]->next[c].push_back(std::move(transition));
   };
 
