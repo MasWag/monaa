@@ -1,6 +1,7 @@
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-register")
 
 project(MONAA CXX)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 cmake_minimum_required(VERSION 3.1)
 set(CMAKE_CXX_FLAGS "-Wall -std=c++14 -march=native")
@@ -12,6 +13,7 @@ find_package(FLEX REQUIRED)
 find_package(Boost REQUIRED COMPONENTS
   program_options unit_test_framework iostreams graph)
 find_package(Eigen3 REQUIRED)
+find_package(PPL REQUIRED)
 
 include_directories(
   monaa/
@@ -40,6 +42,7 @@ add_executable(monaa
 
 target_link_libraries(monaa
 #  profiler
+  ${PPL}
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${Boost_GRAPH_LIBRARY})
 
@@ -85,10 +88,12 @@ add_executable(unit_test
   test/intermediate_tre_test.cc
   test/interval_test.cc
   test/timed_automaton_parser_test.cc
+  test/parametric_timed_automaton_parser_test.cc
   ${FLEX_tre_lexer_OUTPUTS}
   ${BISON_tre_parser_OUTPUTS})
 
 target_link_libraries(unit_test
+  ${PPL_PPL_LIBRARY}
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 add_test(NAME unit_test

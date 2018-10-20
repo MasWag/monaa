@@ -38,6 +38,7 @@ MONAA is tested on Arch Linux and Mac OSX 10.11.6
 * CMake
 * Bison
 * Flex
+* PPL
 
 ### Instructions
 
