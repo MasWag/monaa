@@ -46,6 +46,14 @@ target_link_libraries(monaa
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${Boost_GRAPH_LIBRARY})
 
+find_path(GMP_INCLUDE_DIRS NAMES gmp.h)
+find_library(GMP_LIBRARY NAMES gmp libgmp)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(GMP DEFAULT_MSG
+GMP_INCLUDE_DIRS
+GMP_LIBRARY)
+mark_as_advanced(GMP_INCLUDE_DIRS GMP_LIBRARY)
+
 target_include_directories(monaa
   PRIVATE
   .
@@ -94,6 +102,7 @@ add_executable(unit_test
 
 target_link_libraries(unit_test
   ${PPL_PPL_LIBRARY}
+  ${GMP_LIBRARY}
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 add_test(NAME unit_test
