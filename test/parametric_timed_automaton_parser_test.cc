@@ -8,41 +8,51 @@ std::ostream& operator<<(std::ostream& os, const std::vector<ClockVariables> &re
 std::ostream & operator<< (std::ostream &s, const Parma_Polyhedra_Library::Constraint_System &cs);
 
 BOOST_AUTO_TEST_SUITE(ParametricTimedAutomatonParserTests)
-BOOST_AUTO_TEST_CASE(parseBoostPhi7TATest)
+BOOST_AUTO_TEST_CASE(ParseGraphProperties)
 {
-  Parma_Polyhedra_Library::Constraint_System cs;
-  Parma_Polyhedra_Library::Constraint c;
-  Parma_Polyhedra_Library::Variable x(0);
-  Parma_Polyhedra_Library::Variable y(1);
-
-
-  c = Parma_Polyhedra_Library::Constraint(x < 3);
-  c.ascii_dump();
-
-  std::stringstream sstr;
-  sstr << "{x < 3}";
-  cs.ascii_load(sstr);
-  cs.ascii_dump();
-
   BoostParametricTimedAutomaton BoostTA;
-  std::ifstream file("../test/p_phi7.dot");
+  std::ifstream file("../test/parametric_timed_automaton.dot");
   parseBoostTA(file, BoostTA);
 
-  BOOST_REQUIRE_EQUAL(boost::num_vertices(BoostTA), 3);
-
-  BOOST_TEST(!BoostTA[0].isMatch);
-  BOOST_TEST(!BoostTA[1].isMatch);
-  BOOST_TEST( BoostTA[2].isMatch);
-  BOOST_TEST( BoostTA[0].isInit);
-  BOOST_TEST(!BoostTA[1].isInit);
-  BOOST_TEST(!BoostTA[2].isInit);
-  auto transition = boost::edge(boost::vertex(0, BoostTA), boost::vertex(1, BoostTA), BoostTA).first;
-  BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::c, BoostTA, transition), 'A');
-  BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::resetVars, BoostTA, transition).resetVars.size(), 1);
-  BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::resetVars, BoostTA, transition).resetVars[0], 0);
-
-  //  BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::guard, BoostTA, transition).size(), 0);
+  BOOST_CHECK_EQUAL(boost::get_property(BoostTA, boost::graph_clock_dimensions), 2);
+  BOOST_CHECK_EQUAL(boost::get_property(BoostTA, boost::graph_param_dimensions), 1);
 }
+
+// BOOST_AUTO_TEST_CASE(parseBoostPhi7TATest)
+// {
+//   Parma_Polyhedra_Library::Constraint_System cs;
+//   Parma_Polyhedra_Library::Constraint c;
+//   Parma_Polyhedra_Library::Variable x(0);
+//   Parma_Polyhedra_Library::Variable y(1);
+
+
+//   c = Parma_Polyhedra_Library::Constraint(x < 3);
+//   c.ascii_dump();
+
+//   std::stringstream sstr;
+//   sstr << "{x < 3}";
+//   cs.ascii_load(sstr);
+//   cs.ascii_dump();
+
+//   BoostParametricTimedAutomaton BoostTA;
+//   std::ifstream file("../test/p_phi7.dot");
+//   parseBoostTA(file, BoostTA);
+
+//   BOOST_REQUIRE_EQUAL(boost::num_vertices(BoostTA), 3);
+
+//   BOOST_TEST(!BoostTA[0].isMatch);
+//   BOOST_TEST(!BoostTA[1].isMatch);
+//   BOOST_TEST( BoostTA[2].isMatch);
+//   BOOST_TEST( BoostTA[0].isInit);
+//   BOOST_TEST(!BoostTA[1].isInit);
+//   BOOST_TEST(!BoostTA[2].isInit);
+//   auto transition = boost::edge(boost::vertex(0, BoostTA), boost::vertex(1, BoostTA), BoostTA).first;
+//   BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::c, BoostTA, transition), 'A');
+//   BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::resetVars, BoostTA, transition).resetVars.size(), 1);
+//   BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::resetVars, BoostTA, transition).resetVars[0], 0);
+
+//   //  BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::guard, BoostTA, transition).size(), 0);
+// }
 
 #if 0
 BOOST_AUTO_TEST_CASE(parseBoostTATest)

@@ -79,4 +79,7 @@ struct ParametricTimedAutomaton : public Automaton<PTAState> {
 
     }
   }
+
+  std::size_t clockDimensions;
+  std::size_t paramDimensions;
 };

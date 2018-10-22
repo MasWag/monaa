@@ -91,12 +91,13 @@ add_executable(unit_test
   test/zone_test.cc
   test/intermediate_zone_test.cc
   test/timedFJS_test.cc
+  test/parametric_timedFJS_test.cc
   test/tre_driver_test.cc
   test/tre_test.cc
   test/intermediate_tre_test.cc
   test/interval_test.cc
   test/timed_automaton_parser_test.cc
-  test/parametric_timed_automaton_parser_test.cc
+#  test/parametric_timed_automaton_parser_test.cc
   ${FLEX_tre_lexer_OUTPUTS}
   ${BISON_tre_parser_OUTPUTS})
 

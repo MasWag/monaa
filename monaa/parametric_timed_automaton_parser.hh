@@ -13,10 +13,15 @@ namespace boost{
   enum edge_label_t {edge_label};
   enum edge_reset_t {edge_reset};
   enum edge_guard_t {edge_guard};
+  enum graph_clock_dimensions_t {graph_clock_dimensions};
+  enum graph_param_dimensions_t {graph_param_dimensions};
+
   BOOST_INSTALL_PROPERTY(vertex, match);
   BOOST_INSTALL_PROPERTY(edge, label);
   BOOST_INSTALL_PROPERTY(edge, reset);
   BOOST_INSTALL_PROPERTY(edge, guard);
+  BOOST_INSTALL_PROPERTY(graph, clock_dimensions);
+  BOOST_INSTALL_PROPERTY(graph, param_dimensions);
 }
 
 static inline 
@@ -60,6 +65,11 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& guard)
   }
   os << "}";
   return os;
+}
+
+static inline 
+std::istream& operator>>(std::istream& is, Parma_Polyhedra_Library::Linear_Expression& p)
+{
 }
 
 static inline 
@@ -257,22 +267,6 @@ namespace boost {
     return is;
   }
 }
-namespace Parma_Polyhedra_Library {
-  static inline
-  std::ostream & operator<< (std::ostream &s, const Parma_Polyhedra_Library::Constraint_System &cs)
-  {
-    cs.ascii_dump(s);
-    return s;
-  }
-  static inline 
-  std::istream& operator>>(std::istream& is, Parma_Polyhedra_Library::Constraint_System& constraint)
-  {
-    if (constraint.ascii_load(is)) {
-      is.setstate(std::ios_base::failbit);
-    }
-    return is;
-  }
-}
 
 struct ResetVars {
   std::vector<ClockVariables> resetVars;
@@ -305,9 +299,10 @@ struct BoostPTATransition {
 };
 
 using BoostParametricTimedAutomaton = 
-                          boost::adjacency_list<
+        boost::adjacency_list<
   boost::listS, boost::vecS, boost::directedS,
-  BoostPTAState, BoostPTATransition>;
+  BoostPTAState, BoostPTATransition,boost::property<boost::graph_clock_dimensions_t, std::size_t,
+                                                    boost::property<boost::graph_param_dimensions_t, std::size_t>>>;
 
 static inline 
 void parseBoostTA(std::istream &file, BoostParametricTimedAutomaton &BoostPTA)
