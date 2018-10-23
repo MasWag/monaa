@@ -4,8 +4,8 @@
 #include <FlexLexer.h>
 #endif
 
-#include "tre_parser.tab.hh"
-#include "location.hh"
+#include "tre/tre_parser.tab.hh"
+#include "tre/location.hh"
 
 class TREScanner : public yyFlexLexer {
 public:

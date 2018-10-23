@@ -10,7 +10,7 @@
 #include <fstream>
 
 #include "tre_scanner.hh"
-#include "tre_parser.tab.hh"
+#include "tre/tre_parser.tab.hh"
 #include "tre.hh"
 
 /*!

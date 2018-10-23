@@ -5,8 +5,10 @@
 #include <boost/optional.hpp>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include "../libmonaa/parametric_timed_automaton.hh"
+#include "constraint_driver.hh"
 
 namespace boost{
   enum vertex_match_t {vertex_match};
@@ -22,6 +24,10 @@ namespace boost{
   BOOST_INSTALL_PROPERTY(edge, guard);
   BOOST_INSTALL_PROPERTY(graph, clock_dimensions);
   BOOST_INSTALL_PROPERTY(graph, param_dimensions);
+}
+
+namespace {
+  std::unique_ptr<ConstraintDriver> driverRef;
 }
 
 static inline 
@@ -65,11 +71,6 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& guard)
   }
   os << "}";
   return os;
-}
-
-static inline 
-std::istream& operator>>(std::istream& is, Parma_Polyhedra_Library::Linear_Expression& p)
-{
 }
 
 static inline 
@@ -304,18 +305,74 @@ using BoostParametricTimedAutomaton =
   BoostPTAState, BoostPTATransition,boost::property<boost::graph_clock_dimensions_t, std::size_t,
                                                     boost::property<boost::graph_param_dimensions_t, std::size_t>>>;
 
+namespace Parma_Polyhedra_Library {
+  using Parma_Polyhedra_Library::IO_Operators::operator<<;
+
+  static inline 
+  std::istream& operator>>(std::istream& is, Parma_Polyhedra_Library::Constraint_System& cs)
+  {
+    driverRef->parse(is);
+    cs = driverRef->getResult();
+
+    return is;
+  }
+}
+
+namespace boost {
+   template<>
+   Parma_Polyhedra_Library::Constraint_System lexical_cast(const std::string& str) {
+     std::stringstream stream;
+     stream << str;
+     Parma_Polyhedra_Library::Constraint_System cs;
+     stream >> cs;
+     return cs;
+    }
+   template<>
+   std::string lexical_cast(const Parma_Polyhedra_Library::Constraint_System& cs) {
+     std::stringstream stream;
+     stream << cs;
+     std::string str;
+     stream >> str;
+     return str;
+    }
+  using Parma_Polyhedra_Library::operator<<;
+  using Parma_Polyhedra_Library::operator>>;
+}
+
 static inline 
 void parseBoostTA(std::istream &file, BoostParametricTimedAutomaton &BoostPTA)
 {
+  //// read only the dimension at first
+  {
+    BoostParametricTimedAutomaton tmpGraph;
+    std::size_t paramDimensions;
+    boost::dynamic_properties dp(boost::ignore_other_properties);
+    boost::ref_property_map<BoostParametricTimedAutomaton*, std::size_t> gparam_dimensions(get_property(tmpGraph, boost::graph_param_dimensions));
+    dp.property("param_dimensions", gparam_dimensions);
 
+    boost::read_graphviz(file, tmpGraph, dp);
+    paramDimensions = boost::get_property(tmpGraph, boost::graph_param_dimensions);
+
+    std::unique_ptr<ConstraintDriver> driver = std::make_unique<ConstraintDriver>(paramDimensions);
+    driverRef = std::move(driver);
+  }
+
+  //// read other properties
   boost::dynamic_properties dp(boost::ignore_other_properties);
+  boost::ref_property_map<BoostParametricTimedAutomaton*, std::size_t> gparam_dimensions(get_property(BoostPTA, boost::graph_param_dimensions));
+  dp.property("param_dimensions", gparam_dimensions);
+  boost::ref_property_map<BoostParametricTimedAutomaton*, std::size_t> gclock_dimensions(get_property(BoostPTA, boost::graph_clock_dimensions));
+  dp.property("clock_dimensions", gclock_dimensions);
   dp.property("match", boost::get(&BoostPTAState::isMatch, BoostPTA));
   dp.property("init",  boost::get(&BoostPTAState::isInit, BoostPTA));
   dp.property("label", boost::get(&BoostPTATransition::c, BoostPTA));
   dp.property("reset", boost::get(&BoostPTATransition::resetVars, BoostPTA));
   dp.property("guard", boost::get(&BoostPTATransition::guard, BoostPTA));
 
-  boost::read_graphviz(file, BoostPTA, dp, "id");
+  file.clear();
+  file.seekg(0, std::ios_base::beg);
+  boost::read_graphviz(file, BoostPTA, dp);
+  driverRef.reset();
 }
 
 static inline 

@@ -5,17 +5,83 @@
 #include "../monaa/parametric_timed_automaton_parser.hh"
 
 std::ostream& operator<<(std::ostream& os, const std::vector<ClockVariables> &resetVars);
-std::ostream & operator<< (std::ostream &s, const Parma_Polyhedra_Library::Constraint_System &cs);
 
 BOOST_AUTO_TEST_SUITE(ParametricTimedAutomatonParserTests)
-BOOST_AUTO_TEST_CASE(ParseGraphProperties)
+BOOST_AUTO_TEST_CASE(ParseParametricSmall)
 {
   BoostParametricTimedAutomaton BoostTA;
-  std::ifstream file("../test/parametric_timed_automaton.dot");
+  std::ifstream file("../test/p_small.dot");
   parseBoostTA(file, BoostTA);
 
-  BOOST_CHECK_EQUAL(boost::get_property(BoostTA, boost::graph_clock_dimensions), 2);
-  BOOST_CHECK_EQUAL(boost::get_property(BoostTA, boost::graph_param_dimensions), 1);
+  BOOST_CHECK_EQUAL(boost::get_property(BoostTA, boost::graph_clock_dimensions), 1);
+  BOOST_CHECK_EQUAL(boost::get_property(BoostTA, boost::graph_param_dimensions), 2);
+
+  BOOST_REQUIRE_EQUAL(boost::num_vertices(BoostTA), 4);
+  BOOST_TEST(!BoostTA[0].isMatch);
+  BOOST_TEST(!BoostTA[1].isMatch);
+  BOOST_TEST(!BoostTA[2].isMatch);
+  BOOST_TEST( BoostTA[3].isMatch);
+
+  BOOST_TEST( BoostTA[0].isInit);
+  BOOST_TEST(!BoostTA[1].isInit);
+  BOOST_TEST(!BoostTA[2].isInit);
+  BOOST_TEST(!BoostTA[3].isInit);
+
+  Parma_Polyhedra_Library::Variable p(1), q(2), x(3);
+  Parma_Polyhedra_Library::Constraint_System expected;
+
+  {// transition 1
+    auto transition = boost::edge(boost::vertex(0, BoostTA), boost::vertex(1, BoostTA), BoostTA).first;
+    BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::c, BoostTA, transition), 'l');
+    BOOST_REQUIRE_EQUAL(boost::get(&BoostPTATransition::resetVars, BoostTA, transition).resetVars.size(), 1);
+    BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::resetVars, BoostTA, transition).resetVars[0], 0);
+
+    auto cs = boost::get(&BoostPTATransition::guard, BoostTA, transition);
+    BOOST_TEST(!cs.empty());
+    BOOST_CHECK_EQUAL(cs.space_dimension(), 4);
+
+    expected = Parma_Polyhedra_Library::Constraint_System(x < p);
+    BOOST_CHECK_EQUAL(cs, expected);
+  }
+
+  {// transition 2
+    auto transition = boost::edge(boost::vertex(1, BoostTA), boost::vertex(2, BoostTA), BoostTA).first;
+    BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::c, BoostTA, transition), 'h');
+    BOOST_REQUIRE_EQUAL(boost::get(&BoostPTATransition::resetVars, BoostTA, transition).resetVars.size(), 0);
+
+    auto cs = boost::get(&BoostPTATransition::guard, BoostTA, transition);
+    BOOST_TEST(!cs.empty());
+    BOOST_CHECK_EQUAL(cs.space_dimension(), 4);
+
+    expected = Parma_Polyhedra_Library::Constraint_System(x < q);
+    expected.insert(x < 1);
+    BOOST_CHECK_EQUAL(cs, expected);
+  }
+
+  {// transition 3
+    auto transition = boost::edge(boost::vertex(2, BoostTA), boost::vertex(1, BoostTA), BoostTA).first;
+    BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::c, BoostTA, transition), 'l');
+    BOOST_REQUIRE_EQUAL(boost::get(&BoostPTATransition::resetVars, BoostTA, transition).resetVars.size(), 0);
+
+    auto cs = boost::get(&BoostPTATransition::guard, BoostTA, transition);
+    BOOST_TEST(!cs.empty());
+    BOOST_CHECK_EQUAL(cs.space_dimension(), 4);
+
+    expected = Parma_Polyhedra_Library::Constraint_System(x < 1);
+    BOOST_CHECK_EQUAL(cs, expected);
+  }
+
+  {// transition 4
+    auto transition = boost::edge(boost::vertex(2, BoostTA), boost::vertex(3, BoostTA), BoostTA).first;
+    BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::c, BoostTA, transition), '$');
+    BOOST_REQUIRE_EQUAL(boost::get(&BoostPTATransition::resetVars, BoostTA, transition).resetVars.size(), 0);
+
+    auto cs = boost::get(&BoostPTATransition::guard, BoostTA, transition);
+    BOOST_TEST(!cs.empty());
+    BOOST_CHECK_EQUAL(cs.space_dimension(), 4);
+    expected = Parma_Polyhedra_Library::Constraint_System(x < p);
+    BOOST_CHECK_EQUAL(cs, expected);
+  }
 }
 
 // BOOST_AUTO_TEST_CASE(parseBoostPhi7TATest)

@@ -24,11 +24,20 @@ include_directories(
 
 BISON_TARGET(tre_parser
   monaa/tre_parser.yy
-  ${CMAKE_CURRENT_BINARY_DIR}/tre_parser.tab.cc)
+  ${CMAKE_CURRENT_BINARY_DIR}/tre/tre_parser.tab.cc)
 FLEX_TARGET(tre_lexer
   monaa/tre_lexer.l
-  ${CMAKE_CURRENT_BINARY_DIR}/tre_lexer.yy.cc)
+  ${CMAKE_CURRENT_BINARY_DIR}/tre/tre_lexer.yy.cc)
 ADD_FLEX_BISON_DEPENDENCY(tre_lexer tre_parser)
+
+
+BISON_TARGET(constraint_parser
+  monaa/constraint_parser.yy
+  ${CMAKE_CURRENT_BINARY_DIR}/constraint/constraint_parser.tab.cc)
+FLEX_TARGET(constraint_lexer
+  monaa/constraint_lexer.l
+  ${CMAKE_CURRENT_BINARY_DIR}/constraint/constraint_lexer.yy.cc)
+ADD_FLEX_BISON_DEPENDENCY(constraint_lexer constraint_parser)
 
 ## Config for Main monaa
 add_executable(monaa
@@ -97,9 +106,11 @@ add_executable(unit_test
   test/intermediate_tre_test.cc
   test/interval_test.cc
   test/timed_automaton_parser_test.cc
-#  test/parametric_timed_automaton_parser_test.cc
+  test/parametric_timed_automaton_parser_test.cc
   ${FLEX_tre_lexer_OUTPUTS}
-  ${BISON_tre_parser_OUTPUTS})
+  ${BISON_tre_parser_OUTPUTS}
+  ${FLEX_constraint_lexer_OUTPUTS}
+  ${BISON_constraint_parser_OUTPUTS})
 
 target_link_libraries(unit_test
   ${PPL_PPL_LIBRARY}
