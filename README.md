@@ -43,7 +43,8 @@ MONAA is tested on Arch Linux and Mac OSX 10.11.6
 ### Instructions
 
 ```sh
-mkdir build
+mkdir build 
+mkdir build/tre build/constraint
 cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make && make install
 ```
 

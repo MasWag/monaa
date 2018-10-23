@@ -15,6 +15,11 @@ find_package(Boost REQUIRED COMPONENTS
 find_package(Eigen3 REQUIRED)
 find_package(PPL REQUIRED)
 
+find_path(GMP_INCLUDE_DIRS NAMES gmp.h)
+find_library(GMP_LIBRARY NAMES gmp libgmp)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(GMP DEFAULT_MSG GMP_INCLUDE_DIRS GMP_LIBRARY)
+
 include_directories(
   monaa/
   libmonaa/
@@ -51,17 +56,22 @@ add_executable(monaa
 
 target_link_libraries(monaa
 #  profiler
-  ${PPL}
+  ${PPL_PPL_LIBRARY}
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${Boost_GRAPH_LIBRARY})
 
-find_path(GMP_INCLUDE_DIRS NAMES gmp.h)
-find_library(GMP_LIBRARY NAMES gmp libgmp)
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(GMP DEFAULT_MSG
-GMP_INCLUDE_DIRS
-GMP_LIBRARY)
-mark_as_advanced(GMP_INCLUDE_DIRS GMP_LIBRARY)
+add_executable(pmonaa
+  monaa/pmain.cc
+  ${FLEX_tre_lexer_OUTPUTS}
+  ${FLEX_constraint_lexer_OUTPUTS}
+  ${BISON_constraint_parser_OUTPUTS})
+
+target_link_libraries(pmonaa
+#  profiler
+  ${PPL_PPL_LIBRARY}
+  ${GMP_LIBRARY}
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  ${Boost_GRAPH_LIBRARY})
 
 target_include_directories(monaa
   PRIVATE
