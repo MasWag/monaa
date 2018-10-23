@@ -77,9 +77,9 @@ BOOST_AUTO_TEST_CASE(ParseParametricSmall)
     BOOST_REQUIRE_EQUAL(boost::get(&BoostPTATransition::resetVars, BoostTA, transition).resetVars.size(), 0);
 
     auto cs = boost::get(&BoostPTATransition::guard, BoostTA, transition);
-    BOOST_TEST(!cs.empty());
-    BOOST_CHECK_EQUAL(cs.space_dimension(), 4);
-    expected = Parma_Polyhedra_Library::Constraint_System(x < p);
+    BOOST_TEST(cs.empty());
+    BOOST_CHECK_EQUAL(cs.space_dimension(), 0);
+    expected = Parma_Polyhedra_Library::Constraint_System();
     BOOST_CHECK_EQUAL(cs, expected);
   }
 }
@@ -219,6 +219,7 @@ BOOST_AUTO_TEST_CASE(ParseAndConvParametricSmall)
 
     auto polynomial = transition.guard;
     BOOST_TEST(!polynomial.is_empty());
+    BOOST_TEST(!polynomial.is_universe());
     BOOST_CHECK_EQUAL(polynomial.space_dimension(), 4);
 
     expected = Parma_Polyhedra_Library::Constraint_System(x < p);
@@ -232,6 +233,7 @@ BOOST_AUTO_TEST_CASE(ParseAndConvParametricSmall)
 
     auto polynomial = transition.guard;
     BOOST_TEST(!polynomial.is_empty());
+    BOOST_TEST(!polynomial.is_universe());
     BOOST_CHECK_EQUAL(polynomial.space_dimension(), 4);
 
     expected = Parma_Polyhedra_Library::Constraint_System(x < q);
@@ -246,6 +248,7 @@ BOOST_AUTO_TEST_CASE(ParseAndConvParametricSmall)
 
     auto polynomial = transition.guard;
     BOOST_TEST(!polynomial.is_empty());
+    BOOST_TEST(!polynomial.is_universe());
     BOOST_CHECK_EQUAL(polynomial.space_dimension(), 4);
 
     expected = Parma_Polyhedra_Library::Constraint_System(x < 1);
@@ -259,10 +262,8 @@ BOOST_AUTO_TEST_CASE(ParseAndConvParametricSmall)
 
     auto polynomial = transition.guard;
     BOOST_TEST(!polynomial.is_empty());
+    BOOST_TEST(polynomial.is_universe());
     BOOST_CHECK_EQUAL(polynomial.space_dimension(), 4);
-
-    expected = Parma_Polyhedra_Library::Constraint_System(x < p);
-    BOOST_CHECK_EQUAL(polynomial, Parma_Polyhedra_Library::NNC_Polyhedron(expected));
   }
 }
 

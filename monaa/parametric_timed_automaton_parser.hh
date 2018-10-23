@@ -399,6 +399,7 @@ void convBoostTA(const BoostParametricTimedAutomaton &BoostPTA, ParametricTimedA
       PTATransition transition;
       transition.target = stateConvMap[boost::target(*firstEdge, BoostPTA)].get();
       transition.guard = Parma_Polyhedra_Library::NNC_Polyhedron(boost::get(&BoostPTATransition::guard, BoostPTA, *firstEdge));
+      transition.guard.add_space_dimensions_and_embed(PTA.clockDimensions + PTA.paramDimensions + 1 - transition.guard.space_dimension());
       transition.resetVars = boost::get(&BoostPTATransition::resetVars, BoostPTA, *firstEdge).resetVars;
       stateConvMap[*first]->next[boost::get(&BoostPTATransition::c, BoostPTA, *firstEdge)].emplace_back(std::move(transition));
     }
