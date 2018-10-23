@@ -6,7 +6,7 @@
 
 BOOST_AUTO_TEST_SUITE(parametricTimedFJSTest)
 
-BOOST_AUTO_TEST_CASE(timedFJS) {
+BOOST_AUTO_TEST_CASE(Non_parametricTimed) {
   ParametricTimedAutomaton TA;
   TA.states.resize(4);
   for (auto &state: TA.states) {
@@ -36,6 +36,116 @@ BOOST_AUTO_TEST_CASE(timedFJS) {
   AnsVec<Parma_Polyhedra_Library::NNC_Polyhedron> ans;
   parametricMonaa(w, TA, ans);
   BOOST_CHECK_EQUAL(ans.size(), 3);
+
+  auto ansPolyhedron = *(ans.begin());
+  Parma_Polyhedra_Library::Coefficient n, d;
+  bool f;
+  ansPolyhedron.maximize(beginningTimeVariable, n, d, f);
+  BOOST_CHECK_CLOSE(n.get_d() / d.get_d(), 2.4, 1e-6);
+  ansPolyhedron.minimize(beginningTimeVariable, n, d, f);
+  BOOST_CHECK_CLOSE(n.get_d() / d.get_d(), 0, 1e-6);
+
+  ansPolyhedron.maximize(endTimeVariable, n, d, f);
+  BOOST_CHECK_CLOSE(n.get_d() / d.get_d(), 3.4, 1e-6);
+  ansPolyhedron.minimize(endTimeVariable, n, d, f);
+  BOOST_CHECK_CLOSE(n.get_d() / d.get_d(), 2.9, 1e-6);
+
+  ansPolyhedron.maximize(endTimeVariable - beginningTimeVariable, n, d, f);
+  BOOST_CHECK_CLOSE(n.get_d() / d.get_d(), 3.4, 1e-6);
+  ansPolyhedron.minimize(endTimeVariable - beginningTimeVariable, n, d, f);
+  BOOST_CHECK_CLOSE(n.get_d() / d.get_d(), 0.5, 1e-6);
+}
+
+BOOST_AUTO_TEST_CASE(ParametricTimed) {
+  ParametricTimedAutomaton TA;
+  TA.states.resize(4);
+  for (auto &state: TA.states) {
+    state = std::make_shared<PTAState>();
+  }
+
+  TA.initialStates = {TA.states[0]};
+
+  TA.states[0]->isMatch = false;
+  TA.states[1]->isMatch = false;
+  TA.states[2]->isMatch = false;
+  TA.states[3]->isMatch = true;
+
+  // Transitions
+  Parma_Polyhedra_Library::Variable beginningTimeVariable(0);
+  Parma_Polyhedra_Library::Variable p(1);
+  Parma_Polyhedra_Library::Variable x(2);
+  Parma_Polyhedra_Library::Variable endTimeVariable(2);
+  TA.states[0]->next['a'].push_back({TA.states[1].get(), {0}, Parma_Polyhedra_Library::NNC_Polyhedron(3)});
+  TA.states[1]->next['b'].push_back({TA.states[2].get(), {},  Parma_Polyhedra_Library::NNC_Polyhedron(Parma_Polyhedra_Library::Constraint_System(Parma_Polyhedra_Library::Constraint(x < p)))});
+  TA.states[2]->next['$'].push_back({TA.states[3].get(), {}, Parma_Polyhedra_Library::NNC_Polyhedron(3)});
+
+  TA.clockDimensions = 1;
+  TA.paramDimensions = 1;
+
+  FILE* file(fopen("../test/timed_word.txt", "r"));
+  WordVector<std::pair<Alphabet,double> > w(file, false);
+  AnsVec<Parma_Polyhedra_Library::NNC_Polyhedron> ans;
+  parametricMonaa(w, TA, ans);
+  BOOST_CHECK_EQUAL(ans.size(), 4);
+
+  // using namespace Parma_Polyhedra_Library::IO_Operators;
+  // for (const auto &polyhedron: ans) {
+  //   std::cout << polyhedron << std::endl;
+  // }
+
+  auto ansPolyhedron = *(ans.begin());
+  Parma_Polyhedra_Library::Coefficient n, d;
+  bool f;
+  ansPolyhedron.maximize(beginningTimeVariable, n, d, f);
+  BOOST_CHECK_CLOSE(n.get_d() / d.get_d(), 2.4, 1e-6);
+  ansPolyhedron.minimize(beginningTimeVariable, n, d, f);
+  BOOST_CHECK_CLOSE(n.get_d() / d.get_d(), 0, 1e-6);
+
+  ansPolyhedron.maximize(endTimeVariable, n, d, f);
+  BOOST_CHECK_CLOSE(n.get_d() / d.get_d(), 3.4, 1e-6);
+  ansPolyhedron.minimize(endTimeVariable, n, d, f);
+  BOOST_CHECK_CLOSE(n.get_d() / d.get_d(), 2.9, 1e-6);
+
+  ansPolyhedron.maximize(endTimeVariable - beginningTimeVariable, n, d, f);
+  BOOST_CHECK_CLOSE(n.get_d() / d.get_d(), 3.4, 1e-6);
+  ansPolyhedron.minimize(endTimeVariable - beginningTimeVariable, n, d, f);
+  BOOST_CHECK_CLOSE(n.get_d() / d.get_d(), 0.5, 1e-6);
+}
+
+BOOST_AUTO_TEST_CASE(Non_ParametricNon_Timed) {
+  ParametricTimedAutomaton TA;
+  TA.states.resize(4);
+  for (auto &state: TA.states) {
+    state = std::make_shared<PTAState>();
+  }
+
+  TA.initialStates = {TA.states[0]};
+
+  TA.states[0]->isMatch = false;
+  TA.states[1]->isMatch = false;
+  TA.states[2]->isMatch = false;
+  TA.states[3]->isMatch = true;
+
+  // Transitions
+  Parma_Polyhedra_Library::Variable beginningTimeVariable(0);
+  Parma_Polyhedra_Library::Variable endTimeVariable(1);
+  TA.states[0]->next['a'].push_back({TA.states[1].get(), {}, Parma_Polyhedra_Library::NNC_Polyhedron(1)});
+  TA.states[1]->next['b'].push_back({TA.states[2].get(), {}, Parma_Polyhedra_Library::NNC_Polyhedron(1)});
+  TA.states[2]->next['$'].push_back({TA.states[3].get(), {}, Parma_Polyhedra_Library::NNC_Polyhedron(1)});
+
+  TA.clockDimensions = 0;
+  TA.paramDimensions = 0;
+
+  FILE* file(fopen("../test/timed_word.txt", "r"));
+  WordVector<std::pair<Alphabet,double> > w(file, false);
+  AnsVec<Parma_Polyhedra_Library::NNC_Polyhedron> ans;
+  parametricMonaa(w, TA, ans);
+  BOOST_CHECK_EQUAL(ans.size(), 4);
+
+  // using namespace Parma_Polyhedra_Library::IO_Operators;
+  // for (const auto &polyhedron: ans) {
+  //   std::cout << polyhedron << std::endl;
+  // }
 
   auto ansPolyhedron = *(ans.begin());
   Parma_Polyhedra_Library::Coefficient n, d;
