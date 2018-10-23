@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 
+#include <ppl.hh>
 #include "zone.hh"
 
 /*!
@@ -139,3 +140,42 @@ public:
 };
 
 using AnsPrinter = AnsContainer<PrintContainer>;
+
+/*!
+  @brief A pseudo-container class to print the given polyhedron to stdout. This is given to @link AnsContainer @endlink.
+
+  @note This class does not contain any polyhedra, but just print to stdout and counts the number.
+ */
+class PrintPolyhedronContainer
+{
+private:
+  std::size_t count = 0;
+  bool isQuiet = false;
+public:
+  /*!
+    @brief Constructor
+    
+    @param [in] isQuiet If isQuiet is true, this class does not print anything.
+  */
+  PrintPolyhedronContainer(bool isQuiet) : isQuiet(isQuiet) {}
+  //! @brief Returns the count of output zones.
+  std::size_t size() const {
+    return count;
+  }
+  void push_back(const Parma_Polyhedra_Library::NNC_Polyhedron &ans) {
+    count++;
+    if (!isQuiet) {
+      using Parma_Polyhedra_Library::IO_Operators::operator<<;
+      std::cout << ans << "\n=============================\n";
+    }
+  }
+  //! @brief Resets the count of output zones.
+  void clear() {
+    count = 0;
+  }
+  //! @brief Does nothing.
+  void reserve(std::size_t) {}
+  using value_type = Parma_Polyhedra_Library::NNC_Polyhedron;
+};
+
+using AnsPolyhedronPrinter = AnsContainer<PrintPolyhedronContainer>;
