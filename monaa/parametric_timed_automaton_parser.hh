@@ -378,6 +378,8 @@ void parseBoostTA(std::istream &file, BoostParametricTimedAutomaton &BoostPTA)
 static inline 
 void convBoostTA(const BoostParametricTimedAutomaton &BoostPTA, ParametricTimedAutomaton &PTA)
 {
+  PTA.clockDimensions = boost::get_property(BoostPTA, boost::graph_clock_dimensions);
+  PTA.paramDimensions = boost::get_property(BoostPTA, boost::graph_param_dimensions);
   PTA.states.clear();
   PTA.initialStates.clear();
   auto vertex_range = boost::vertices(BoostPTA);

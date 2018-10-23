@@ -84,43 +84,44 @@ BOOST_AUTO_TEST_CASE(ParseParametricSmall)
   }
 }
 
-// BOOST_AUTO_TEST_CASE(parseBoostPhi7TATest)
-// {
-//   Parma_Polyhedra_Library::Constraint_System cs;
-//   Parma_Polyhedra_Library::Constraint c;
-//   Parma_Polyhedra_Library::Variable x(0);
-//   Parma_Polyhedra_Library::Variable y(1);
-
-
-//   c = Parma_Polyhedra_Library::Constraint(x < 3);
-//   c.ascii_dump();
-
-//   std::stringstream sstr;
-//   sstr << "{x < 3}";
-//   cs.ascii_load(sstr);
-//   cs.ascii_dump();
-
-//   BoostParametricTimedAutomaton BoostTA;
-//   std::ifstream file("../test/p_phi7.dot");
-//   parseBoostTA(file, BoostTA);
-
-//   BOOST_REQUIRE_EQUAL(boost::num_vertices(BoostTA), 3);
-
-//   BOOST_TEST(!BoostTA[0].isMatch);
-//   BOOST_TEST(!BoostTA[1].isMatch);
-//   BOOST_TEST( BoostTA[2].isMatch);
-//   BOOST_TEST( BoostTA[0].isInit);
-//   BOOST_TEST(!BoostTA[1].isInit);
-//   BOOST_TEST(!BoostTA[2].isInit);
-//   auto transition = boost::edge(boost::vertex(0, BoostTA), boost::vertex(1, BoostTA), BoostTA).first;
-//   BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::c, BoostTA, transition), 'A');
-//   BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::resetVars, BoostTA, transition).resetVars.size(), 1);
-//   BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::resetVars, BoostTA, transition).resetVars[0], 0);
-
-//   //  BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::guard, BoostTA, transition).size(), 0);
-// }
-
 #if 0
+
+BOOST_AUTO_TEST_CASE(parseBoostPhi7TATest)
+{
+  Parma_Polyhedra_Library::Constraint_System cs;
+  Parma_Polyhedra_Library::Constraint c;
+  Parma_Polyhedra_Library::Variable x(0);
+  Parma_Polyhedra_Library::Variable y(1);
+
+
+  c = Parma_Polyhedra_Library::Constraint(x < 3);
+  c.ascii_dump();
+
+  std::stringstream sstr;
+  sstr << "{x < 3}";
+  cs.ascii_load(sstr);
+  cs.ascii_dump();
+
+  BoostParametricTimedAutomaton BoostTA;
+  std::ifstream file("../test/p_phi7.dot");
+  parseBoostTA(file, BoostTA);
+
+  BOOST_REQUIRE_EQUAL(boost::num_vertices(BoostTA), 3);
+
+  BOOST_TEST(!BoostTA[0].isMatch);
+  BOOST_TEST(!BoostTA[1].isMatch);
+  BOOST_TEST( BoostTA[2].isMatch);
+  BOOST_TEST( BoostTA[0].isInit);
+  BOOST_TEST(!BoostTA[1].isInit);
+  BOOST_TEST(!BoostTA[2].isInit);
+  auto transition = boost::edge(boost::vertex(0, BoostTA), boost::vertex(1, BoostTA), BoostTA).first;
+  BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::c, BoostTA, transition), 'A');
+  BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::resetVars, BoostTA, transition).resetVars.size(), 1);
+  BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::resetVars, BoostTA, transition).resetVars[0], 0);
+
+  //  BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::guard, BoostTA, transition).size(), 0);
+}
+
 BOOST_AUTO_TEST_CASE(parseBoostTATest)
 {
   BoostParametricTimedAutomaton BoostTA;
@@ -185,35 +186,84 @@ BOOST_AUTO_TEST_CASE(parseBoostTASimpleTest)
     BOOST_CHECK_EQUAL(boost::get(&BoostPTATransition::guard, BoostTA, transitions[i])[0].odr, guardOdrResult[i]);
   }
 }
+#endif
 
-BOOST_AUTO_TEST_CASE(convBoostTATest)
+BOOST_AUTO_TEST_CASE(ParseAndConvParametricSmall)
 {
   BoostParametricTimedAutomaton BoostTA;
-  TimedAutomaton TA;
-  std::ifstream file("../test/timed_automaton.dot");
+  ParametricTimedAutomaton TA;
+  std::ifstream file("../test/p_small.dot");
   parseBoostTA(file, BoostTA);
   convBoostTA(BoostTA, TA);
 
-  BOOST_CHECK_EQUAL(TA.stateSize(), 2);
-  BOOST_CHECK_EQUAL(TA.initialStates.size(), 1);
-  BOOST_CHECK_EQUAL(TA.clockSize(), 3);
-  auto initialState = TA.initialStates[0];
-  BOOST_TEST(!initialState->isMatch);
-  BOOST_CHECK_EQUAL(initialState->next['a'].size(), 1);
-  auto toAcceptingState = initialState->next['a'][0];
-  BOOST_CHECK_EQUAL(toAcceptingState.resetVars.size(), 2);
-  BOOST_CHECK_EQUAL(toAcceptingState.resetVars[0], 0);
-  BOOST_CHECK_EQUAL(toAcceptingState.resetVars[1], 1);
-  BOOST_CHECK_EQUAL(toAcceptingState.guard.size(), 2);
-  BOOST_CHECK_EQUAL(toAcceptingState.guard[0].x, 0);
-  BOOST_CHECK_EQUAL(toAcceptingState.guard[0].c, 1);
-  BOOST_CHECK_EQUAL(toAcceptingState.guard[0].odr, Constraint::Order::gt);
-  BOOST_CHECK_EQUAL(toAcceptingState.guard[1].x, 2);
-  BOOST_CHECK_EQUAL(toAcceptingState.guard[1].c, 10);
-  BOOST_CHECK_EQUAL(toAcceptingState.guard[1].odr, Constraint::Order::lt);
-  auto acceptingState = toAcceptingState.target;
-  BOOST_TEST(acceptingState->isMatch);
+  BOOST_CHECK_EQUAL(TA.clockDimensions, 1);
+  BOOST_CHECK_EQUAL(TA.paramDimensions, 2);
+
+  BOOST_REQUIRE_EQUAL(TA.states.size(), 4);
+  BOOST_TEST(!TA.states[0]->isMatch);
+  BOOST_TEST(!TA.states[1]->isMatch);
+  BOOST_TEST(!TA.states[2]->isMatch);
+  BOOST_TEST( TA.states[3]->isMatch);
+
+  BOOST_REQUIRE_EQUAL(TA.initialStates.size(), 1);
+  BOOST_CHECK_EQUAL(TA.states[0], TA.initialStates[0]);
+
+  Parma_Polyhedra_Library::Variable p(1), q(2), x(3);
+  Parma_Polyhedra_Library::Constraint_System expected;
+
+  {// transition 1
+    BOOST_REQUIRE_EQUAL(TA.states[0]->next['l'].size(), 1);
+    auto transition = TA.states[0]->next['l'][0];
+    BOOST_REQUIRE_EQUAL(transition.resetVars.size(), 1);
+    BOOST_CHECK_EQUAL(transition.resetVars[0], 0);
+
+    auto polynomial = transition.guard;
+    BOOST_TEST(!polynomial.is_empty());
+    BOOST_CHECK_EQUAL(polynomial.space_dimension(), 4);
+
+    expected = Parma_Polyhedra_Library::Constraint_System(x < p);
+    BOOST_CHECK_EQUAL(polynomial, Parma_Polyhedra_Library::NNC_Polyhedron(expected));
+  }
+
+  {// transition 2
+    BOOST_REQUIRE_EQUAL(TA.states[1]->next['h'].size(), 1);
+    auto transition = TA.states[1]->next['h'][0];
+    BOOST_REQUIRE_EQUAL(transition.resetVars.size(), 0);
+
+    auto polynomial = transition.guard;
+    BOOST_TEST(!polynomial.is_empty());
+    BOOST_CHECK_EQUAL(polynomial.space_dimension(), 4);
+
+    expected = Parma_Polyhedra_Library::Constraint_System(x < q);
+    expected.insert(x < 1);
+    BOOST_CHECK_EQUAL(polynomial, Parma_Polyhedra_Library::NNC_Polyhedron(expected));
+  }
+
+  {// transition 3
+    BOOST_REQUIRE_EQUAL(TA.states[2]->next['l'].size(), 1);
+    auto transition = TA.states[2]->next['l'][0];
+    BOOST_REQUIRE_EQUAL(transition.resetVars.size(), 0);
+
+    auto polynomial = transition.guard;
+    BOOST_TEST(!polynomial.is_empty());
+    BOOST_CHECK_EQUAL(polynomial.space_dimension(), 4);
+
+    expected = Parma_Polyhedra_Library::Constraint_System(x < 1);
+    BOOST_CHECK_EQUAL(polynomial, Parma_Polyhedra_Library::NNC_Polyhedron(expected));
+  }
+
+  {// transition 4
+    BOOST_REQUIRE_EQUAL(TA.states[2]->next['$'].size(), 1);
+    auto transition = TA.states[2]->next['$'][0];
+    BOOST_REQUIRE_EQUAL(transition.resetVars.size(), 0);
+
+    auto polynomial = transition.guard;
+    BOOST_TEST(!polynomial.is_empty());
+    BOOST_CHECK_EQUAL(polynomial.space_dimension(), 4);
+
+    expected = Parma_Polyhedra_Library::Constraint_System(x < p);
+    BOOST_CHECK_EQUAL(polynomial, Parma_Polyhedra_Library::NNC_Polyhedron(expected));
+  }
 }
-#endif
 
 BOOST_AUTO_TEST_SUITE_END()
