@@ -11,6 +11,7 @@ Usage
     monaa [OPTIONS] PATTERN [FILE]
     monaa [OPTIONS] -e PATTERN [FILE]
     monaa [OPTIONS] -f FILE [FILE]
+    pmonaa [OPTIONS] -f FILE [FILE]
 
 ### Options
 
@@ -25,10 +26,16 @@ Usage
 **-f** *file*, **--automaton** *file* Read a timed automaton from *file*. <br />
 **-e** *pattern*, **--expression** *pattern* Specify a *pattern* by a timed regular expression. <br />
 
+Example
+-------
+    
+    ./build/pmonaa -f ./example/pta.dot < ./example/timed_word.txt
+
+
 Installation
 ------------
 
-MONAA is tested on Arch Linux and Mac OSX 10.11.6
+MONAA is tested on Arch Linux and Mac OSX 10.13.6
 
 ### Requirements
 
@@ -38,7 +45,7 @@ MONAA is tested on Arch Linux and Mac OSX 10.11.6
 * CMake
 * Bison
 * Flex
-* PPL
+* PPL (for pmonaa)
 
 ### Instructions
 

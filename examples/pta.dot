@@ -1,0 +1,14 @@
+digraph G {
+        graph [
+               param_dimensions = 1
+               clock_dimensions = 1
+        ];
+        1 [init=1][match=0]
+        2 [init=0][match=0]
+        3 [init=0][match=0]
+        4 [init=0][match=1]
+        1->2 [label=a][reset="{0}"];
+        2->3 [label=b][guard="{x0 < p0}"];
+        3->4 [label="$"];
+}
+
