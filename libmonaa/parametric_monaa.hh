@@ -280,9 +280,8 @@ void parametricMonaa(WordContainer<InputContainer> word,
           for (ClockVariables x = 0; x < A.clockDimensions; x++) {
             if (config.resetTime[x]) {
               // x is reset at config.resetTime[x]
-              constraint.add_constraint(Parma_Polyhedra_Library::Constraint(LinearExpression(endTimeVariable - config.resetTime[x]) == clockVariables[x]));
+              constraint.add_constraint(Parma_Polyhedra_Library::Constraint(LinearExpression(endTimeVariable - clockVariables[x]) == config.resetTime[x]));
             } else {
-              abort();
               // x is never reset.
               constraint.add_constraint(Parma_Polyhedra_Library::Constraint(LinearExpression(endTimeVariable - beginningTimeVariable) == clockVariables[x]));
             }
@@ -381,7 +380,7 @@ void parametricMonaa(WordContainer<InputContainer> word,
           for (ClockVariables x = 0; x < A.clockDimensions; x++) {
             if (config.resetTime[x]) {
               // x is reset at config.resetTime[x]
-              constraint.add_constraint(Parma_Polyhedra_Library::Constraint(LinearExpression(endTimeVariable - config.resetTime[x]) == clockVariables[x]));
+              constraint.add_constraint(Parma_Polyhedra_Library::Constraint(LinearExpression(endTimeVariable - clockVariables[x]) == config.resetTime[x]));
             } else {
               // x is never reset.
               constraint.add_constraint(Parma_Polyhedra_Library::Constraint(LinearExpression(endTimeVariable - beginningTimeVariable) == clockVariables[x]));
