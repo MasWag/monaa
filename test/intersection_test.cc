@@ -44,6 +44,7 @@ BOOST_FIXTURE_TEST_CASE( intersectionTest, IntersectionFixture )
 
   // Comparison
   BOOST_TEST (out.initialStates.size() == 1);
+  BOOST_CHECK_EQUAL(out.states.size(), 3);
   BOOST_REQUIRE_EQUAL (out.initialStates[0], initState);
   BOOST_CHECK_EQUAL (initState->next[0].size(), 1);
   BOOST_CHECK_EQUAL (initState->next['a'].size(), 1);
