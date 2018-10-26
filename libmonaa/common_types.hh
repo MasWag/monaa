@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <vector>
 #include <memory>
+#include <unordered_set>
+#include <stack>
 
 typedef char Alphabet;
 typedef uint8_t ClockVariables;

@@ -1,25 +1,24 @@
 #pragma once
 
-#include "timed_automaton.hh"
+#include "abstract_nfa.hh"
 #include "zone.hh"
 #include <stack>
 #include <unordered_set>
 #include <utility>
+#include "timed_automaton.hh"
 
-struct ZAState {
-  bool isMatch;
-  // An epsilon transition is denoted by the null character (\0)
-  std::array<std::vector<std::weak_ptr<ZAState>>, CHAR_MAX> next;
+template<class Zone>
+struct AbstractZAState : public AbstractNFAState<AbstractZAState<Zone>> {
   TAState *taState;
   Zone zone;
-  ZAState () : isMatch(false), next({}) {}
-  ZAState (TAState *taState, Zone zone) : isMatch(taState->isMatch), next({}), taState(taState), zone(std::move(zone)) {}
-  ZAState (bool isMatch) : isMatch(isMatch), next({}) {}
-  ZAState (bool isMatch, std::array<std::vector<std::weak_ptr<ZAState>>, CHAR_MAX> next) : isMatch(isMatch), next(next) {}
+  AbstractZAState (TAState *taState, Zone zone) : AbstractNFAState<AbstractZAState<Zone>>(taState->isMatch, {}), taState(taState), zone(std::move(zone)) {}
+  AbstractZAState (bool isMatch = false, std::array<std::vector<std::weak_ptr<AbstractZAState<Zone>>>, CHAR_MAX> next = {}) : AbstractNFAState<AbstractZAState<Zone>>(isMatch, next) {}
   bool operator==(std::pair<TAState*, Zone> pair) {
     return pair.first == taState && pair.second == zone;
   }
 };
+
+using ZAState = AbstractZAState<Zone>;
 
 struct NoEpsilonZAState {
   bool isMatch;
@@ -31,7 +30,8 @@ struct NoEpsilonZAState {
 };
 
 //! @brief returns the set of states that is reachable from a state in the state by unobservable transitions
-static inline void epsilonClosure(std::unordered_set<std::shared_ptr<ZAState>> &closure) {
+template<class Zone>
+void epsilonClosure(std::unordered_set<std::shared_ptr<AbstractZAState<Zone>>> &closure) {
   auto waiting = std::deque<std::shared_ptr<ZAState>>(closure.begin(), closure.end());
   while (!waiting.empty()) {
     for(auto wstate: waiting.front()->next[0]) {
@@ -46,107 +46,28 @@ static inline void epsilonClosure(std::unordered_set<std::shared_ptr<ZAState>> &
 }
 
 
-struct ZoneAutomaton : public Automaton<ZAState> {
-  using State = ::ZAState;
 
-  //! @brief remove states unreachable to any accepting states
-  void removeDeadStates() {
-    // Find states unreachable to any accepting states
-    using Config = std::pair<std::shared_ptr<ZAState>, std::unordered_set<std::shared_ptr<ZAState>>>;
-    std::stack<Config> States;
-    for (auto state: initialStates) {
-      States.push(Config(state, {}));
-    }
-    std::unordered_set<std::shared_ptr<ZAState>> reachable;
-    while (!States.empty()) {
-      Config conf = States.top();
-      States.pop();
-      if (conf.first->isMatch) {
-        reachable.insert(conf.first);
-        reachable.insert(conf.second.begin(), conf.second.end());
-      }
-      for (const auto &edges: conf.first->next) {
-        for (const auto &edge: edges) {
-          if (conf.second.find(conf.first) != conf.second.end()) {
-            // We are in a loop
-            continue;
-          }
-          if(reachable.find(edge.lock()) != reachable.end()) {
-            // The next state is reachable
-            reachable.insert(conf.first);
-            reachable.insert(conf.second.begin(), conf.second.end());
-          } else {
-            // The next state may be unreachable
-            auto parents = conf.second;
-            parents.insert(conf.first);
-            States.push(Config(edge.lock(), parents));
-          }
-        }
-      }
-    }
-
-    // Remove unreachable states 
-    for (auto it = states.begin(); it != states.end(); ) {
-      if(reachable.find(*it) == reachable.end()) {
-        it = states.erase(it);
-      } else {
-        it++;
-      }
-    }
-    for (auto it = initialStates.begin(); it != initialStates.end(); ) {
-      if(reachable.find(*it) == reachable.end()) {
-        it = initialStates.erase(it);
-      } else {
-        it++;
-      }
-    }
-  }
-
+template<class Zone>
+struct AbstractZoneAutomaton : public AbstractNFA<AbstractZAState<Zone>> {
   /*!
     @brief Propagate accepting states from the original timed automaton
     @note taInitSates must be sorted
   */
   void updateInitAccepting(const std::vector<std::shared_ptr<TAState>> taInitialStates) {
     // update initial states
-    initialStates.clear();
-    for (std::shared_ptr<ZAState> s: states) {
+    this->initialStates.clear();
+    for (std::shared_ptr<ZAState> s: this->states) {
       if (std::find_if(taInitialStates.begin(), taInitialStates.end(), [&](std::shared_ptr<TAState> taS) {
             return taS.get() == s->taState;}) != taInitialStates.end()) {
-        initialStates.push_back(s);
+        this->initialStates.push_back(s);
       }
     }
 
     // update accepting states
-    for (auto &state: states) {
+    for (auto &state: this->states) {
       state->isMatch = state->taState->isMatch;
     }
   }
-  
-  //! @brief emptiness check of the language
-  bool empty() const {
-    std::vector<std::shared_ptr<ZAState>> currentStates = initialStates;
-    std::unordered_set<std::shared_ptr<ZAState>> visited = {initialStates.begin(), initialStates.end()};
-    while (!currentStates.empty()) {
-      std::vector<std::shared_ptr<ZAState>> nextStates;
-      for (auto state: currentStates) {
-        if (state->isMatch) {
-          return false;
-        }
-        for (const auto &edges: state->next) {
-          for (const auto edge: edges) {
-            auto target = edge.lock();
-            if (target && visited.find(target) == visited.end()) {
-              // We have not visited the state
-              nextStates.push_back(target);
-              visited.insert(target);
-            }
-          }
-        }
-        
-      }
-      currentStates = std::move(nextStates);
-    }
-    return true;
-  }
 };
 
+using ZoneAutomaton = AbstractZoneAutomaton<Zone>;
