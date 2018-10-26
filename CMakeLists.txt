@@ -90,6 +90,7 @@ add_library(libmonaa STATIC
 enable_testing()
 
 add_executable(unit_test
+  libmonaa/parametric_intersection.cc
   libmonaa/intersection.cc
   libmonaa/ta2za.cc
   monaa/tre.cc
@@ -103,7 +104,7 @@ add_executable(unit_test
   test/intersection_test.cc
   test/timed_automaton_test.cc
   test/constraint_test.cc
-  test/intersection_test.cc
+  test/parametric_intersection_test.cc
   test/zone_automaton_test.cc
   test/sunday_skip_value_test.cc
   test/kmp_skip_value_test.cc
