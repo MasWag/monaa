@@ -7,18 +7,18 @@
 #include <utility>
 #include "timed_automaton.hh"
 
-template<class Zone>
-struct AbstractZAState : public AbstractNFAState<AbstractZAState<Zone>> {
+template<class TAState, class Zone>
+struct AbstractZAState : public AbstractNFAState<AbstractZAState<TAState, Zone>> {
   TAState *taState;
   Zone zone;
-  AbstractZAState (TAState *taState, Zone zone) : AbstractNFAState<AbstractZAState<Zone>>(taState->isMatch, {}), taState(taState), zone(std::move(zone)) {}
-  AbstractZAState (bool isMatch = false, std::array<std::vector<std::weak_ptr<AbstractZAState<Zone>>>, CHAR_MAX> next = {}) : AbstractNFAState<AbstractZAState<Zone>>(isMatch, next) {}
+  AbstractZAState (TAState *taState, Zone zone) : AbstractNFAState<AbstractZAState<TAState, Zone>>(taState->isMatch, {}), taState(taState), zone(std::move(zone)) {}
+  AbstractZAState (bool isMatch = false, std::array<std::vector<std::weak_ptr<AbstractZAState<TAState, Zone>>>, CHAR_MAX> next = {}) : AbstractNFAState<AbstractZAState<TAState, Zone>>(isMatch, next) {}
   bool operator==(std::pair<TAState*, Zone> pair) {
     return pair.first == taState && pair.second == zone;
   }
 };
 
-using ZAState = AbstractZAState<Zone>;
+using ZAState = AbstractZAState<TAState, Zone>;
 
 struct NoEpsilonZAState {
   bool isMatch;
@@ -31,7 +31,7 @@ struct NoEpsilonZAState {
 
 //! @brief returns the set of states that is reachable from a state in the state by unobservable transitions
 template<class Zone>
-void epsilonClosure(std::unordered_set<std::shared_ptr<AbstractZAState<Zone>>> &closure) {
+void epsilonClosure(std::unordered_set<std::shared_ptr<AbstractZAState<TAState, Zone>>> &closure) {
   auto waiting = std::deque<std::shared_ptr<ZAState>>(closure.begin(), closure.end());
   while (!waiting.empty()) {
     for(auto wstate: waiting.front()->next[0]) {
@@ -47,8 +47,8 @@ void epsilonClosure(std::unordered_set<std::shared_ptr<AbstractZAState<Zone>>> &
 
 
 
-template<class Zone>
-struct AbstractZoneAutomaton : public AbstractNFA<AbstractZAState<Zone>> {
+template<class TAState, class Zone>
+struct AbstractZoneAutomaton : public AbstractNFA<AbstractZAState<TAState, Zone>> {
   /*!
     @brief Propagate accepting states from the original timed automaton
     @note taInitSates must be sorted
@@ -70,4 +70,4 @@ struct AbstractZoneAutomaton : public AbstractNFA<AbstractZAState<Zone>> {
   }
 };
 
-using ZoneAutomaton = AbstractZoneAutomaton<Zone>;
+using ZoneAutomaton = AbstractZoneAutomaton<TAState, Zone>;
