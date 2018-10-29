@@ -93,6 +93,7 @@ add_executable(unit_test
   libmonaa/parametric_intersection.cc
   libmonaa/intersection.cc
   libmonaa/ta2za.cc
+  libmonaa/pta2pza.cc
   monaa/tre.cc
   monaa/intermediate_tre.cc
   test/unit_test.cc

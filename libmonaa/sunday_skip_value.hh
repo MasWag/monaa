@@ -8,13 +8,15 @@
 #include "zone_automaton.hh"
 #include "ta2za.hh"
 
-class SundaySkipValue {
+template<class TimedAutomaton, class Zone>
+class SundaySkipValueTemplate {
+  using ZoneAutomaton = AbstractZoneAutomaton<typename TimedAutomaton::State, Zone>;
 private:
   int m;
   std::array<unsigned int, CHAR_MAX> delta;
   std::unordered_set<char> endChars;
 public:
-  SundaySkipValue(TimedAutomaton TA) {
+  SundaySkipValueTemplate(TimedAutomaton TA) {
     ZoneAutomaton ZA;
     ta2za(TA,ZA);
     ZA.removeDeadStates();
@@ -22,17 +24,17 @@ public:
     std::vector<std::unordered_set<char>> charSet;
     bool accepted = false;
     m = 0;
-    std::vector<std::shared_ptr<ZAState>> CStates = ZA.initialStates;
+    std::vector<std::shared_ptr<typename ZoneAutomaton::State>> CStates = ZA.initialStates;
     while (!accepted) {
       if (CStates.empty()) {
         std::cerr << "monaa: empty pattern" << std::endl;
         exit(10);
       }
-      std::vector<std::shared_ptr<ZAState>> NStates;
+      std::vector<std::shared_ptr<typename ZoneAutomaton::State>> NStates;
       m++;
       charSet.resize(m);
       for (auto zstate: CStates) {
-        std::unordered_set<std::shared_ptr<ZAState>> closure;
+        std::unordered_set<std::shared_ptr<typename ZoneAutomaton::State>> closure;
         closure.insert(zstate);
         epsilonClosure(closure);
         for (auto state: closure) {
@@ -75,3 +77,5 @@ public:
     endChars = this->endChars;
   }
 };
+
+using SundaySkipValue = SundaySkipValueTemplate<TimedAutomaton, Zone>;

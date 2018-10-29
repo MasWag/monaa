@@ -30,9 +30,9 @@ struct NoEpsilonZAState {
 };
 
 //! @brief returns the set of states that is reachable from a state in the state by unobservable transitions
-template<class Zone>
+template<class TAState, class Zone>
 void epsilonClosure(std::unordered_set<std::shared_ptr<AbstractZAState<TAState, Zone>>> &closure) {
-  auto waiting = std::deque<std::shared_ptr<ZAState>>(closure.begin(), closure.end());
+  auto waiting = std::deque<std::shared_ptr<AbstractZAState<TAState, Zone>>>(closure.begin(), closure.end());
   while (!waiting.empty()) {
     for(auto wstate: waiting.front()->next[0]) {
       auto state = wstate.lock();
@@ -49,6 +49,7 @@ void epsilonClosure(std::unordered_set<std::shared_ptr<AbstractZAState<TAState, 
 
 template<class TAState, class Zone>
 struct AbstractZoneAutomaton : public AbstractNFA<AbstractZAState<TAState, Zone>> {
+  using State = AbstractZAState<TAState, Zone>;
   /*!
     @brief Propagate accepting states from the original timed automaton
     @note taInitSates must be sorted
