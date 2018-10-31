@@ -63,6 +63,8 @@ void pushProductStates(const std::vector<std::shared_ptr<State>> &in1, const std
   @param [in] in1 First set of states
   @param [in] in2 Second set of states
   @param [in] addProductTransition Function to add the product transition to the product automaton
+
+  @note Reachability is not considered here. The product is taken in a mathematical sense.
  */
 template<class State, class Transition>
 class AddProductTransitions {
