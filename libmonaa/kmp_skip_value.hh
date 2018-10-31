@@ -8,10 +8,17 @@
 #include "intersection.hh"
 #include "ta2za.hh"
 
+/*!
+  @brief Class for KMP-style skip value function
+ */
 class KMPSkipValue {
 private:
-  std::unordered_map<const TAState*, int> beta;
+  std::unordered_map<const TAState*, int> beta; //< container for the calculated skip value function
 public:
+  /*!
+    @param [in] TA timed automaton
+    @param [in] m length of the minimum timed words accepted by TA
+  */
   KMPSkipValue(const TimedAutomaton &TA, int m) {
     ZoneAutomaton ZA2;
     TimedAutomaton A2;

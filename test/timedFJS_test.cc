@@ -35,11 +35,15 @@ BOOST_AUTO_TEST_CASE(timedFJS) {
 
   auto ansZone = ans.begin()->value;
   BOOST_TEST(bool(ansZone(0, 1) == Bounds{0, true}));
-  BOOST_TEST(bool(ansZone(1, 0) == Bounds{2.4, false}));
-  BOOST_TEST(bool(ansZone(0, 2) == Bounds{-2.9, false}));
-  BOOST_TEST(bool(ansZone(2, 0) == Bounds{3.4, true}));
+  BOOST_CHECK_CLOSE(ansZone(1, 0).first, 2.4, 1e-6);
+  BOOST_CHECK_EQUAL(ansZone(1, 0).second, false);
+  BOOST_CHECK_CLOSE(ansZone(0, 2).first, -2.9, 1e-6);
+  BOOST_CHECK_EQUAL(ansZone(0, 2).second, false);
+  BOOST_CHECK_CLOSE(ansZone(2, 0).first, 3.4, 1e-6);
+  BOOST_CHECK_EQUAL(ansZone(2, 0).second, true);
   BOOST_TEST(bool(ansZone(1, 2) == Bounds{-0.5, false}));
-  BOOST_TEST(bool(ansZone(2, 1) == Bounds{3.4, true}));
+  BOOST_CHECK_CLOSE(ansZone(2, 1).first, 3.4, 1e-6);
+  BOOST_CHECK_EQUAL(ansZone(2, 1).second, true);
 }
 
 BOOST_AUTO_TEST_CASE(timedFJSa0_1b0_1) {
@@ -91,6 +95,17 @@ BOOST_AUTO_TEST_CASE(timedFJSTorque) {
   const auto ansZone = (++ans.begin())->value;
   BOOST_CHECK_CLOSE(ansZone(1, 2).first, -1, 1e-6);
   BOOST_CHECK_CLOSE(ansZone(2, 1).first, 1.00988, 1e-6);
+}
+
+#include "../test/long_constraint_TA.hh"
+
+BOOST_FIXTURE_TEST_CASE(TimedFJSLongConstraintTest, LongConstraintTAFixture) 
+{
+  FILE* file(fopen("../test/timed_word_a.txt", "r"));
+  WordVector<std::pair<Alphabet,double> > w(file, false);
+  AnsVec<Zone> ans;
+  monaa(w, TA, ans);
+  BOOST_CHECK_EQUAL(ans.size(), 3);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
