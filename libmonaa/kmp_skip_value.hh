@@ -45,6 +45,8 @@ class KMPSkipValueTemplate {
   using ZoneAutomaton = AbstractZoneAutomaton<typename TAutomaton::State, Zone>;
 private:
   std::unordered_map<const typename TAutomaton::State*, int> beta; //< container for the calculated skip value function
+
+public:
   /*!
     @brief construct the automaton A_{+n}^* in the paper
 
@@ -127,7 +129,7 @@ private:
       As.states.push_back(dummyState.second);
     }
   }
-public:
+
   /*!
     @param [in] TA timed automaton
     @param [in] m length of the minimum timed words accepted by TA

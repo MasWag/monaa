@@ -109,6 +109,7 @@ add_executable(unit_test
   test/zone_automaton_test.cc
   test/sunday_skip_value_test.cc
   test/kmp_skip_value_test.cc
+  test/parametric_kmp_skip_value_test.cc
   test/zone_test.cc
   test/intermediate_zone_test.cc
   test/timedFJS_test.cc
