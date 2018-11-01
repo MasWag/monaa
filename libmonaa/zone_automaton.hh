@@ -57,7 +57,7 @@ struct AbstractZoneAutomaton : public AbstractNFA<AbstractZAState<TAState, Zone>
   void updateInitAccepting(const std::vector<std::shared_ptr<TAState>> taInitialStates) {
     // update initial states
     this->initialStates.clear();
-    for (std::shared_ptr<ZAState> s: this->states) {
+    for (std::shared_ptr<State> s: this->states) {
       if (std::find_if(taInitialStates.begin(), taInitialStates.end(), [&](std::shared_ptr<TAState> taS) {
             return taS.get() == s->taState;}) != taInitialStates.end()) {
         this->initialStates.push_back(s);

@@ -15,8 +15,6 @@ typedef uint8_t ClockVariables;
  */
 template<class State>
 struct Automaton {
-  struct TATransition;
-
   //! @brief The states of this automaton.
   std::vector<std::shared_ptr<State>> states;
   //! @brief The initial states of this automaton.

@@ -12,7 +12,21 @@
 */
 void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out, boost::unordered_map<std::pair<TAState*, TAState*>, std::shared_ptr<TAState>> &toIState);
 
-void updateInitAccepting(const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out, boost::unordered_map<std::pair<TAState*, TAState*>, std::shared_ptr<TAState>> toIState);
+template<class TAutomaton>
+void updateInitAccepting(const TAutomaton &in1, const TAutomaton &in2, TAutomaton &out, boost::unordered_map<std::pair<typename TAutomaton::State*, typename TAutomaton::State*>, std::shared_ptr<typename TAutomaton::State>> toIState) {
+  // update initial states
+  pushProductStates(in1.initialStates, in2.initialStates, toIState, out.initialStates);
+
+  // update accepting states
+  for (auto it = toIState.begin(); it != toIState.end(); ) {
+    if (it->first.first && it->first.second && it->second) {
+     it->second->isMatch = it->first.first->isMatch && it->first.second->isMatch;    
+     it++;
+    } else {
+      it = toIState.erase(it);
+    }
+  }
+}
 
 void intersectionSignalTA (const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out);
 

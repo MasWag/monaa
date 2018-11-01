@@ -33,6 +33,7 @@ struct TAState {
   @brief A state of timed automata
  */
 struct TATransition {
+  using Guard = std::vector<Constraint>;
   //! @brief The pointer to the target state.
   TAState *target;
   //! @brief The clock variables reset after this transition.

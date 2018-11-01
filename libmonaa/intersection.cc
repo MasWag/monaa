@@ -92,22 +92,6 @@ void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, Timed
   addProductTransitionsTA(in1.states, in2.states);
 }
 
-void updateInitAccepting(const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out, boost::unordered_map<std::pair<TAState*, TAState*>, std::shared_ptr<TAState>> toIState) {
-  // update initial states
-  pushProductStates(in1.initialStates, in2.initialStates, toIState, out.initialStates);
-
-  // update accepting states
-  for (auto it = toIState.begin(); it != toIState.end(); ) {
-    if (it->first.first && it->first.second && it->second) {
-     it->second->isMatch = it->first.first->isMatch && it->first.second->isMatch;    
-     it++;
-    } else {
-      it = toIState.erase(it);
-    }
-  }
-}
-
-
 void intersectionSignalTA (const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out)
 {
   // toIState :: (in1.State, in2.State) -> out.State

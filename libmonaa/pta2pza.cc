@@ -69,27 +69,7 @@ void ta2za (const ParametricTimedAutomaton &PTA,
     (TAState,Zone) -> ZAState
   */
   while (!nextConf.empty ()) {
-    if (PZA.states.size() > maxStates) {
-      // reachability analysis does not terminate. do overapproximation
-      auto acceptingState = std::find_if(PTA.states.begin(), PTA.states.end(), [] (std::shared_ptr<PTAState> taState) {
-          return taState->isMatch;
-        });
-      if (acceptingState == PTA.states.end()) {
-        return;
-      } else {
-        auto dummyAcceptingZAState = std::make_shared<PZAState>(acceptingState->get(), initialZone);
-        for (const auto &conf : nextConf) {
-          PTAState *taState = conf->taState;
-          for (auto it = taState->next.begin(); it != taState->next.end(); it++) {
-            const Alphabet c = it->first;
-            if (!it->second.empty()) {
-              conf->next[c].push_back(dummyAcceptingZAState);
-            }
-          }
-        }
-      }
-    }
-    std::vector<std::shared_ptr<PZAState>> currentConf = nextConf;
+    std::vector<std::shared_ptr<PZAState>> currentConf = std::move(nextConf);
     nextConf.clear();
     for (const auto &conf : currentConf) {
       PTAState *taState = conf->taState;
@@ -133,6 +113,26 @@ void ta2za (const ParametricTimedAutomaton &PTA,
           }
         }
       }
+    }
+
+    if (PZA.states.size() > maxStates) {
+      // reachability analysis does not terminate. do overapproximation
+      auto acceptingState = std::find_if(PTA.states.begin(), PTA.states.end(), [] (std::shared_ptr<PTAState> taState) {
+          return taState->isMatch;
+        });
+      if (acceptingState != PTA.states.end()) {
+        auto dummyAcceptingZAState = std::make_shared<PZAState>(acceptingState->get(), initialZone);
+        for (const auto &conf : nextConf) {
+          PTAState *taState = conf->taState;
+          for (auto it = taState->next.begin(); it != taState->next.end(); it++) {
+            const Alphabet c = it->first;
+            if (!it->second.empty()) {
+              conf->next[c].push_back(dummyAcceptingZAState);
+            }
+          }
+        }
+      }
+      return;
     }
   }
 }

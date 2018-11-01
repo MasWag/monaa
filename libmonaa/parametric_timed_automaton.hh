@@ -34,6 +34,7 @@ struct PTAState {
   @brief A transition of a parametric timed automaton
  */
 struct PTATransition {
+  using Guard = Parma_Polyhedra_Library::NNC_Polyhedron;
   //! @brief The pointer to the target state.
   PTAState *target;
   //! @brief The clock variables reset after this transition.
@@ -48,6 +49,7 @@ struct PTATransition {
 struct ParametricTimedAutomaton : public Automaton<PTAState> {
   using X = ConstraintMaker;
   using State = ::PTAState;
+  using TATransition = PTATransition;
 
   /*!
     @brief make a deep copy of this parametric timed automaton.
@@ -76,8 +78,9 @@ struct ParametricTimedAutomaton : public Automaton<PTAState> {
           edge.target = old2new[oldTarget].get();
         }
       }
-
     }
+    dest.clockDimensions = clockDimensions;
+    dest.paramDimensions = paramDimensions;
   }
 
   std::size_t clockDimensions;
