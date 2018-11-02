@@ -177,19 +177,19 @@ public:
   }
 
   inline
-  int at(const typename TAutomaton::State *s) const {
+  std::size_t at(const typename TAutomaton::State *s) const {
     return beta.at(s);
   }
   inline
-  int operator[](const typename TAutomaton::State *s) const {
+  std::size_t operator[](const typename TAutomaton::State *s) const {
     return beta.at(s);
   }
   inline
-  int at(std::shared_ptr<typename TAutomaton::State> s) const {
+  std::size_t at(std::shared_ptr<typename TAutomaton::State> s) const {
     return beta.at(s.get());
   }
   inline
-  int operator[](std::shared_ptr<typename TAutomaton::State> s) const {
+  std::size_t operator[](std::shared_ptr<typename TAutomaton::State> s) const {
     return beta.at(s.get());
   }
 };

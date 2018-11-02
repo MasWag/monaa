@@ -60,18 +60,59 @@ target_link_libraries(monaa
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${Boost_GRAPH_LIBRARY})
 
-add_executable(pmonaa
+add_executable(pmonaa_no_skipping
   monaa/pmain.cc
+  libmonaa/parametric_intersection.cc
+  libmonaa/pta2pza.cc
   ${FLEX_tre_lexer_OUTPUTS}
   ${FLEX_constraint_lexer_OUTPUTS}
   ${BISON_constraint_parser_OUTPUTS})
 
-target_link_libraries(pmonaa
+target_link_libraries(pmonaa_no_skipping
 #  profiler
   ${PPL_PPL_LIBRARY}
   ${GMP_LIBRARY}
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${Boost_GRAPH_LIBRARY})
+
+set_target_properties(pmonaa_no_skipping
+  PROPERTIES COMPILE_FLAGS "-DDISABLE_SKIPPING")
+
+add_executable(pmonaa_skipping
+  monaa/pmain.cc
+  libmonaa/parametric_intersection.cc
+  libmonaa/pta2pza.cc
+  ${FLEX_tre_lexer_OUTPUTS}
+  ${FLEX_constraint_lexer_OUTPUTS}
+  ${BISON_constraint_parser_OUTPUTS})
+
+target_link_libraries(pmonaa_skipping
+#  profiler
+  ${PPL_PPL_LIBRARY}
+  ${GMP_LIBRARY}
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  ${Boost_GRAPH_LIBRARY})
+
+set_target_properties(pmonaa_skipping
+  PROPERTIES COMPILE_FLAGS "-DENABLE_SKIPPING")
+
+add_executable(pmonaa_parametric_skipping
+  monaa/pmain.cc
+  libmonaa/parametric_intersection.cc
+  libmonaa/pta2pza.cc
+  ${FLEX_tre_lexer_OUTPUTS}
+  ${FLEX_constraint_lexer_OUTPUTS}
+  ${BISON_constraint_parser_OUTPUTS})
+
+target_link_libraries(pmonaa_parametric_skipping
+#  profiler
+  ${PPL_PPL_LIBRARY}
+  ${GMP_LIBRARY}
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  ${Boost_GRAPH_LIBRARY})
+
+set_target_properties(pmonaa_parametric_skipping
+  PROPERTIES COMPILE_FLAGS "-DENABLE_PARAMETRIC_SKIPPING")
 
 target_include_directories(monaa
   PRIVATE

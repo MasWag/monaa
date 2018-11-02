@@ -28,16 +28,35 @@
 #include <boost/variant.hpp>
 
 #include "parametric_timed_automaton.hh"
-#include "intermediate_zone.hh"
-#include "ta2za.hh"
-#include "intersection.hh"
 #include "word_container.hh"
 #include "sunday_skip_value.hh"
 #include "kmp_skip_value.hh"
 #include "ans_vec.hh"
 #include "linear_expression.hh"
+#include "polyhedron_zone_automaton.hh"
+#include "pta2pza.hh"
+#include "parametric_intersection.hh"
+#include "parametric_kmp_skip_value.hh"
 
 #include "utils.hh"
+
+#ifdef ENABLE_PARAMETRIC_SKIPPING
+#define ENABLE_QUICK_SEARCH
+#define ENABLE_PARAMETRIC_KMP
+#undef  ENABLE_KMP
+#endif
+
+#ifdef ENABLE_SKIPPING
+#define ENABLE_QUICK_SEARCH
+#undef  ENABLE_PARAMETRIC_KMP
+#define ENABLE_KMP
+#endif
+
+#ifdef DISABLE_SKIPPING
+#undef ENABLE_QUICK_SEARCH
+#undef ENABLE_PARAMETRIC_KMP
+#undef ENABLE_KMP
+#endif
 
 namespace {
   /*
@@ -60,6 +79,9 @@ namespace {
     InternalState(const PTAState *s, const std::vector<double> &resetTime, const Parma_Polyhedra_Library::NNC_Polyhedron &constraint) : s(std::move(s)), resetTime(std::move(resetTime)), constraint(std::move(constraint)) {}
   };
 }
+
+using PSundaySkipValue = SundaySkipValueTemplate<ParametricTimedAutomaton, typename Parma_Polyhedra_Library::NNC_Polyhedron>;
+using PKMPSkipValue = KMPSkipValueTemplate<ParametricTimedAutomaton, typename Parma_Polyhedra_Library::NNC_Polyhedron>;
 
 /*!
   @brief Execute the parametric timed FJS algorithm.
@@ -106,7 +128,7 @@ void parametricMonaa(WordContainer<InputContainer> word,
   // Sunday's Skip value
   // Char -> Skip Value
 #ifdef ENABLE_QUICK_SEARCH
-  const SundaySkipValue delta = SundaySkipValue(Ap);
+  const PSundaySkipValue delta = PSundaySkipValue(Ap);
   const int m = delta.getM();
   std::unordered_set<Alphabet> endChars;
   delta.getEndChars(endChars);
@@ -116,8 +138,10 @@ void parametricMonaa(WordContainer<InputContainer> word,
 
   // KMP-Type Skip value
   // A.State -> SkipValue
-#ifdef ENABLE_KMP
-  const KMPSkipValue beta(Ap, m);
+#ifdef ENABLE_PARAMETRIC_KMP
+  const ParametricKMPSkipValue beta(Ap, m);
+#elif defined ENABLE_KMP
+  const PKMPSkipValue beta(Ap, m);
 #else
   std::unordered_map<PTAState*, std::size_t> beta;
   for (std::shared_ptr<PTAState> s: A.states) {
@@ -403,9 +427,15 @@ void parametricMonaa(WordContainer<InputContainer> word,
     }
     // KMP like skip value
     std::size_t greatestN = 1;
+#ifdef ENABLE_PARAMETRIC_KMP
+    for (const InternalState& istate: LastStates) {
+      greatestN = std::max(beta.at(ptrConv[istate.s], istate.constraint), greatestN);
+    }
+#elif defined ENABLE_KMP
     for (const InternalState& istate: LastStates) {
       greatestN = std::max(beta[ptrConv[istate.s].get()], greatestN);
     }
+#endif
     // increment i
     i += greatestN;
     word.setFront(i - 1);

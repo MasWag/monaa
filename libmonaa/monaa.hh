@@ -381,7 +381,7 @@ void monaa(WordContainer<InputContainer> word,
         LastStates = std::move(CStates);
       }
       // KMP like skip value
-      int greatestN = 1;
+      std::size_t greatestN = 1;
       for (const IntervalInternalState& istate: LastStates) {
         greatestN = std::max(beta[istate.s],greatestN);
       }
@@ -594,7 +594,7 @@ void monaa(WordContainer<InputContainer> word,
         LastStates = std::move(CStates);
       }
       // KMP like skip value
-      int greatestN = 1;
+      std::size_t greatestN = 1;
       for (const InternalState& istate: LastStates) {
         greatestN = std::max(beta[istate.s],greatestN);
       }
@@ -1007,7 +1007,7 @@ void monaaDollar(WordContainer<InputContainer> word,
         LastStates = std::move(CStates);
       }
       // KMP like skip value
-      int greatestN = 1;
+      std::size_t greatestN = 1;
       for (const IntervalInternalState& istate: LastStates) {
         greatestN = std::max(beta[ptrConv[istate.s].get()], greatestN);
       }
