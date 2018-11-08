@@ -42,7 +42,17 @@ BOOST_FIXTURE_TEST_CASE( ParametricKMPSkipValuePairTwoStatesTest, TwoStatesPTAFi
   {
     Parma_Polyhedra_Library::NNC_Polyhedron constraint(2);
     constraint.add_constraint(p > 1000);
-    BOOST_CHECK_EQUAL(delta.at(TA.states[2].get(), constraint), 2);
+    BOOST_CHECK_EQUAL(delta.at(TA.states[2].get(), constraint), 1);
+  }
+  {
+    Parma_Polyhedra_Library::NNC_Polyhedron constraint(2);
+    constraint.add_constraint(p > 0);
+    BOOST_CHECK_EQUAL(delta.at(TA.states[3].get(), constraint), 1);
+  }
+  {
+    Parma_Polyhedra_Library::NNC_Polyhedron constraint(2);
+    constraint.add_constraint(p > 1000);
+    BOOST_CHECK_EQUAL(delta.at(TA.states[3].get(), constraint), 2);
   }
 }
 

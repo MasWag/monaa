@@ -8,6 +8,7 @@
   ==============
   * (s,s') is encoded as s + |S| * s'
   * x = x1 or x2 + |C|
+  * p = p1 or p2 + |P|
   * in1 and in2 can be same.
 */
 /*!
@@ -18,6 +19,5 @@
   @param [out] out Product PTA
   @param [out] toIState Mapping from the pair (s1,s2) of the original automata to the state in the product PTA.
 
-  @pre in1 and in2 must have the same parameter dimension.
  */
 void intersectionTA (const ParametricTimedAutomaton &in1, const ParametricTimedAutomaton &in2, ParametricTimedAutomaton &out, boost::unordered_map<std::pair<PTAState*, PTAState*>, std::shared_ptr<PTAState>> &toIState);

@@ -19,7 +19,7 @@ public:
     @param [in] m length of the minimum timed words accepted by TA
   */
   ParametricKMPSkipValue(const ParametricTimedAutomaton &TA, int m) {
-    const Parma_Polyhedra_Library::Variables_Set clockVariablesSet(Parma_Polyhedra_Library::Variable(1 + TA.paramDimensions), Parma_Polyhedra_Library::Variable(1 + TA.paramDimensions + 2 * TA.clockDimensions - 1));
+    const Parma_Polyhedra_Library::Variables_Set removedVariablesSet(Parma_Polyhedra_Library::Variable(1 + TA.paramDimensions), Parma_Polyhedra_Library::Variable(1 + 2 * TA.paramDimensions + 2 * TA.clockDimensions - 1));
     PZoneAutomaton ZA2;
     ParametricTimedAutomaton A2;
     boost::unordered_map<std::pair<typename ParametricTimedAutomaton::State*, typename ParametricTimedAutomaton::State*>, std::shared_ptr<typename ParametricTimedAutomaton::State>> toIState;
@@ -35,7 +35,7 @@ public:
 
     KMPSkipValueTemplate<ParametricTimedAutomaton, Parma_Polyhedra_Library::NNC_Polyhedron>::makeAs(TA, As, old2newS, toDummyState);
 
-    intersectionTA (A0, As, A2, toIState);
+    intersectionTA (As, A0, A2, toIState);
 
     // Calculate KMP-type skip value
     for (auto origState: TA.states) {
@@ -46,7 +46,7 @@ public:
       // Find the minumum n such that the intersection of the two languages is not empty.
       for (int n = 1; n <= m; n++) {
         A0.initialStates = {extendedInitialStates[n]};
-        updateInitAccepting(A0, As, A2, toIState);
+        updateInitAccepting(As, A0, A2, toIState);
         std::sort(A2.initialStates.begin(), A2.initialStates.end());
         ZA2.updateInitAccepting(A2.initialStates);
         ta2za(A2, ZA2);
@@ -62,7 +62,7 @@ public:
             for (auto state: currentStates) {
               if (state->isMatch) {
                 Parma_Polyhedra_Library::NNC_Polyhedron zone = state->zone;
-                zone.remove_space_dimensions(clockVariablesSet);
+                zone.remove_space_dimensions(removedVariablesSet);
                 feasibleParameters.add_disjunct(std::move(zone));
               }
               for (const auto &edges: state->next) {

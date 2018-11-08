@@ -1,21 +1,25 @@
 #include "parametric_intersection.hh"
 #include "intersection.hh"
 
-class Dimension2to1SwapFunction {
+class DimensionFrom2SwapFunction {
 public:
-  Dimension2to1SwapFunction(const Parma_Polyhedra_Library::dimension_type clockSize1,
-                            const Parma_Polyhedra_Library::dimension_type clockSize2,
-                            const Parma_Polyhedra_Library::dimension_type paramSize) : clockSize1(clockSize1), clockSize2(clockSize2), paramSize(paramSize) {}
+  DimensionFrom2SwapFunction(const Parma_Polyhedra_Library::dimension_type clockSize1,
+                             const Parma_Polyhedra_Library::dimension_type clockSize2,
+                             const Parma_Polyhedra_Library::dimension_type paramSize1,
+                             const Parma_Polyhedra_Library::dimension_type paramSize2) : clockSize1(clockSize1), clockSize2(clockSize2), paramSize1(paramSize1), paramSize2(paramSize2){}
   bool has_empty_codomain() const { return false; }
-  Parma_Polyhedra_Library::dimension_type max_in_codomain() const { return clockSize1 + clockSize2 + paramSize; }
+  Parma_Polyhedra_Library::dimension_type max_in_codomain() const { return clockSize1 + clockSize2 + paramSize1 + paramSize2; }
   bool maps(Parma_Polyhedra_Library::dimension_type i, Parma_Polyhedra_Library::dimension_type& j) const {
-    if (i <= paramSize) {
-      j = i;
+    if (i <= paramSize2) {
+      j = i + paramSize1;
       return true;
-    } else if (i <= paramSize + clockSize2) {
-      j = i + clockSize1;
+    } else if (i <= paramSize2 + clockSize2) {
+      j = i + paramSize1 + clockSize1;
       return true;
-    } else if (i <= paramSize + clockSize1 + clockSize2) {
+    } else if (i <= paramSize2 + clockSize2 + paramSize1) {
+      j = i - paramSize2 - clockSize2;
+      return true;
+    } else if (i <= paramSize2 + clockSize2 + paramSize1 + clockSize1) {
       j = i - clockSize2;
       return true;
     } else {
@@ -23,13 +27,44 @@ public:
     }
   }
 private:
-  const Parma_Polyhedra_Library::dimension_type clockSize1, clockSize2, paramSize;
+  const Parma_Polyhedra_Library::dimension_type clockSize1, clockSize2, paramSize1, paramSize2;
+};
+
+class DimensionFrom1SwapFunction {
+public:
+  DimensionFrom1SwapFunction(const Parma_Polyhedra_Library::dimension_type clockSize1,
+                             const Parma_Polyhedra_Library::dimension_type clockSize2,
+                             const Parma_Polyhedra_Library::dimension_type paramSize1,
+                             const Parma_Polyhedra_Library::dimension_type paramSize2) : clockSize1(clockSize1), clockSize2(clockSize2), paramSize1(paramSize1), paramSize2(paramSize2){}
+  bool has_empty_codomain() const { return false; }
+  Parma_Polyhedra_Library::dimension_type max_in_codomain() const { return clockSize1 + clockSize2 + paramSize1 + paramSize2; }
+  bool maps(Parma_Polyhedra_Library::dimension_type i, Parma_Polyhedra_Library::dimension_type& j) const {
+    if (i <= paramSize1) {
+      j = i;
+      return true;
+    } else if (i <= paramSize1 + clockSize1) {
+      j = i + paramSize2;
+      return true;
+    } else if (i <= paramSize1 + clockSize1 + paramSize2) {
+      j = i - paramSize2;
+      return true;
+    } else if (i <= paramSize1 + clockSize1 + paramSize2 + clockSize2) {
+      j = i;
+      return true;
+    } else {
+      return false;
+    }
+  }
+private:
+  const Parma_Polyhedra_Library::dimension_type clockSize1, clockSize2, paramSize1, paramSize2;
 };
 
 class AddProductTransitionsPTA : public AddProductTransitions<PTAState, PTATransition> {
 private:
   const std::size_t clockSize1;
   const std::size_t clockSize2;
+  const std::size_t paramSize1;
+  const std::size_t paramSize2;
   std::vector<std::shared_ptr<PTAState>> &states;
   boost::unordered_map<std::pair<PTAState*, PTAState*>, std::shared_ptr<PTAState>> & toIState;
 
@@ -70,13 +105,16 @@ private:
     auto g2 = e2.guard;
 
     if (transition.guard.space_dimension()) {
-      transition.guard.add_space_dimensions_and_embed(clockSize2);
+      transition.guard.add_space_dimensions_and_embed(paramSize2 + clockSize2);
+      auto dimensionSwapFunc = DimensionFrom1SwapFunction(clockSize1, clockSize2, paramSize1, paramSize2);
+      transition.guard.map_space_dimensions(dimensionSwapFunc);
     } else {
-      transition.guard = Parma_Polyhedra_Library::NNC_Polyhedron(g2.space_dimension() + clockSize1);
+      transition.guard = Parma_Polyhedra_Library::NNC_Polyhedron(1 + paramSize1 + clockSize1 + paramSize2 + clockSize2);
     }
-    if (g2.space_dimension()) {
-      g2.add_space_dimensions_and_embed(clockSize1);
-      auto dimensionSwapFunc = Dimension2to1SwapFunction(clockSize1, clockSize2, e1.guard.space_dimension() - clockSize1 - 1);
+    if (g2.space_dimension() && !g2.is_universe()) {
+      g2.add_space_dimensions_and_embed(paramSize1 + clockSize1);
+      auto dimensionSwapFunc = DimensionFrom2SwapFunction(clockSize1, clockSize2, paramSize1, paramSize2);
+      using namespace Parma_Polyhedra_Library::IO_Operators;
       g2.map_space_dimensions(dimensionSwapFunc);
       transition.guard.intersection_assign(g2);
     } 
@@ -87,11 +125,13 @@ public:
   /*!
     @param [in] clockSize1 Number of the clock variables in the first automaton
     @param [in] clockSize2 Number of the clock variables in the second automaton
+    @param [in] paramSize1 Number of the parameter variables in the first automaton
+    @param [in] paramSize2 Number of the parameter variables in the second automaton
     @param [out] states Set of states to write the product states
     @param [in] toIState Mapping from the pair (s1,s2) of the original automata to the state in the product automaton.
   */
-  AddProductTransitionsPTA(const std::size_t clockSize1, const std::size_t clockSize2, std::vector<std::shared_ptr<PTAState>> &out,
-                           boost::unordered_map<std::pair<PTAState*, PTAState*>, std::shared_ptr<PTAState>> & toIState) : clockSize1(clockSize1), clockSize2(clockSize2), states(out), toIState(toIState) {}
+  AddProductTransitionsPTA(const std::size_t clockSize1, const std::size_t clockSize2, const std::size_t paramSize1, const std::size_t paramSize2, std::vector<std::shared_ptr<PTAState>> &out,
+                           boost::unordered_map<std::pair<PTAState*, PTAState*>, std::shared_ptr<PTAState>> & toIState) : clockSize1(clockSize1), clockSize2(clockSize2), paramSize1(paramSize1), paramSize2(paramSize2), states(out), toIState(toIState) {}
 };
 
 /*
@@ -113,13 +153,10 @@ void intersectionTA (const ParametricTimedAutomaton &in1, const ParametricTimedA
   out.states = out.initialStates;
 
   // make dimensions
-#ifdef DEBUG
-  assert(in1.paramDimensions == in2.paramDimensions);
-#endif
   out.clockDimensions = in1.clockDimensions + in2.clockDimensions;
-  out.paramDimensions = in1.paramDimensions;
+  out.paramDimensions = in1.paramDimensions + in2.paramDimensions;
 
   // make product transitions
-  AddProductTransitionsPTA addProductTransitionsPTA(in1.clockDimensions, in2.clockDimensions, out.states, toIState);
+  AddProductTransitionsPTA addProductTransitionsPTA(in1.clockDimensions, in2.clockDimensions, in1.paramDimensions, in2.paramDimensions, out.states, toIState);
   addProductTransitionsPTA(in1.states, in2.states);
 }

@@ -46,11 +46,20 @@ public:
 
 BOOST_FIXTURE_TEST_CASE( intersectionTest, IntersectionFixture )
 {
-  // using namespace Parma_Polyhedra_Library::IO_Operators;
+  using namespace Parma_Polyhedra_Library::IO_Operators;
 
   // Expected Results
   auto initState = toIState[std::make_pair(TAs[0].states[0].get(), TAs[1].states[0].get())];
   auto acceptState = toIState[std::make_pair(TAs[0].states[1].get(), TAs[1].states[1].get())];
+
+  using namespace Parma_Polyhedra_Library;
+
+  Variable  t(0);
+  Variable p1(1);
+  Variable p2(2);
+  Variable x1(3);
+  Variable x2(4);
+  Variable y2(5);
 
   // Comparison
   BOOST_TEST (out.initialStates.size() == 1);
@@ -59,18 +68,27 @@ BOOST_FIXTURE_TEST_CASE( intersectionTest, IntersectionFixture )
   BOOST_REQUIRE_EQUAL (initState->next[0].size(), 1);
   {
     auto guard = initState->next[0].front().guard;
-    BOOST_CHECK_EQUAL(guard.space_dimension(), 5);
+    BOOST_CHECK_EQUAL(guard.space_dimension(), 6);
     BOOST_TEST(!guard.is_empty());
     BOOST_TEST(!guard.is_universe());
-    // std::cout << guard << std::endl;
+    auto expected = NNC_Polyhedron(6, UNIVERSE);
+    expected.add_constraint(x2 < p2);
+    BOOST_TEST((guard == expected));
+    // std::cout << "guard: " << guard << std::endl;
+    // std::cout << "expected: " << expected << std::endl;
   }
   BOOST_CHECK_EQUAL (initState->next['a'].size(), 1);
   {
     auto guard = initState->next['a'].front().guard;
-    BOOST_CHECK_EQUAL(guard.space_dimension(), 5);
+    BOOST_CHECK_EQUAL(guard.space_dimension(), 6);
     BOOST_TEST(!guard.is_empty());
     BOOST_TEST(!guard.is_universe());
-    // std::cout << guard << std::endl;
+    auto expected = NNC_Polyhedron(6, UNIVERSE);
+    expected.add_constraint(x1 >= p1);
+    expected.add_constraint(y2 > 10);
+    BOOST_TEST((guard == expected));
+    // std::cout << "guard: " << guard << std::endl;
+    // std::cout << "expected: " << expected << std::endl;
   }
   BOOST_TEST (initState->next[0].front().target == initState.get());
   BOOST_TEST (initState->next['a'].front().target == acceptState.get());
