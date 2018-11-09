@@ -62,6 +62,7 @@ public:
             for (auto state: currentStates) {
               if (state->isMatch) {
                 Parma_Polyhedra_Library::NNC_Polyhedron zone = state->zone;
+                zone.unconstrain(Parma_Polyhedra_Library::Variable(0));
                 zone.remove_space_dimensions(removedVariablesSet);
                 feasibleParameters.add_disjunct(std::move(zone));
               }
@@ -81,9 +82,11 @@ public:
           }
         }
         feasibleParameters.omega_reduce();
-        beta[origState.get()].emplace_back(std::move(feasibleParameters));
         if (feasibleParameters.is_universe()) {
+          beta[origState.get()].emplace_back(std::move(feasibleParameters));
           break;
+        } else {
+          beta[origState.get()].emplace_back(std::move(feasibleParameters));
         }
       }
     }
@@ -101,8 +104,7 @@ public:
     const Parma_Polyhedra_Library::Pointset_Powerset<Parma_Polyhedra_Library::NNC_Polyhedron> powersetZone = Parma_Polyhedra_Library::Pointset_Powerset<Parma_Polyhedra_Library::NNC_Polyhedron>(zone);
     for (std::size_t i = 0; i < beta.at(s).size(); i++) {
       Parma_Polyhedra_Library::Pointset_Powerset<Parma_Polyhedra_Library::NNC_Polyhedron> currentZone = beta.at(s).at(i);
-      currentZone.intersection_assign(powersetZone);
-      if (!currentZone.is_empty()) {
+      if (currentZone.contains(powersetZone)) {
         return i + 1;
       }
     }
