@@ -41,7 +41,7 @@ Parma_Polyhedra_Library::Constraint LinearExpression::operator>(const mpq_class 
   r.canonicalize();    
   LinearExpression tmpExpr = *this;
   Coefficient newDenominator;
-  Parma_Polyhedra_Library::lcm_assign(newDenominator, denominator, r.get_den());
+  Parma_Polyhedra_Library::lcm_assign(newDenominator, static_cast<Coefficient>(denominator), static_cast<Coefficient>(r.get_den()));
   tmpExpr.denominator = newDenominator;
   return tmpExpr.expr * (newDenominator / denominator) > r.get_num() * (newDenominator / r.get_den());
 }
@@ -61,7 +61,7 @@ Parma_Polyhedra_Library::Constraint LinearExpression::operator<(const mpq_class 
   r.canonicalize();    
   LinearExpression tmpExpr = *this;
   Coefficient newDenominator;
-  Parma_Polyhedra_Library::lcm_assign(newDenominator, denominator, r.get_den());
+  Parma_Polyhedra_Library::lcm_assign(newDenominator, static_cast<Coefficient>(denominator), static_cast<Coefficient>(r.get_den()));
   tmpExpr.denominator = newDenominator;
   return tmpExpr.expr * (newDenominator / denominator) < r.get_num() * (newDenominator / r.get_den());
 }
@@ -81,7 +81,7 @@ Parma_Polyhedra_Library::Constraint LinearExpression::operator>=(const mpq_class
   r.canonicalize();    
   LinearExpression tmpExpr = *this;
   Coefficient newDenominator;
-  Parma_Polyhedra_Library::lcm_assign(newDenominator, denominator, r.get_den());
+  Parma_Polyhedra_Library::lcm_assign(newDenominator, static_cast<Coefficient>(denominator), static_cast<Coefficient>(r.get_den()));
   tmpExpr.denominator = newDenominator;
   return tmpExpr.expr * (newDenominator / denominator) >= r.get_num() * (newDenominator / r.get_den());
 }
@@ -101,7 +101,7 @@ Parma_Polyhedra_Library::Constraint LinearExpression::operator<=(const mpq_class
   r.canonicalize();    
   LinearExpression tmpExpr = *this;
   Coefficient newDenominator;
-  Parma_Polyhedra_Library::lcm_assign(newDenominator, denominator, r.get_den());
+  Parma_Polyhedra_Library::lcm_assign(newDenominator, static_cast<Coefficient>(denominator), static_cast<Coefficient>(r.get_den()));
   tmpExpr.denominator = newDenominator;
   return tmpExpr.expr * (newDenominator / denominator) <= r.get_num() * (newDenominator / r.get_den());
 }
@@ -121,7 +121,7 @@ Parma_Polyhedra_Library::Constraint LinearExpression::operator==(const mpq_class
   r.canonicalize();    
   LinearExpression tmpExpr = *this;
   Coefficient newDenominator;
-  Parma_Polyhedra_Library::lcm_assign(newDenominator, denominator, r.get_den());
+  Parma_Polyhedra_Library::lcm_assign(newDenominator, static_cast<Coefficient>(denominator), static_cast<Coefficient>(r.get_den()));
   tmpExpr.denominator = newDenominator;
   return tmpExpr.expr * (newDenominator / denominator) == r.get_num() * (newDenominator / r.get_den());
 }
@@ -143,7 +143,7 @@ LinearExpression LinearExpression::operator+(const mpq_class &_r) const {
   r.canonicalize();    
   LinearExpression tmpExpr = *this;
   Coefficient newDenominator;
-  Parma_Polyhedra_Library::lcm_assign(newDenominator, denominator, r.get_den());
+  Parma_Polyhedra_Library::lcm_assign(newDenominator, static_cast<Coefficient>(denominator), static_cast<Coefficient>(r.get_den()));
   tmpExpr.denominator = newDenominator;
   tmpExpr.expr = tmpExpr.expr * (newDenominator / denominator) + r.get_num() * (newDenominator / r.get_den());
   return tmpExpr;
