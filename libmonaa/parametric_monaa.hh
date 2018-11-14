@@ -63,6 +63,7 @@ namespace {
     @brief Internal state of the BFS in the parametric timed pattern matching
     @note This struct is used only internally. Users cannot use this.
   */
+  template<class T>
   struct InternalState {
     using Variables = char;
     //! @brief The current state in the PTA
@@ -71,12 +72,12 @@ namespace {
       @brief The vector for the latest reset of each clock variable.
       @note If the clock variable is not reest yet, the value is 0.
     */
-    std::vector<double> resetTime;
+    std::vector<T> resetTime;
     /*!
       @brief The constraint on the beginnng time t and the parameters.
     */
     Parma_Polyhedra_Library::NNC_Polyhedron constraint;
-    InternalState(const PTAState *s, const std::vector<double> &resetTime, const Parma_Polyhedra_Library::NNC_Polyhedron &constraint) : s(std::move(s)), resetTime(std::move(resetTime)), constraint(std::move(constraint)) {}
+    InternalState(const PTAState *s, const std::vector<T> &resetTime, const Parma_Polyhedra_Library::NNC_Polyhedron &constraint) : s(std::move(s)), resetTime(std::move(resetTime)), constraint(std::move(constraint)) {}
   };
 }
 
@@ -152,8 +153,8 @@ void parametricMonaa(WordContainer<InputContainer> word,
   // main computation
   // We assume there is no epsilon transitions.
   std::size_t i = 0;
-  std::vector<InternalState> CStates;
-  std::vector<InternalState> LastStates;
+  std::vector<InternalState<typename InputContainer::TimeStamp>> CStates;
+  std::vector<InternalState<typename InputContainer::TimeStamp>> LastStates;
   const Parma_Polyhedra_Library::Variable beginningTimeVariable(0);
   std::vector<Parma_Polyhedra_Library::Variable> paramVariables;
   paramVariables.reserve(A.paramDimensions);
@@ -249,7 +250,7 @@ void parametricMonaa(WordContainer<InputContainer> word,
     CStates.reserve(A.initialStates.size());
     if (word.fetch(i)) {
       // Construct the initial configuration
-      const std::vector<double> zeroResetTime(A.clockDimensions, 0);
+      const std::vector<typename InputContainer::TimeStamp> zeroResetTime(A.clockDimensions, 0);
       // The clock variable for the beginning time.
       const Parma_Polyhedra_Library::Constraint lowerConstraint = (i <= 0) ? zeroBounds : LinearExpression(beginningTimeVariable) >= word[i-1].second;
       const Parma_Polyhedra_Library::Constraint upperConstraint = LinearExpression(beginningTimeVariable) < word[i].second;
@@ -257,7 +258,7 @@ void parametricMonaa(WordContainer<InputContainer> word,
       Parma_Polyhedra_Library::NNC_Polyhedron constraint = Parma_Polyhedra_Library::NNC_Polyhedron(A.paramDimensions + 1);
       constraint.add_constraint(lowerConstraint);
       constraint.add_constraint(upperConstraint);
-      InternalState istate = {nullptr,
+      InternalState<typename InputContainer::TimeStamp> istate = {nullptr,
                               zeroResetTime,
                               constraint};
 
@@ -271,7 +272,7 @@ void parametricMonaa(WordContainer<InputContainer> word,
     j = i;
     while (!CStates.empty () && word.fetch(j)) {
       const Alphabet c = word[j].first;
-      const double currentTime = word[j].second;
+      const typename InputContainer::TimeStamp currentTime = word[j].second;
 
       // try to go to an accepting state
       for (const auto &config : CStates) {
@@ -346,7 +347,7 @@ void parametricMonaa(WordContainer<InputContainer> word,
           for (ClockVariables x = 0; x < A.clockDimensions; x++) {
             if (config.resetTime[x]) {
               // x is reset at config.resetTime[x]
-              constraint.add_constraint(Parma_Polyhedra_Library::Constraint(LinearExpression(clockVariables[x]) == currentTime - config.resetTime[x]));
+              constraint.add_constraint(Parma_Polyhedra_Library::Constraint(LinearExpression(clockVariables[x]) == static_cast<typename InputContainer::TimeStamp>(currentTime - config.resetTime[x])));
             } else {
               // x is never reset.
               constraint.add_constraint(Parma_Polyhedra_Library::Constraint(LinearExpression(beginningTimeVariable + clockVariables[x]) == currentTime));
@@ -428,11 +429,11 @@ void parametricMonaa(WordContainer<InputContainer> word,
     // KMP like skip value
     std::size_t greatestN = 1;
 #ifdef ENABLE_PARAMETRIC_KMP
-    for (const InternalState& istate: LastStates) {
+    for (const InternalState<typename InputContainer::TimeStamp>& istate: LastStates) {
       greatestN = std::max(beta.at(ptrConv[istate.s], istate.constraint), greatestN);
     }
 #elif defined ENABLE_KMP
-    for (const InternalState& istate: LastStates) {
+    for (const InternalState<typename InputContainer::TimeStamp>& istate: LastStates) {
       greatestN = std::max(beta[ptrConv[istate.s].get()], greatestN);
     }
 #endif

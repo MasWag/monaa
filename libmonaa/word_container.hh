@@ -75,7 +75,8 @@ public:
   @class WordLazyDeque
   @brief Word container with runtime allocation and free.
 */
-using WordLazyDeque = WordContainer<LazyDeque>;
+using WordLazyDeque = WordContainer<LazyDeque<double>>;
+using WordLazyDequeMPQ = WordContainer<LazyDeque<mpq_class>>;
 
 /*!
   @class WordVector
@@ -88,6 +89,7 @@ class Vector : public std::vector<T>
 {
 private:
 public:
+  using TimeStamp = typename T::second_type;
   Vector(FILE*, bool) {
   }
   void setFront(std::size_t) {}
@@ -101,7 +103,7 @@ class WordVector : public WordContainer<Vector<T>>
 {
 public:
   WordVector (FILE* file, bool isBinary = false) : WordContainer<Vector<T>>(file, isBinary) {
-    const auto getOneElem = isBinary ? getOneBinary : getOne;
+    const auto getOneElem = isBinary ? getOneBinary<typename T::second_type> : getOne<typename T::second_type>;
     T elem;
     while (getOneElem(file, elem) != EOF) {
       this->vec.push_back(elem);

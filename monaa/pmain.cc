@@ -30,6 +30,8 @@ int main(int argc, char *argv[])
     ("ascii,a", "ascii mode (default)")
     ("binary,b", "binary mode")
     ("version,V", "version")
+    ("rational,r", "use rational number of GMP (default)")
+    ("float,F", "use floating point number")
   //    ("input,i", value<std::string>(&timedWordFileName)->default_value("stdin"),"input file of Timed Words")
     ("automaton,f", value<std::string>(&timedAutomatonFileName)->default_value(""),"input file of Parametric Timed Automaton");
 
@@ -70,8 +72,12 @@ int main(int argc, char *argv[])
   FILE* file = stdin;
   AnsPolyhedronPrinter ans(vm.count("quiet"));
   // online mode
-  WordLazyDeque w(file, isBinary);
-  parametricMonaa(w, TA, ans);
-
+  if(vm.count("float")) {
+    WordLazyDeque w(file, isBinary);
+    parametricMonaa(w, TA, ans);
+  } else {
+    WordLazyDequeMPQ w(file, isBinary);
+    parametricMonaa(w, TA, ans);
+  }
   return 0;
 }
