@@ -60,7 +60,7 @@ public:
   static void makeAn(const TAutomaton &TA, const int m, TAutomaton &A0, std::vector<std::shared_ptr<typename TAutomaton::State>> &extendedInitialStates) {
     std::unordered_map<typename TAutomaton::State*, std::shared_ptr<typename TAutomaton::State>> old2new0;
     TA.deepCopy(A0, old2new0);
-    GuardHelper<typename TAutomaton::TATransition::Guard, TAutomaton> gh = GuardHelper<typename TAutomaton::TATransition::Guard, TAutomaton>(TA);
+    GuardHelper<typename TAutomaton::Transition::Guard, TAutomaton> gh = GuardHelper<typename TAutomaton::Transition::Guard, TAutomaton>(TA);
 
     for (auto &es: extendedInitialStates) {
       es = std::make_shared<typename TAutomaton::State>();
@@ -84,12 +84,12 @@ public:
     }
     for (auto &state: A0.states) {
       for (auto it = state->next.begin(); it != state->next.end(); it++) {
-        for (typename TAutomaton::TATransition edge: it->second) {
+        for (typename TAutomaton::Transition edge: it->second) {
           const auto target = edge.target;
           // We can modify edge because it is copied
           if (target && target->isMatch) {
             edge.target = dummyAcceptingState.get();
-            GuardHelper<typename TAutomaton::TATransition::Guard, TAutomaton>::widen(edge.guard);
+            GuardHelper<typename TAutomaton::Transition::Guard, TAutomaton>::widen(edge.guard);
             it->second.emplace_back(std::move(edge));
           }
         }
@@ -112,7 +112,7 @@ public:
   static void makeAs(const TAutomaton &TA, TAutomaton &As,
                      std::unordered_map<typename TAutomaton::State*, std::shared_ptr<typename TAutomaton::State>>  &old2newS,
                      std::unordered_map<std::shared_ptr<typename TAutomaton::State>, std::shared_ptr<typename TAutomaton::State>> &toDummyState) {
-    GuardHelper<typename TAutomaton::TATransition::Guard, TAutomaton> gh = GuardHelper<typename TAutomaton::TATransition::Guard, TAutomaton>(TA);
+    GuardHelper<typename TAutomaton::Transition::Guard, TAutomaton> gh = GuardHelper<typename TAutomaton::Transition::Guard, TAutomaton>(TA);
     old2newS.reserve(TA.states.size());
     TA.deepCopy(As, old2newS);
     toDummyState.reserve(TA.states.size());

@@ -47,7 +47,7 @@ struct TATransition {
  */
 struct TimedAutomaton : public Automaton<TAState> {
   using X = ConstraintMaker;
-  using TATransition = TATransition;
+  using Transition = TATransition;
   using State = ::TAState;
 
   //! @brief The maximum constraints for each clock variables.

@@ -49,7 +49,7 @@ struct PTATransition {
 struct ParametricTimedAutomaton : public Automaton<PTAState> {
   using X = ConstraintMaker;
   using State = ::PTAState;
-  using TATransition = PTATransition;
+  using Transition = PTATransition;
 
   /*!
     @brief make a deep copy of this parametric timed automaton.
