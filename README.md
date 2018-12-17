@@ -1,7 +1,10 @@
-MONAA --- A Tool for Timed Patten Matching with Automata-Based Acceleration [![wercker status](https://app.wercker.com/status/cda3497531906ac6356d64e6706afc4f/s/master "wercker status")](https://app.wercker.com/project/byKey/cda3497531906ac6356d64e6706afc4f)
-============================================================================================================================================================================================
+MONAA --- A Tool for Timed Patten Matching with Automata-Based Acceleration (A Variant for Parametric Timed Pattern Matching)
+=============================================================================================================================
 
 This is the source code repository for MONAA --- A Tool for Timed Patten Matching with Automata-Based Acceleration.
+
+This branch is for **Parametric Timed Pattern Matching**.
+
 
 Usage
 -----
@@ -11,7 +14,9 @@ Usage
     monaa [OPTIONS] PATTERN [FILE]
     monaa [OPTIONS] -e PATTERN [FILE]
     monaa [OPTIONS] -f FILE [FILE]
-    pmonaa [OPTIONS] -f FILE [FILE]
+    pmonaa_no_skipping [OPTIONS] -f FILE
+    pmonaa_parametric_skipping [OPTIONS] -f FILE
+    pmonaa_skipping [OPTIONS] -f FILE
 
 ### Options
 
@@ -29,13 +34,13 @@ Usage
 Example
 -------
     
-    ./build/pmonaa -f ./example/pta.dot < ./example/timed_word.txt
+    ./build/pmonaa_skipping -f ./example/pta.dot < ./example/timed_word.txt
 
 
 Installation
 ------------
 
-MONAA is tested on Arch Linux and Mac OSX 10.13.6
+MONAA is tested on Arch Linux and Mac OSX 10.14.1
 
 ### Requirements
 
