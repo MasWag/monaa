@@ -5,7 +5,7 @@ build:
     - script:
         name: default_build
         code: |
-          mkdir build
+          mkdir -p build/tre build/constraint
           cd build && cmake .. && make
 gcc_unit_test:
   steps:
@@ -17,7 +17,7 @@ gcc_unit_test:
     - script:
         name: build_and_test
         code: |
-          mkdir gcc_build
+          mkdir -p gcc_build/tre gcc_build/constraint
           cd gcc_build && cmake .. && make && make test
 clang_unit_test:
   steps:
@@ -29,8 +29,8 @@ clang_unit_test:
     - script:
         name: build_and_test
         code: |
-          mkdir gcc_build
-          cd gcc_build && cmake .. && make && make test
+          mkdir -p clang_build/tre gcc_build/constraint
+          cd clang_build && cmake .. && make && make test
 update_doxygen:
   steps:
     - script:
