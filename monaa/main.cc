@@ -28,12 +28,12 @@ int main(int argc, char *argv[])
   visible.add_options()
     ("help,h", "help")
     ("quiet,q", "quiet")
-    ("ascii,a", "ascii mode (default)")
-    ("dollar,D", "dollar mode")
-    ("binary,b", "binary mode")
     ("version,V", "version")
-    ("event,E", "event mode (default)")
-    ("signal,S", "signal mode")
+    ("ascii,a", "ascii mode [default]")
+    ("binary,b", "binary mode (experimental)")
+    ("event,E", "event mode [default]")
+    ("original,O", "original mode")
+    ("signal,S", "signal mode (experimental)")
     ("input,i", value<std::string>(&timedWordFileName)->default_value("stdin"),"input file of Timed Words")
     ("automaton,f", value<std::string>(&timedAutomatonFileName)->default_value(""),"input file of Timed Automaton")
     ("expression,e", value<std::string>(&tre)->default_value(""),"pattern Timed Regular Expression");
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     return 0;
   }
   if (vm.count("version")) {
-    std::cout << "MONAA (a MONitoring tool Acceralated by Automata) 0.0.0\n"
+    std::cout << "MONAA (a MONitoring tool Acceralated by Automata) 0.3.0\n"
               << visible << std::endl;
     return 0;
   }
@@ -97,6 +97,9 @@ int main(int argc, char *argv[])
       driver.getResult()->toEventTA(TA);
     }
   } else {
+    if (isSignal) {
+      die("signal-mode is not supported only for TAs", 1);
+    }
     // parse TA
     std::ifstream taStream(timedAutomatonFileName);
     BoostTimedAutomaton BoostTA;
@@ -105,13 +108,22 @@ int main(int argc, char *argv[])
   }
 
   FILE* file = stdin;
+  if (timedWordFileName != "stdin") {
+    file = fopen(timedWordFileName.c_str(), "r");
+    if (!file) {
+      perror("timed word file");
+      return 1;
+    }
+  }
   AnsPrinter ans(vm.count("quiet"));
   // online mode
   WordLazyDeque w(file, isBinary);
-  if (vm.count("dollar")) {
+  if (vm.count("original")) {
     monaaDollar(w, TA, ans);
-  } else {
+  } else if (vm.count("signal")) {
     monaa(w, TA, ans);
+  } else {
+    monaaNotNecessaryDollar(w, TA, ans);
   }
 
   return 0;
