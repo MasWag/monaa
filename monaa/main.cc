@@ -32,7 +32,6 @@ int main(int argc, char *argv[])
     ("ascii,a", "ascii mode [default]")
     ("binary,b", "binary mode (experimental)")
     ("event,E", "event mode [default]")
-    ("original,O", "original mode")
     ("signal,S", "signal mode (experimental)")
     ("input,i", value<std::string>(&timedWordFileName)->default_value("stdin"),"input file of Timed Words")
     ("automaton,f", value<std::string>(&timedAutomatonFileName)->default_value(""),"input file of Timed Automaton")
@@ -118,12 +117,10 @@ int main(int argc, char *argv[])
   AnsPrinter ans(vm.count("quiet"));
   // online mode
   WordLazyDeque w(file, isBinary);
-  if (vm.count("original")) {
-    monaaDollar(w, TA, ans);
-  } else if (vm.count("signal")) {
+  if (vm.count("signal")) {
     monaa(w, TA, ans);
   } else {
-    monaaNotNecessaryDollar(w, TA, ans);
+    monaaDollar(w, TA, ans);
   }
 
   return 0;

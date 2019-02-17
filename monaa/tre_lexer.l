@@ -35,7 +35,7 @@ using token = MONAA::TREParser::token;
 ")"          return token::RPAREN;
 ","          return token::COMMA;
 
-[a-zA-Z] {
+[a-zA-Z$] {
     yylval->build<char>( yytext[0] );
     return token::ATOM;
 }

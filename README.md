@@ -46,6 +46,11 @@ mkdir build
 cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make && make install
 ```
 
+Examples
+--------
+
+See [Getting Started](./doc/getting_started.md) for an example usage.
+
 Syntax of Timed Automata
 ------------------------
 
