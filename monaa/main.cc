@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     return 0;
   }
   if (vm.count("version")) {
-    std::cout << "MONAA (a MONitoring tool Acceralated by Automata) 0.3.0\n"
+    std::cout << "MONAA (a MONitoring tool Acceralated by Automata) 0.4.0\n"
               << visible << std::endl;
     return 0;
   }
