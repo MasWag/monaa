@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <utility>
 #include <limits>
+#include <cassert>
 
 #include "common_types.hh"
 
@@ -37,6 +38,7 @@ public:
     @param [in] isBinary A flag if the input is in a binary file.
    */
   LazyDeque (FILE* file, bool isBinary = false) : N(std::numeric_limits<std::size_t>::max()), file(file) {
+    assert(file != nullptr);
     getElem = isBinary ? getOneBinary : getOne;
   }
   std::pair<Alphabet, double> operator[](std::size_t n) {
