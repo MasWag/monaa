@@ -629,9 +629,9 @@ void monaaDollar(WordContainer<InputContainer> word,
   std::unordered_map<const TAState*, std::shared_ptr<TAState>> ptrConv;
   for (std::shared_ptr<TAState> s: A.states) {
     ptrConv[s.get()] = std::make_shared<TAState>(*s);
-    Ap.states.push_back(ptrConv[s.get()]);
+    Ap.states.push_back(ptrConv.at(s.get()));
     if (std::binary_search(A.initialStates.begin(), A.initialStates.end(), s)) {
-      Ap.initialStates.push_back(ptrConv[s.get()]);
+      Ap.initialStates.push_back(ptrConv.at(s.get()));
     }
   }
 
@@ -643,7 +643,7 @@ void monaaDollar(WordContainer<InputContainer> word,
     }
     for(auto &transitionsPair: s->next) {
       for(auto &transition: transitionsPair.second) {
-        transition.target = ptrConv[transition.target].get();
+        transition.target = ptrConv.at(transition.target).get();
       }
     }
   }
@@ -1009,7 +1009,7 @@ void monaaDollar(WordContainer<InputContainer> word,
       // KMP like skip value
       int greatestN = 1;
       for (const IntervalInternalState& istate: LastStates) {
-        greatestN = std::max(beta[ptrConv[istate.s].get()], greatestN);
+        greatestN = std::max(beta[ptrConv.at(istate.s).get()], greatestN);
       }
       // increment i
       i += greatestN;
