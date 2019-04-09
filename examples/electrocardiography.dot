@@ -1,0 +1,20 @@
+digraph G {
+        graph [
+               param_dimensions = 4
+               clock_dimensions = 3
+        ];
+        init  [init=1][match=0]
+        Ap    [init=0][match=0]
+        Vp    [init=0][match=0]
+        A     [init=0][match=0]
+        V     [init=0][match=0]
+        match [init=0][match=1]
+        init->Ap [label=a][reset="{0}"];
+        init->Vp [label=v][reset="{0, 1}"];
+        Ap->Vp   [label=v][guard="{x0 < p1, x2 < 10}",reset="{0, 1}"];
+        Vp->A    [label=a][guard="{x0 < p0, x2 < 10}",reset="{0}"];
+        A->V     [label=v][guard="{x0 < p1, x1 > p2, x1 < p3, x2 < 10}",reset="{0, 1}"];
+        V->A     [label=a][guard="{x0 < p0, x2 < 10}",reset="{0}"];
+        A->match [label="$"][guard="{x2 < 10}"];
+        V->match [label="$"][guard="{x2 < 10}"];
+}
