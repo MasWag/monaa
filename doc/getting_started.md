@@ -102,3 +102,82 @@ disjunctions for such a purpose.
   1.100000        < t' - t <=        inf
 =============================
 ```
+
+Repetition
+----------
+
+We can also say that A and (B or C) can occur repeatedly. 
+In other words, the subformula `A(B|C)` repeats once or more.
+We can use [Kleene plus](https://en.wikipedia.org/wiki/Kleene_star#Kleene_plus) for such a purpose.
+
+``` {.bash org-language="sh" results="raw"}
+../build/monaa -e '((A(B|C))+%(1,20))$' < ../examples/getting_started/timed_word.txt
+```
+
+``` {.example}
+  1.500000       <= t <   2.000000
+  3.200000        < t' <=   3.500000
+  1.200000        < t' - t <=   2.000000
+=============================
+  1.500000       <= t <   2.000000
+  4.600000        < t' <=        inf
+  2.600000        < t' - t <=        inf
+=============================
+  3.200000       <= t <   3.500000
+  4.600000        < t' <=        inf
+  1.100000        < t' - t <=        inf
+=============================
+```
+
+If you want match zero times repetition, i.e., empty events, you can use [Kleene star](https://en.wikipedia.org/wiki/Kleene_star).
+We note that this does not change the result because in the log, we do not have any blank interval longer than 1.
+
+``` {.bash org-language="sh" results="raw"}
+../build/monaa -e '((A(B|C))*%(1,20))$' < ../examples/getting_started/timed_word.txt
+```
+
+``` {.example}
+  1.500000       <= t <   2.000000
+  3.200000        < t' <=   3.500000
+  1.200000        < t' - t <=   2.000000
+=============================
+  1.500000       <= t <   2.000000
+  4.600000        < t' <=        inf
+  2.600000        < t' - t <=        inf
+=============================
+  3.200000       <= t <   3.500000
+  4.600000        < t' <=        inf
+  1.100000        < t' - t <=        inf
+=============================
+```
+
+Advanced specifications
+-----------------------
+
+### Conjunction
+
+You can use conjunction to represent some complicated timing constraints.
+Here, we use the following timed word in `example/getting_started/timed_word2.txt`.
+``` {.example}
+A 0.5
+B 0.8
+C 1.5
+A 2.0
+B 2.9
+C 4.2
+```
+
+![The example timed word 2](./fig/getting_started/timed_word2.svg)
+
+Consider the expression of a consecutive occurrences of the events A, B, and C such that the duration between the A and B is less than 1 and the duration between the B and C is more than 1.
+
+``` {.bash org-language="sh" results="raw"}
+../build/monaa -e '(((AB)%(0,1)C)&(A(BC)%(1,20)))$' < ../examples/getting_started/timed_word2.txt
+```
+
+``` {.example}
+  1.500000       <= t <   2.000000
+  4.200000        < t' <=        inf
+  2.200000        < t' - t <=        inf
+=============================
+```
