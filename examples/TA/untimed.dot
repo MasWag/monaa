@@ -1,0 +1,10 @@
+digraph G {
+        1 [init=1,match=0];
+        2 [init=0,match=0];
+        3 [init=0,match=1];
+        1->2 [label=A];
+        2->1 [label=B];
+        2->1 [label=C];
+        2->3 [label="$"];
+}
+
