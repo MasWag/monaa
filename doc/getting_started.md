@@ -169,7 +169,7 @@ C 4.2
 
 ![The example timed word 2](./fig/getting_started/timed_word2.svg)
 
-Consider the expression of a consecutive occurrences of the events A, B, and C such that the duration between the A and B is less than 1 and the duration between the B and C is more than 1.
+The following expression matches a consecutive occurrences of the events A, B, and C such that the duration between the A and B is less than 1 and the duration between the B and C is more than 1.
 
 ``` {.bash org-language="sh" results="raw"}
 ../build/monaa -e '(((AB)%(0,1)C)&(A(BC)%(1,20)))$' < ../examples/getting_started/timed_word2.txt
@@ -179,5 +179,20 @@ Consider the expression of a consecutive occurrences of the events A, B, and C s
   1.500000       <= t <   2.000000
   4.200000        < t' <=        inf
   2.200000        < t' - t <=        inf
+=============================
+```
+
+### Terminate character
+
+The following expression matches a consecutive occurrences of the events A, B, and C such that the blank interval after C is longer than 1.
+
+``` {.bash org-language="sh" results="raw"}
+../build/monaa -e 'ABC($)%(1,20)' < ../examples/getting_started/timed_word2.txt
+```
+
+``` {.example}
+  1.500000       <= t <   2.000000
+  5.200000        < t' <  24.200000
+  3.200000        < t' - t <  22.700000
 =============================
 ```
