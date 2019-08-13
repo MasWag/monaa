@@ -27,6 +27,8 @@ Further information
 <dl>
 <dt><a href="./TA/">Timed automata</a></dt>
 <dd>Use timed automata to describe advanced timing constraints.</dd>
+<dt><a href="./related_tools/">Related Tool</a></dt>
+<dd>Visualize the DOT language for MONAA using Graphviz</dd>
 </dl>
 
 Citation
