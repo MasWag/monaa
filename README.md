@@ -2,6 +2,7 @@ MONAA --- A Tool for Timed Patten Matching with Automata-Based Acceleration
 ===========================================================================
 
 [![wercker status](https://app.wercker.com/status/cda3497531906ac6356d64e6706afc4f/s/master "wercker status")](https://app.wercker.com/project/byKey/cda3497531906ac6356d64e6706afc4f)
+[![Documentation Status](https://readthedocs.org/projects/monaa/badge/?version=latest)](https://monaa.readthedocs.io/en/latest/?badge=latest)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
 
 

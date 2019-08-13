@@ -6,7 +6,7 @@ In this document, we show how to use MONAA to monitor a timed automata specifica
 We use the following timed word as the input. It is also in
 [`example/getting_started/timed_word.txt`](../example/getting_started/timed_word.txt).
 
-``` {.example}
+```
 A 0.5
 B 0.8
 C 1.5
@@ -74,10 +74,11 @@ digraph G {
 
 The result of the timed pattern matching is as follows.
 
+```
 ../build/monaa -f ../examples/TA/untimed.dot < ../examples/getting_started/timed_word.txt
 ```
 
-``` {.example}
+```
  -0.000000       <= t <   0.500000
   0.500000        < t' <=   0.800000
  -0.000000        < t' - t <=   0.800000
@@ -122,11 +123,11 @@ digraph G {
 
 The result of the timed pattern matching is as follows.
 
-``` {.bash org-language="sh" results="raw"}
+```
 ../build/monaa -f ../examples/TA/timed.dot < ../examples/getting_started/timed_word.txt
 ```
 
-``` {.example}
+```
   1.500000       <= t <   2.000000
   3.000000        < t' <=   3.200000
   1.000000        < t' - t <=   1.700000

@@ -1,0 +1,12 @@
+site_name: monaa
+site_url: https://monaa.readthedocs.io/en/latest/
+repo_url: https://github.com/MasWag/monaa
+site_author: 'Masaki Waga'
+copyright: copyright 2019
+theme: readthedocs
+docs_dir: doc
+nav:
+#  - Home: index.md
+  - Getting started: getting_started.md
+  - Installation guide: install.md
+  - Timed automata: TA.md

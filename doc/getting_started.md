@@ -1,7 +1,7 @@
 Getting Started
 ===============
 
-Let\'s see an example usage of MONAA. We use timed regular expressions in
+Let's see an example usage of MONAA. We use timed regular expressions in
 this document.
 
 Consider the following as the input timed word. It is also in
@@ -26,11 +26,11 @@ Let\'s detect consecutive occurrences of the events A and B. For
 example, we can use the TRE `(AB)$`. An example of the usage and the
 result is as follows.
 
-``` {.bash org-language="sh" results="raw"}
+```
 ../build/monaa -e '(AB)$' < ../examples/getting_started/timed_word.txt
 ```
 
-``` {.example}
+```
  -0.000000       <= t <   0.500000
   0.800000        < t' <=   1.500000
   0.300000        < t' - t <=   1.500000
@@ -71,11 +71,11 @@ We can give a timing constraint on the timed words. When we want to
 exclude the occurrences of A and B such that the duration between A and
 B is less than 1, we can use the following TRE.
 
-``` {.bash org-language="sh" results="raw"}
+```
 ../build/monaa -e '(A(B)%(1,20))$' < ../examples/getting_started/timed_word.txt
 ```
 
-``` {.example}
+```
   1.500000       <= t <   2.000000
   3.200000        < t' <=   3.500000
   1.200000        < t' - t <=   2.000000
@@ -88,11 +88,11 @@ Disjunctions
 We can also say that the second event may be either B or C. We can use
 disjunctions for such a purpose.
 
-``` {.bash org-language="sh" results="raw"}
+```
 ../build/monaa -e '(A(B|C)%(1,20))$' < ../examples/getting_started/timed_word.txt
 ```
 
-``` {.example}
+```
   1.500000       <= t <   2.000000
   3.200000        < t' <=   3.500000
   1.200000        < t' - t <=   2.000000
@@ -110,11 +110,11 @@ We can also say that A and (B or C) can occur repeatedly.
 In other words, the subformula `A(B|C)` repeats once or more.
 We can use [Kleene plus](https://en.wikipedia.org/wiki/Kleene_star#Kleene_plus) for such a purpose.
 
-``` {.bash org-language="sh" results="raw"}
+```
 ../build/monaa -e '((A(B|C))+%(1,20))$' < ../examples/getting_started/timed_word.txt
 ```
 
-``` {.example}
+```
   1.500000       <= t <   2.000000
   3.200000        < t' <=   3.500000
   1.200000        < t' - t <=   2.000000
@@ -132,11 +132,11 @@ We can use [Kleene plus](https://en.wikipedia.org/wiki/Kleene_star#Kleene_plus) 
 If you want match zero times repetition, i.e., empty events, you can use [Kleene star](https://en.wikipedia.org/wiki/Kleene_star).
 We note that this does not change the result because in the log, we do not have any blank interval longer than 1.
 
-``` {.bash org-language="sh" results="raw"}
+```
 ../build/monaa -e '((A(B|C))*%(1,20))$' < ../examples/getting_started/timed_word.txt
 ```
 
-``` {.example}
+```
   1.500000       <= t <   2.000000
   3.200000        < t' <=   3.500000
   1.200000        < t' - t <=   2.000000
@@ -158,7 +158,7 @@ Advanced specifications
 
 You can use conjunction to represent some complicated timing constraints.
 Here, we use the following timed word in `example/getting_started/timed_word2.txt`.
-``` {.example}
+```
 A 0.5
 B 0.8
 C 1.5
@@ -171,11 +171,11 @@ C 4.2
 
 The following expression matches a consecutive occurrences of the events A, B, and C such that the duration between the A and B is less than 1 and the duration between the B and C is more than 1.
 
-``` {.bash org-language="sh" results="raw"}
+```
 ../build/monaa -e '(((AB)%(0,1)C)&(A(BC)%(1,20)))$' < ../examples/getting_started/timed_word2.txt
 ```
 
-``` {.example}
+```
   1.500000       <= t <   2.000000
   4.200000        < t' <=        inf
   2.200000        < t' - t <=        inf
@@ -186,11 +186,11 @@ The following expression matches a consecutive occurrences of the events A, B, a
 
 The following expression matches a consecutive occurrences of the events A, B, and C such that the blank interval after C is longer than 1.
 
-``` {.bash org-language="sh" results="raw"}
+```
 ../build/monaa -e 'ABC($)%(1,20)' < ../examples/getting_started/timed_word2.txt
 ```
 
-``` {.example}
+```
   1.500000       <= t <   2.000000
   5.200000        < t' <  24.200000
   3.200000        < t' - t <  22.700000
