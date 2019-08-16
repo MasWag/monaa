@@ -69,9 +69,11 @@ BOOST_AUTO_TEST_SUITE(treTest)
       constructEventTA("((aba)%(1,2))*");
 
       BOOST_CHECK_EQUAL(TA.initialStates.size(), 2);
-      BOOST_TEST(!bool(TA.initialStates[0]->isMatch));
-      BOOST_TEST(bool(TA.initialStates[1]->isMatch));
-      const auto initialState = TA.initialStates[0];
+      BOOST_CHECK_EQUAL(bool(TA.initialStates[0]->isMatch) + bool(TA.initialStates[1]->isMatch), 1);
+      auto initialState = TA.initialStates[0];
+      if (initialState->isMatch) {
+        initialState =  TA.initialStates[1];
+      }
       BOOST_CHECK_EQUAL(initialState->next['a'].size(), 1);
       BOOST_TEST(!bool(initialState->next['a'][0].target->isMatch));
       const auto toSecondState = initialState->next['a'][0];
