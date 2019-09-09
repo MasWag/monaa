@@ -1,7 +1,7 @@
 Timed Automata
 ==============
 
-In this document, we show how to use MONAA to monitor a timed automata specification. We assume that you know the basics of timed automata and what MONAA does. If you have never used MONAA, we recommend to read [Getting Started](./getting_started.md).
+In this document, we show how to use MONAA to monitor a timed automata specification. We assume that you know the basics of timed automata (e.g., [AD94]) and what MONAA does. If you have never used MONAA, we recommend to read [Getting Started](./getting_started.md).
 
 We use the following timed word as the input. It is also in
 [`example/getting_started/timed_word.txt`](../example/getting_started/timed_word.txt).
@@ -137,3 +137,8 @@ The result of the timed pattern matching is as follows.
   1.000000        < t' - t <=   1.400000
 =============================
 ```
+
+References
+-------------
+
+- [AD94] A theory of timed automata. Rajeev Alur and David L. Dill, Theoretical Computer Science, Volume 126, Issue 2, 1994, Pages 183-235

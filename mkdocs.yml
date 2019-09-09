@@ -9,5 +9,6 @@ nav:
 #  - Home: index.md
   - Getting started: getting_started.md
   - Installation guide: install.md
+  - Timed regular expressions: TRE.md
   - Timed automata: TA.md
   - Related Tool: related_tools.md

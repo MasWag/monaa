@@ -25,6 +25,8 @@ Further information
 -------------------
 
 <dl>
+<dt><a href="./TRE/">Timed regular expressions</a></dt>
+<dd>Detail of the timed regular expressions supported by MONAA.</dd>
 <dt><a href="./TA/">Timed automata</a></dt>
 <dd>Use timed automata to describe advanced timing constraints.</dd>
 <dt><a href="./related_tools/">Related Tool</a></dt>

@@ -1,11 +1,10 @@
 Getting Started
 ===============
 
-Let's see an example usage of MONAA. We use timed regular expressions in
-this document.
+Let's see an example usage of MONAA. We use timed regular expressions (TREs) [ACM02] in this document.
+See also [this document](./TRE.md) for the detail of the TREs supported by MONAA.
 
-Consider the following as the input timed word. It is also in
-`example/getting_started/timed_word.txt`.
+Consider the following as the input timed word. It is also in `example/getting_started/timed_word.txt`.
 
 ``` {.example}
 A 0.5
@@ -22,7 +21,7 @@ C 4.6
 Your first example
 ------------------
 
-Let\'s detect consecutive occurrences of the events A and B. For
+Let's detect consecutive occurrences of the events A and B. For
 example, we can use the TRE `(AB)$`. An example of the usage and the
 result is as follows.
 
@@ -53,7 +52,7 @@ A 2.0
 B 3.2
 ```
 
-In timed pattern matching, the \`\`occurrences\'\' does not mean the
+In timed pattern matching, the "occurrences" does not mean the
 subwords but it means the trimming on an open interval. For example, the
 first occurrence of AB is observed by the trimming on (0.3,1.0).
 Therefore, the result of MONAA is not a set of subwords but a (possibly
@@ -151,48 +150,7 @@ We note that this does not change the result because in the log, we do not have 
 =============================
 ```
 
-Advanced specifications
------------------------
+References
+-------------
 
-### Conjunction
-
-You can use conjunction to represent some complicated timing constraints.
-Here, we use the following timed word in `example/getting_started/timed_word2.txt`.
-```
-A 0.5
-B 0.8
-C 1.5
-A 2.0
-B 2.9
-C 4.2
-```
-
-![The example timed word 2](./fig/getting_started/timed_word2.svg)
-
-The following expression matches a consecutive occurrences of the events A, B, and C such that the duration between the A and B is less than 1 and the duration between the B and C is more than 1.
-
-```
-../build/monaa -e '(((AB)%(0,1)C)&(A(BC)%(1,20)))$' < ../examples/getting_started/timed_word2.txt
-```
-
-```
-  1.500000       <= t <   2.000000
-  4.200000        < t' <=        inf
-  2.200000        < t' - t <=        inf
-=============================
-```
-
-### Terminate character
-
-The following expression matches a consecutive occurrences of the events A, B, and C such that the blank interval after C is longer than 1.
-
-```
-../build/monaa -e 'ABC($)%(1,20)' < ../examples/getting_started/timed_word2.txt
-```
-
-```
-  1.500000       <= t <   2.000000
-  5.200000        < t' <  24.200000
-  3.200000        < t' - t <  22.700000
-=============================
-```
+- [ACM02] Timed regular expressions. Eugene Asarin, Paul Caspi, and Oded Maler, Journal of the ACM, Volume 49 Issue 2, March 2002, Pages 172-206
