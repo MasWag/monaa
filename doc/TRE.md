@@ -6,7 +6,7 @@ In this document, we show how to use MONAA to monitor a specification written in
 Timed Regular Expressions
 -------------------------
 
-In MONAA, the given timed regular expression is translated into a timed automaton and the timed pattern matching problem is conducted for the translated timed automaton. The timed regular expression supported in MONAA is defined as follows. Here, we use the blank character (' ') to represent the each elements, but MONAA interprets ' ' as an event and you have to omit these blank character when you actually use MONAA. You can also read the code of the [parser](../monaa/tre_parser.yy) and the [lexer](../monaa/tre_lexer.l).
+In MONAA, the given timed regular expression is translated into a timed automaton and the timed pattern matching problem is conducted for the translated timed automaton. The timed regular expression supported in MONAA is defined as follows. Here, we use the blank character (' ') to represent the each elements, but MONAA interprets ' ' as an event and you have to omit these blank character when you actually use MONAA. You can also read the code of the [parser](https://github.com/MasWag/monaa/blob/master/monaa/tre_parser.yy) and the [lexer](https://github.com/MasWag/monaa/blob/master/monaa/tre_lexer.l).
 
 ```
 expr : c (An event)
