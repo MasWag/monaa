@@ -36,7 +36,7 @@ update_doxygen:
     - script:
         name: install_dependencies
         code: |
-          sudo pacman -Sy doxygen --noconfirm
+          sudo pacman -Sy doxygen graphviz --noconfirm
     - script:
         name: build_doxygen
         code: |

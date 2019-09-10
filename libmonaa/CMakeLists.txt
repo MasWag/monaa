@@ -1,5 +1,8 @@
 project(libmonaa)
 cmake_minimum_required(VERSION 3.1)
+set(VERSION_MAJOR 0)
+set(VERSION_MINOR 4)
+set(VERSION_PATCH 1)
 
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen)
@@ -20,7 +23,4 @@ if(BUILD_DOCUMENTATION)
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc
         COMMENT "Generating API documentation with Doxygen"
         VERBATIM)
-
-## It does not install the document by default
-#    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION share/doc)
 endif()

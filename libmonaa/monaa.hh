@@ -1,18 +1,16 @@
 #pragma once
 /*! 
-  @file monaa.hh
-
   @mainpage Reference Manual of libmonaa
   
   This is the reference manual of libmonaa. For documentation on how to install libmonaa, see the <a href="https://github.com/MasWag/monaa/blob/master/libmonaa/README.md">README</a>.
 
   @section Overview
 
-  This library mainly provides the function @link monaa @endlink, which does do online timed pattern matching by the timed FJS algorithm, and as its parameters, the classes @link WordContainer @endlink, @link TimedAutomaton @endlink, and @link AnsContainer @endlink. The input and output container classes @link WordContainer @endlink and @link AnsContainer @endlink just define the interface of the container, and the classes passed by their template arguments defines the procedure. Therefore, users can define the functionality suitable for their application. For example, @link AnsContainer::push_back() @endlink can be used as a call back function when the procedure finds a matching in the input.
+  This library mainly provides the function @link monaaDollar @endlink, which does do online timed pattern matching by the timed FJS algorithm, and as its arguments, the classes @link WordContainer @endlink, @link TimedAutomaton @endlink, and @link AnsContainer @endlink. The input and output container classes @link WordContainer @endlink and @link AnsContainer @endlink just define the interface of the container, and the classes passed by their template arguments defines the procedure. Therefore, users can define the functionality suitable for their application. For example, @link AnsContainer::push_back() @endlink can be used as a call back function when the procedure finds a matching in the input.
 
   @note This document is not completed yet. The content may be changed later.
   @copyright (C) 2017 Masaki Waga. All rights reserved.
-*/ 
+*/
 
 #include <iostream>
 #include <chrono>
@@ -30,6 +28,18 @@
 #include "ans_vec.hh"
 
 #include "utils.hh"
+/*!
+  @file monaa.hh
+  @author Masaki Waga
+
+  @brief Functions for timed pattern matching
+
+  Currently, we have three functions: @link monaa @endlink, @link monaaDollar @endlink, and @link monaaNotNecessaryDollar @endlink. All of them looks very similar but they have some differences on the accepting conditions.
+  - @link monaaDollar @endlink: Same as our original paper [WHS17]. Namely, all the transitions to an accepting state must be labelled with '$' and we try to insert '$' between the given events.
+  - @link monaaNotNecessaryDollar @endlink: Similar to @link monaaDollar @endlink, but the transitions to the accepting state do not have to be labelled with '$'. The transitions to an accepting state but not labelled with '$' is used in the same way as the usual transitions.
+  - @link monaa @endlink: All the transitions cannot be labelled with '$'. For the transitions to an accepting state, we move the next event forward instead of inserting '$'. This looks like a monitoring of signals rather than timed words.
+ */
+
 
 // Internal state of BFS
 struct InternalState {
