@@ -1,22 +1,20 @@
-% MONAA(1)
-% Masaki Waga
-% May 2018
+# Usage Manual
 
-# NAME
+## Name
 
 monaa - MONitoring tool Accelerated by Automata
 
-# SYNOPSIS
+## Synopsis
 
     monaa [OPTIONS] PATTERN [FILE]
     monaa [OPTIONS] -e PATTERN [FILE]
     monaa [OPTIONS] -f FILE [FILE]
 
-# DESCRIPTION
+## Description
 
 **Monaa** is a tool for timed patten matching with automata-based acceleration.
 
-# OPTIONS
+## Options
 
 **-h**, **--help**
 : Print a help message.
@@ -48,18 +46,18 @@ monaa - MONitoring tool Accelerated by Automata
 **-e** *pattern*, **--expression** *pattern*
 : Specify a *pattern* by a timed regular expression.
 
-# EXIT STATUS
+## Exit Status
 
 0
 : if there is no error.
 
 1
-: if a error on options has happened.
+: if an error on options has happened.
 
 2
 : if a parse error has happened.
 
-# EXAMPLE
+## Example
 
 The following is an example to monitor a log in **data.txt** over a timed automata in **pattern.dot**.
 

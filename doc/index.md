@@ -18,6 +18,8 @@ First steps
 <dd>Understand what MONAA can help you.</dd>
 <dt><a href="./install/">Installation guide</a></dt>
 <dd>Get MONAA on your computer.</dd>
+<dt><a href="./man/">Usage Manual</a></dt>
+<dd>Usage manual of MONAA</dd>
 </dl>
 
 
@@ -29,6 +31,8 @@ Further information
 <dd>Detail of the timed regular expressions supported by MONAA.</dd>
 <dt><a href="./TA/">Timed automata</a></dt>
 <dd>Use timed automata to describe advanced timing constraints.</dd>
+<dt><a href="./options/">List of the Options</a></dt>
+<dd>List of the options including rather experimental ones</dd>
 <dt><a href="./related_tools/">Related Tool</a></dt>
 <dd>Visualize the DOT language for MONAA using Graphviz</dd>
 </dl>
