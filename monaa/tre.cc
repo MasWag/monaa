@@ -200,7 +200,7 @@ void TRE::toEventTA(TimedAutomaton &out) const {
       regExpr->toEventTA(out);
       for (auto &s: out.states) {
         for (auto &edges: s->next) {
-          for (auto &edge: edges.second) {
+          for (auto edge: edges.second) {
             TAState *target = edge.target;
             if (target && target->isMatch) {
               edges.second.reserve(edges.second.size() + out.initialStates.size());
