@@ -52,15 +52,25 @@ int main(int argc, char *argv[])
     }
   }
 
+  if (vm.count("version")) {
+    std::cout << "MONAA (a MONitoring tool Acceralated by Automata) " << MONAA_VERSION << "\n" <<
+      "Copyright (C) 2017-2019 Masaki Waga.\n\n" <<
+      "This program is free software; you can redistribute it and/or modify\n" <<
+      "it under the terms of the GNU General Public License as published by\n" <<
+      "the Free Software Foundation; either version 3 of the License, or\n" <<
+      "(at your option) any later version.\n\n" <<
+      "This program is distributed in the hope that it will be useful,\n" <<
+      "but WITHOUT ANY WARRANTY; without even the implied warranty of\n" <<
+      "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" <<
+      "GNU General Public License for more details.\n\n" <<
+      "You should have received a copy of the GNU General Public License\n" <<
+      "along with this program. If not, see http://www.gnu.org/licenses/." << std::endl;
+    return 0;
+  }
   if ((timedAutomatonFileName.empty() && tre.empty()) || vm.count("help")) {
     std::cout << programName << " [OPTIONS] PATTERN [FILE]\n" 
               << programName << " [OPTIONS] -e PATTERN [FILE]\n" 
               << programName << " [OPTIONS] -f FILE [FILE]\n" 
-              << visible << std::endl;
-    return 0;
-  }
-  if (vm.count("version")) {
-    std::cout << "MONAA (a MONitoring tool Acceralated by Automata) 0.4.0\n"
               << visible << std::endl;
     return 0;
   }
