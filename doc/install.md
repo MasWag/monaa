@@ -76,10 +76,8 @@ Docker
 
 1. Install [docker](https://www.docker.com/)
 
-2. pull the docker image
+2. pull the docker image by `docker pull maswag/monaa`.
 
-```bash
-docker pull maswag/monaa
-```
+3. Use the container e.g., `docker run -i maswag/monaa -e '(AB)$' < ./getting_started/timed_word.txt`.
 
 [Docker Hub page](https://cloud.docker.com/u/maswag/repository/docker/maswag/monaa)
