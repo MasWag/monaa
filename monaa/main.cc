@@ -7,6 +7,10 @@
 
 using namespace boost::program_options;
 
+#ifndef MONAA_VERSION
+#define MONAA_VERSION "HEAD"
+#endif
+
 int main(int argc, char *argv[])
 {
   const auto programName = "monaa";
