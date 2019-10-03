@@ -1,24 +1,69 @@
 #pragma once
+/*!
+  @file interval.hh
+  @author Masaki Waga
+  @brief The implementation of the class Interval and related functions
+ */
 
 #include <cmath>
 
 #include "zone.hh"
 
+/*!
+  @brief Class for an interval
+ */
 struct Interval {
-  Bounds lowerBound;
-  Bounds upperBound;
+  //! the lower bound of the interval
+  Bounds lowerBound; 
+  //! the upper bound of the interval
+  Bounds upperBound; 
 
+  /*!
+    @brief Defail constructor
+    
+    By defalt the it returns the interval [0,∞)
+   */
   Interval() {
     upperBound = Bounds{std::numeric_limits<double>::infinity(), false};
     lowerBound = {0, true};
   }
 
+  /*!
+    @brief Constructor returning the interval (lower, ∞)
+
+    @param [in] lower the lower bound
+   */
+  Interval(int lower) {
+    upperBound = Bounds{std::numeric_limits<double>::infinity(), false};
+    lowerBound = {lower, false};
+  }
+
+  /*!
+    @brief Constructor returning the interval (lower, upper)
+
+    @param [in] lower the lower bound
+    @param [in] upper the upper bound
+   */
   Interval(int lower, int upper) {
     upperBound = {upper, false};
     lowerBound = {lower, false};
   }
 
   Interval(Bounds lower, Bounds upper) : lowerBound(lower), upperBound(upper){}
+
+  /*!
+    @brief The Kleene plus operator on intervals in [Dima'00]
+    
+    For an interval \f$I\f$, the @em Kleen @em plus @em closure \f$I^+\f$ of \f$I\f$ is a set of intervals satisfying the following.
+
+    \f[
+    \bigcup_{i \in N} I^i = \bigcup_{I' \in I^+} I'
+    \f]
+
+    - [Dima'00]: Dima C. (2000) Real-Time Automata and the Kleene Algebra of Sets of Real Numbers. In: Reichel H., Tison S. (eds) STACS 2000. STACS 2000. Lecture Notes in Computer Science, vol 1770. Springer, Berlin, Heidelberg
+
+    @param [out] plusIntervals the result
+   */
   inline void plus(std::vector<std::shared_ptr<Interval>> &plusIntervals) {
     plusIntervals.clear();
     if (std::isinf(upperBound.first)) {
@@ -36,6 +81,7 @@ struct Interval {
   }
 };
 
+//! @brief The intersection of two intervals
 inline static Interval
 operator&&( const Interval &left, const Interval &right) {
   Interval ret = Interval{std::max(left.lowerBound, right.lowerBound),
@@ -43,6 +89,17 @@ operator&&( const Interval &left, const Interval &right) {
   return ret; 
 }
 
+/*!
+  @brief The intersection of a set of intervals and an interval.
+  @note This function is destructive.
+
+  @param [in,out] left The set of intervals. We take intersection for each element of left and overwrite.
+  @param [in] right The interval.
+
+  We have the following relation between the input and the overwritten value of \f$\texttt{left}\f$.
+
+  \f[t \in \bigcup_{I \in \texttt{left}_{\mathrm{post}}} I \iff t \in \bigcup_{I \in \texttt{left}_{\mathrm{pre}}} (I \cap \texttt{right})\f]
+ */
 inline static void
 land( std::vector<std::shared_ptr<Interval>> &left, const Interval &right) {
   for (auto interval: left) {
@@ -53,11 +110,25 @@ land( std::vector<std::shared_ptr<Interval>> &left, const Interval &right) {
       }), left.end());
 }
 
+/*!
+  @brief The intersection of two sets of intervals.
+  @note This function is destructive.
+
+  @param [in,out] left The set of intervals. We take intersection for each element of left and overwrite.
+  @param [in] right A set of interval. This is not overwritten.
+
+  We have the following relation between the input and the overwritten value of \f$\texttt{left}\f$.
+
+  \f[t \in \bigcup_{I \in \texttt{left}_{\mathrm{post}}} I \iff t \in \bigcup_{I \in \texttt{left}_{\mathrm{pre}}, I' \in \texttt{right}} (I \cap I')\f]
+ */
 inline static void
 land( std::vector<std::shared_ptr<Interval>> &left, const std::vector<std::shared_ptr<Interval>> &right) {
   std::vector<std::shared_ptr<Interval>> tmp;
   for (auto interval: right) {
     std::vector<std::shared_ptr<Interval>> tmpL = left;
+    for (auto &ptr: tmpL) {
+      ptr = std::make_shared<Interval>(*ptr);
+    }
     land(tmpL, *interval);
     tmp.insert(tmp.end(), tmpL.begin(), tmpL.end());
   }
@@ -68,6 +139,11 @@ land( std::vector<std::shared_ptr<Interval>> &left, const std::vector<std::share
   left = tmp;
 }
 
+/*!
+  @brief The sum of two intervals. The formal definition is as follows.
+  
+  \f[I + I' = \{t + t' \mid \exists t \in I, t' \in I'\}\f]
+*/
 inline static Interval
 operator+( Interval left, const Interval &right) {
   left.lowerBound += right.lowerBound;
@@ -75,6 +151,17 @@ operator+( Interval left, const Interval &right) {
   return left;
 }
 
+/*!
+  @brief The sum of two sets of intervals.
+  @note This function is destructive.
+
+  @param [in,out] left The set of intervals. We take sum for each element of left and overwrite.
+  @param [in] right A set of interval. This is not overwritten.
+
+  We have the following for any \f$t \in \mathbb{R}\f$.
+
+  \f[t \in \bigcup_{I \in \texttt{left}_{\mathrm{post}}} I \iff \exists t' \in \bigcup_{I \in \texttt{left}_{\mathrm{pre}}}, \exists t'' \in \bigcup_{I' \in \texttt{right}}. t = t' + t'' \f]
+ */
 inline static void
 operator+=( std::vector<std::shared_ptr<Interval>> &left, const std::vector<std::shared_ptr<Interval>> &right) {
   std::vector<std::shared_ptr<Interval>> ans;

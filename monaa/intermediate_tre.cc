@@ -63,6 +63,7 @@ DNFTRE::DNFTRE(const std::shared_ptr<const TRE> tre) {
     break;
   }
   case TRE::op::concat: {
+    // Flatten and concatenate
     std::shared_ptr<DNFTRE> subfmlLeft = std::make_shared<DNFTRE>(tre->regExprPair.first);
     std::shared_ptr<DNFTRE> subfmlRight = std::make_shared<DNFTRE>(tre->regExprPair.second);
       
