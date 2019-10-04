@@ -55,8 +55,27 @@ target_include_directories(monaa
 set_property(TARGET monaa
   PROPERTY CXX_STANDARD 14)
 
+## Config for TRE2TA
+add_executable(tre2ta EXCLUDE_FROM_ALL
+  monaa/tre2ta.cc
+  monaa/tre.cc
+  libmonaa/intersection.cc
+  ${FLEX_tre_lexer_OUTPUTS}
+  ${BISON_tre_parser_OUTPUTS})
+
+target_link_libraries(tre2ta
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  ${Boost_GRAPH_LIBRARY})
+
+target_include_directories(tre2ta
+  PRIVATE
+  .
+  ${CMAKE_CURRENT_BINARY_DIR})
+set_property(TARGET tre2ta
+  PROPERTY CXX_STANDARD 14)
+
 ## Config for libmonaa
-add_library(libmonaa STATIC
+add_library(libmonaa STATIC EXCLUDE_FROM_ALL
   libmonaa/intersection.cc
   libmonaa/ta2za.cc
 )
@@ -64,7 +83,7 @@ add_library(libmonaa STATIC
 ## Config for Test
 enable_testing()
 
-add_executable(unit_test
+add_executable(unit_test EXCLUDE_FROM_ALL
   libmonaa/intersection.cc
   libmonaa/ta2za.cc
   monaa/tre.cc

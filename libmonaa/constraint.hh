@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <vector>
 #include <algorithm>
+#include <ostream>
 
 #include "common_types.hh"
 
@@ -49,6 +50,32 @@ struct Constraint {
     }
   }
 };
+
+static inline 
+std::ostream& operator<<(std::ostream& os, const Constraint::Order& odr) {
+  switch (odr) {
+  case Constraint::Order::lt:
+    os << "<";
+    break;
+  case Constraint::Order::le:
+    os << "<=";
+    break;
+  case Constraint::Order::ge:
+    os << ">=";
+    break;
+  case Constraint::Order::gt:
+    os << ">";
+    break;
+  }
+  return os;
+}
+
+static inline 
+std::ostream& operator<<(std::ostream& os, const Constraint& p)
+{
+  os << "x" << int(p.x) << " " << p.odr << " " << p.c;
+  return os;
+}
 
 // An interface to write an inequality constrait easily
 class ConstraintMaker {

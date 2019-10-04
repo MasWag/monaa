@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <climits>
 #include <valarray>
+#include <ostream>
 
 #include "constraint.hh"
 #include "common_types.hh"
@@ -130,3 +131,59 @@ struct TimedAutomaton : public Automaton<TAState> {
       });
   }
 };
+
+
+//! @todo implement
+static inline
+std::ostream& operator<<(std::ostream& os, const TimedAutomaton& TA) {
+  std::unordered_map<TAState*, bool> isInit;
+  std::unordered_map<TAState*, unsigned int> stateNumber;
+
+  for (unsigned int i = 0; i < TA.states.size(); ++i) {
+    // Check if the state is initial for each state
+    isInit[TA.states.at(i).get()] = std::find(TA.initialStates.begin(), TA.initialStates.end(), TA.states.at(i)) != TA.initialStates.end();
+    // Assign a number for each state
+    stateNumber[TA.states.at(i).get()] = i + 1;
+  }
+  os << "digraph G {\n";
+
+  for (std::shared_ptr<TAState> state: TA.states) {
+    os << "        " << stateNumber.at(state.get()) << " [init=" << isInit.at(state.get()) << ", match=" << state->isMatch << "]\n";
+  }
+
+  for (std::shared_ptr<TAState> source: TA.states) {
+    for (auto edges: source->next) {
+      for (TATransition edge: edges.second) {
+        TAState* target = edge.target;
+        os << "        " << stateNumber.at(source.get()) << "->" << stateNumber.at(target) << " [label=\"" << edges.first << "\"";
+        if (!edge.guard.empty()) {
+          os << ", guard=\"{";
+          bool isFirst = true;
+          for (const Constraint guard: edge.guard) {
+            if (!isFirst) {
+              os << ", ";
+            }
+            os << guard;
+            isFirst = false;
+          }
+          os << "}\"";
+        }
+        if (!edge.resetVars.empty()) {
+          os << ", resets=\"{";
+          bool isFirst = true;
+          for (const ClockVariables var: edge.resetVars) {
+            if (!isFirst) {
+              os << ", ";
+            }
+            os << int(var);
+            isFirst = false;
+          }
+          os << "}\"";
+        }
+        os << "]\n";
+      }
+    }
+  }
+  os << "}\n";
+  return os;
+}

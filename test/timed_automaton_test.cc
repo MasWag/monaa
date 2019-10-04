@@ -1,5 +1,6 @@
 
 #include <boost/test/unit_test.hpp>
+#include <sstream>
 
 #include "../libmonaa/timed_automaton.hh"
 
@@ -68,5 +69,50 @@ BOOST_FIXTURE_TEST_CASE( deepCopyImmutable, DeepCopyFixture )
   TA.states[0]->next['a'][0].resetVars = {};
   BOOST_CHECK_EQUAL(old2new[TA.states[0].get()]->next['a'][0].resetVars.size(), 1);
 }
+
+BOOST_AUTO_TEST_SUITE(TimedAutomatonPrintTests)
+BOOST_AUTO_TEST_CASE(small)
+{
+  // ../examples/small.dot
+  TimedAutomaton small;
+  std::stringstream stream;
+  std::string expected = "digraph G {\n\
+        1 [init=1, match=0]\n\
+        2 [init=0, match=0]\n\
+        3 [init=0, match=0]\n\
+        4 [init=0, match=1]\n\
+        1->2 [label=\"l\", guard=\"{x0 < 1}\"]\n\
+        2->3 [label=\"h\", guard=\"{x0 < 1}\"]\n\
+        3->4 [label=\"$\", guard=\"{x0 < 1}\"]\n\
+        3->2 [label=\"l\", guard=\"{x0 < 1}\"]\n\
+}\n";
+
+  // Input
+  small.states.resize(4);
+  for (auto &state: small.states) {
+    state = std::make_shared<TAState>();
+  }
+
+  small.initialStates = {small.states[0]};
+
+  small.states[0]->isMatch = false;
+  small.states[1]->isMatch = false;
+  small.states[2]->isMatch = false;
+  small.states[3]->isMatch = true;
+
+  // Transitions
+  small.states[0]->next['l'].push_back({small.states[1].get(), {}, {{{TimedAutomaton::X(0) < 1}}}});
+  small.states[1]->next['h'].push_back({small.states[2].get(), {}, {{{TimedAutomaton::X(0) < 1}}}});
+  small.states[2]->next['l'].push_back({small.states[1].get(), {}, {{{TimedAutomaton::X(0) < 1}}}});
+  small.states[2]->next['$'].push_back({small.states[3].get(), {}, {{{TimedAutomaton::X(0) < 1}}}});
+  
+  small.maxConstraints = {1,1}; 
+
+  // Run    
+  stream << small;
+
+  BOOST_CHECK_EQUAL(stream.str(), expected);
+}
+BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE_END()

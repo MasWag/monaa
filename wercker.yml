@@ -18,7 +18,7 @@ gcc_unit_test:
         name: build_and_test
         code: |
           mkdir -p gcc_build
-          cd gcc_build && cmake .. && make && ./unit_test
+          cd gcc_build && cmake .. && make unit_test && ./unit_test
 clang_unit_test:
   steps:
     - script:
@@ -30,7 +30,7 @@ clang_unit_test:
         name: build_and_test
         code: |
           mkdir -p clang_build
-          cd clang_build && cmake .. && make && ./unit_test
+          cd clang_build && cmake .. && make unit_test && ./unit_test
 update_doxygen:
   steps:
     - script:

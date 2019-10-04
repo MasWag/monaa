@@ -19,32 +19,6 @@ namespace boost{
   BOOST_INSTALL_PROPERTY(edge, guard);
 }
 
-static inline 
-std::ostream& operator<<(std::ostream& os, const Constraint::Order& odr) {
-  switch (odr) {
-  case Constraint::Order::lt:
-    os << "<";
-    break;
-  case Constraint::Order::le:
-    os << "<=";
-    break;
-  case Constraint::Order::ge:
-    os << ">=";
-    break;
-  case Constraint::Order::gt:
-    os << ">";
-    break;
-  }
-  return os;
-}
-
-static inline 
-std::ostream& operator<<(std::ostream& os, const Constraint& p)
-{
-  os << "x" << int(p.x) << " " << p.odr << " " << p.c;
-  return os;
-}
-
 template<class T>
 static inline 
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& guard)

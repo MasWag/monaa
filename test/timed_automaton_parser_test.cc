@@ -3,8 +3,6 @@
 #include <boost/test/unit_test.hpp>
 #include "../monaa/timed_automaton_parser.hh"
 
-std::ostream& operator<<(std::ostream& os, const std::vector<ClockVariables> &resetVars);
-
 BOOST_AUTO_TEST_SUITE(timedAutomatonParserTests)
 BOOST_AUTO_TEST_CASE(parseBoostPhi7TATest)
 {
