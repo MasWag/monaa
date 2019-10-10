@@ -59,6 +59,7 @@ set_property(TARGET monaa
 add_executable(tre2ta EXCLUDE_FROM_ALL
   monaa/tre2ta.cc
   monaa/tre.cc
+  monaa/intermediate_tre.cc
   libmonaa/intersection.cc
   ${FLEX_tre_lexer_OUTPUTS}
   ${BISON_tre_parser_OUTPUTS})
