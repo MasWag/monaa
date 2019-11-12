@@ -10,7 +10,11 @@ set(VERSION_MAJOR 0)
 set(VERSION_MINOR 5)
 set(VERSION_PATCH 0)
 
-add_compile_definitions(MONAA_VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+if(${CMAKE_VERSION} VERSION_LESS "3.12.0") 
+  add_definitions("-DMONAA_VERSION=\"${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}\"")
+else()
+  add_compile_definitions(MONAA_VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+endif()
 
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
