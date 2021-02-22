@@ -3,7 +3,7 @@ name: Update Doxygen
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build:
