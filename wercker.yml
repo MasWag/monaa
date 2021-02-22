@@ -31,17 +31,3 @@ clang_unit_test:
         code: |
           mkdir -p clang_build
           cd clang_build && cmake .. && make unit_test && ./unit_test
-update_doxygen:
-  steps:
-    - script:
-        name: install_dependencies
-        code: |
-          yes | sudo pacman -Sy doxygen graphviz --noconfirm
-    - script:
-        name: build_doxygen
-        code: |
-          mkdir -p /tmp/build && cd /tmp/build
-          cmake $OLDPWD/libmonaa && make doc
-    - lukevivier/gh-pages:
-        token: $GITHUB_TOKEN
-        basedir: /tmp/build/doc/html

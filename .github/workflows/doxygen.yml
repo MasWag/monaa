@@ -1,0 +1,29 @@
+name: Update Doxygen
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: maswag/monaa-test-env
+    strategy:
+      max-parallel: 4
+    steps:
+    - uses: actions/checkout@v1
+    - name: install_dependencies
+      run: |
+        sudo pacman -Sy doxygen graphviz --noconfirm
+    - name: build_doxygen
+      run: |
+        mkdir -p /tmp/build && cd /tmp/build
+        cmake $OLDPWD/libmonaa && make doc
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_branch: gh-pages
+        publish_dir: /tmp/build/doc/html
+        destination_dir: .

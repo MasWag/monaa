@@ -1,0 +1,50 @@
+name: Boost.Test
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: maswag/monaa-test-env
+    strategy:
+      max-parallel: 4
+    steps:
+    - uses: actions/checkout@v1
+    - name: default build
+      run: |
+        mkdir build
+        cd build && cmake .. && make
+
+  gcc_unit_test:
+    runs-on: ubuntu-latest
+    container: maswag/monaa-test-env
+    strategy:
+      max-parallel: 4
+    steps:
+    - uses: actions/checkout@v1
+    - name: set gcc env
+      run: |
+        export CC=/usr/bin/gcc
+        export CXX=/usr/bin/g++
+    - name: build and test
+      run: |
+        mkdir -p gcc_build
+        cd gcc_build && cmake .. && make unit_test && ./unit_test
+
+  clang_unit_test:
+    runs-on: ubuntu-latest
+    container: maswag/monaa-test-env
+    strategy:
+      max-parallel: 4
+    steps:
+    - uses: actions/checkout@v1
+    - name: set clang env
+      run: |
+        export CC=/usr/bin/clang
+        export CXX=/usr/bin/clang++
+    - name: build and test
+      run: |
+        mkdir -p clang_build
+        cd clang_build && cmake .. && make unit_test && ./unit_test
+        
