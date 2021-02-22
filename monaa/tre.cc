@@ -252,56 +252,70 @@ void TRE::toEventTA(TimedAutomaton &out) const {
     }
     case op::within: {
       regExprWithin.first->toEventTA(out);
-      // add dummy initial state
-      std::shared_ptr<TAState> dummyInitialState = std::make_shared<TAState>();
-      for (auto initialState: out.initialStates) {
-        for (const auto &initTransitionsPair: initialState->next) {
-          const Alphabet c = initTransitionsPair.first;
-          dummyInitialState->next[c].reserve(dummyInitialState->next[c].size() + initTransitionsPair.second.size());
-          for (auto &edge: initTransitionsPair.second) {
-            TATransition transition = edge;
-            dummyInitialState->next[c].emplace_back(std::move(transition));
-          }
-        }
-      }
-      out.initialStates = {dummyInitialState};
-      out.states.emplace_back(std::move(dummyInitialState));
 
       // add dummy accepting state
+      bool isDummyUsed = false;
       std::shared_ptr<TAState> dummyAcceptingState = std::make_shared<TAState>(true);
       for (auto state: out.states) {
         for (auto &edges: state->next) {
           for (auto &edge: edges.second) {
             auto target = edge.target;
             if (target && target->isMatch) {
-              TATransition transition = edge;
-              transition.target = dummyAcceptingState.get();
-              transition.guard.reserve(transition.guard.size() + 2);
-              // upper bound
-              if (regExprWithin.second->upperBound.second) {
-                transition.guard.emplace_back(
-                        TimedAutomaton::X(out.clockSize()) <= regExprWithin.second->upperBound.first);
+              // we use dummyAcceptingState if there is a transition from the accepting state
+              if (target->next.empty()) {
+                edge.guard.reserve(edge.guard.size() + 2);
+                // upper bound
+                if (regExprWithin.second->upperBound.second) {
+                  edge.guard.emplace_back(
+                                          TimedAutomaton::X(out.clockSize()) <= regExprWithin.second->upperBound.first);
+                } else {
+                  edge.guard.emplace_back(
+                                          TimedAutomaton::X(out.clockSize()) < regExprWithin.second->upperBound.first);
+                }
+                // lower bound
+                if (regExprWithin.second->lowerBound.second) {
+                  edge.guard.emplace_back(
+                                          TimedAutomaton::X(out.clockSize()) >= regExprWithin.second->lowerBound.first);
+                } else {
+                  edge.guard.emplace_back(
+                                          TimedAutomaton::X(out.clockSize()) > regExprWithin.second->lowerBound.first);
+                }
               } else {
-                transition.guard.emplace_back(
-                        TimedAutomaton::X(out.clockSize()) < regExprWithin.second->upperBound.first);
+                isDummyUsed = true;
+                TATransition transition = edge;
+                transition.target = dummyAcceptingState.get();
+
+                transition.guard.reserve(transition.guard.size() + 2);
+                // upper bound
+                if (regExprWithin.second->upperBound.second) {
+                  transition.guard.emplace_back(
+                                                TimedAutomaton::X(out.clockSize()) <= regExprWithin.second->upperBound.first);
+                } else {
+                  transition.guard.emplace_back(
+                                                TimedAutomaton::X(out.clockSize()) < regExprWithin.second->upperBound.first);
+                }
+                // lower bound
+                if (regExprWithin.second->lowerBound.second) {
+                  transition.guard.emplace_back(
+                                                TimedAutomaton::X(out.clockSize()) >= regExprWithin.second->lowerBound.first);
+                } else {
+                  transition.guard.emplace_back(
+                                                TimedAutomaton::X(out.clockSize()) > regExprWithin.second->lowerBound.first);
+                }
+                edges.second.emplace_back(std::move(transition));
               }
-              // lower bound
-              if (regExprWithin.second->lowerBound.second) {
-                transition.guard.emplace_back(
-                        TimedAutomaton::X(out.clockSize()) >= regExprWithin.second->lowerBound.first);
-              } else {
-                transition.guard.emplace_back(
-                        TimedAutomaton::X(out.clockSize()) > regExprWithin.second->lowerBound.first);
-              }
-              edges.second.emplace_back(std::move(transition));
             }
           }
         }
       }
       for (auto state: out.states) {
-        state->isMatch = false;
+        if (!state->next.empty()) {
+          state->isMatch = false;
+        }
       }
-      out.states.emplace_back(std::move(dummyAcceptingState));
+      if (isDummyUsed) {
+        out.states.emplace_back(std::move(dummyAcceptingState));
+      }
       out.maxConstraints.emplace_back(regExprWithin.second->upperBound.first);
       break;
     }
