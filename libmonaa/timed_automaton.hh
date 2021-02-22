@@ -148,14 +148,14 @@ std::ostream& operator<<(std::ostream& os, const TimedAutomaton& TA) {
   os << "digraph G {\n";
 
   for (std::shared_ptr<TAState> state: TA.states) {
-    os << "        " << stateNumber.at(state.get()) << " [init=" << isInit.at(state.get()) << ", match=" << state->isMatch << "]\n";
+    os << "        loc" << stateNumber.at(state.get()) << " [init=" << isInit.at(state.get()) << ", match=" << state->isMatch << "]\n";
   }
 
   for (std::shared_ptr<TAState> source: TA.states) {
     for (auto edges: source->next) {
       for (TATransition edge: edges.second) {
         TAState* target = edge.target;
-        os << "        " << stateNumber.at(source.get()) << "->" << stateNumber.at(target) << " [label=\"" << edges.first << "\"";
+        os << "        loc" << stateNumber.at(source.get()) << "->loc" << stateNumber.at(target) << " [label=\"" << edges.first << "\"";
         if (!edge.guard.empty()) {
           os << ", guard=\"{";
           bool isFirst = true;
@@ -169,7 +169,7 @@ std::ostream& operator<<(std::ostream& os, const TimedAutomaton& TA) {
           os << "}\"";
         }
         if (!edge.resetVars.empty()) {
-          os << ", resets=\"{";
+          os << ", reset=\"{";
           bool isFirst = true;
           for (const ClockVariables var: edge.resetVars) {
             if (!isFirst) {

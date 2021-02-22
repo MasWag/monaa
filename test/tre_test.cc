@@ -93,12 +93,12 @@ BOOST_AUTO_TEST_SUITE(treTest)
 
 
       BOOST_TEST(TA.isMember({}));
-      BOOST_TEST(TA.isMember({{'a', 1.2},
-                              {'b', 2.0},
-                              {'a', 3.0}}));
+      BOOST_TEST(TA.isMember({{'a', 0.2},
+                              {'b', 1.0},
+                              {'a', 1.9}}));
       BOOST_TEST(!TA.isMember({{'a', 1.2},
-                               {'b', 2.0},
-                               {'a', 3.3}}));
+                               {'b', 1.8},
+                               {'a', 2.0}}));
     }
 
 

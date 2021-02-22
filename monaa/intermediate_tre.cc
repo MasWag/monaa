@@ -70,8 +70,8 @@ DNFTRE::DNFTRE(const std::shared_ptr<const TRE> tre) {
     for (const auto& conjunctionsLeft: subfmlLeft->list) {
       for (const auto& conjunctionsRight: subfmlRight->list) {
         std::list<std::shared_ptr<AtomicTRE>> conjunctions;
-        for (const std::shared_ptr<AtomicTRE> left: conjunctionsLeft) {
-          for(const std::shared_ptr<AtomicTRE> right: conjunctionsRight) {
+        for (const std::shared_ptr<AtomicTRE> &left: conjunctionsLeft) {
+          for(const std::shared_ptr<AtomicTRE> &right: conjunctionsRight) {
             conjunctions.push_back(std::make_shared<AtomicTRE>(left, right));
           }
         }

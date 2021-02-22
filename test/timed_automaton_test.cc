@@ -77,14 +77,14 @@ BOOST_AUTO_TEST_CASE(small)
   TimedAutomaton small;
   std::stringstream stream;
   std::string expected = "digraph G {\n\
-        1 [init=1, match=0]\n\
-        2 [init=0, match=0]\n\
-        3 [init=0, match=0]\n\
-        4 [init=0, match=1]\n\
-        1->2 [label=\"l\", guard=\"{x0 < 1}\"]\n\
-        2->3 [label=\"h\", guard=\"{x0 < 1}\"]\n\
-        3->4 [label=\"$\", guard=\"{x0 < 1}\"]\n\
-        3->2 [label=\"l\", guard=\"{x0 < 1}\"]\n\
+        loc1 [init=1, match=0]\n\
+        loc2 [init=0, match=0]\n\
+        loc3 [init=0, match=0]\n\
+        loc4 [init=0, match=1]\n\
+        loc1->loc2 [label=\"l\", guard=\"{x0 < 1}\"]\n\
+        loc2->loc3 [label=\"h\", guard=\"{x0 < 1}\"]\n\
+        loc3->loc4 [label=\"$\", guard=\"{x0 < 1}\"]\n\
+        loc3->loc2 [label=\"l\", guard=\"{x0 < 1}\"]\n\
 }\n";
 
   // Input
