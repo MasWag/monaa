@@ -55,7 +55,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install required packages
-      run: sudo apt-get install cmake bison flex libeigen3-dev libboost-all-dev -y
+      run: sudo apt-get install cmake bison libbison-dev flex libfl-dev libeigen3-dev libboost-all-dev -y
     - name: build and test
       run: |
         mkdir -p build
@@ -68,7 +68,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install required packages
-      run: sudo apt-get install cmake bison flex libeigen3-dev libboost-all-dev -y
+      run: sudo apt-get install cmake bison libbison-dev flex libfl-dev libeigen3-dev libboost-all-dev -y
     - name: build and test
       run: |
         mkdir -p build
