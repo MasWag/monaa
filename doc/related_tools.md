@@ -6,9 +6,23 @@ TRE2TA
 
 By [tre2ta](./tre2ta_man.md), you can translate a timed regular expression to a timed automaton. You can visualize the generated timed regular expression by `visualize-monaa-dot` for example.
 
+
+### Installation by Homebrew (for macOS)
+
+1. Set up homebrew (See the [official web page](https://brew.sh))
+2. Install tre2ta (and also monaa) by `brew install maswag/scientific/monaa`
+
+### Docker
+
+1. Install [docker](https://www.docker.com/)
+2. pull the docker image by `docker pull maswag/tre2ta`.
+3. Use the container e.g., `docker run -i maswag/tre2ta -e '(AB)$'`.
+
+[Docker Hub page](https://cloud.docker.com/u/maswag/repository/docker/maswag/tre2ta)
+
 ### Installation from source
 
-1. Build tre2ta
+#### 1. Build tre2ta
 
 ```
 cd /path/to/monaa
@@ -16,23 +30,12 @@ mkdir -p build
 cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make tre2ta
 ```
 
-2. (Optional) Install the executable and the manual
+#### 2. (Optional) Install the executable and the manual
 
 ```
 sudo install -m755 tre2ta /usr/local/bin
 sudo install -m644 ../doc/tre2ta.1 /usr/local/share/man/man1/
 ```
-
-### Docker
-
-1. Install [docker](https://www.docker.com/)
-
-2. pull the docker image by `docker pull maswag/tre2ta`.
-
-3. Use the container e.g., `docker run -i maswag/tre2ta -e '(AB)$'`.
-
-[Docker Hub page](https://cloud.docker.com/u/maswag/repository/docker/maswag/tre2ta)
-
 
 visualize-monaa-dot
 -------------------
