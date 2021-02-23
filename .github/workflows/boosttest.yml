@@ -55,20 +55,20 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install required packages
-      run: sudo apt-get install cmake bison flex libeigen3-dev -y
+      run: sudo apt-get install cmake bison flex libeigen3-dev libboost-all-dev -y
     - name: build and test
       run: |
         mkdir -p build
         cd build && cmake .. && make unit_test && ./unit_test    
 
-  ubuntu_focalionic:
+  ubuntu_focal:
     runs-on: ubuntu-20.04
     strategy:
       max-parallel: 4
     steps:
     - uses: actions/checkout@v1
     - name: Install required packages
-      run: sudo apt-get install cmake bison flex libeigen3-dev -y
+      run: sudo apt-get install cmake bison flex libeigen3-dev libboost-all-dev -y
     - name: build and test
       run: |
         mkdir -p build
