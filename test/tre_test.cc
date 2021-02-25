@@ -1,4 +1,6 @@
 #include <boost/test/unit_test.hpp>
+#include <rapidcheck/boost_test.h>
+
 #include <sstream>
 #include "../monaa/tre_driver.hh"
 #include "../monaa/tre.hh"
@@ -267,5 +269,22 @@ BOOST_AUTO_TEST_SUITE(treTest)
       checkMemory();
     }
 
+  BOOST_AUTO_TEST_SUITE_END()
+
+  BOOST_AUTO_TEST_SUITE(treAcceptanceTest)
+  RC_BOOST_PROP(untimedAccept,
+                (const std::vector<std::pair<Alphabet, double>> &wordDiff)) {
+    std::vector<std::pair<Alphabet, double>> word;
+    double totalTime = 0;
+    std::shared_ptr<TRE> concatTRE = std::make_shared<TRE>(TRE::op::epsilon);
+    for (const std::pair<Alphabet, double> &actionWithTimeDiff: wordDiff) {
+      totalTime += actionWithTimeDiff.second;
+      concatTRE = std::make_shared<TRE>(TRE::op::concat, concatTRE, std::make_shared<TRE>(TRE::op::atom, actionWithTimeDiff.first));
+      word.emplace_back(actionWithTimeDiff.first, totalTime);
+    }
+    TimedAutomaton TA;
+    concatTRE->toEventTA(TA);
+    RC_ASSERT(TA.isMember(word));
+  }
   BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()
