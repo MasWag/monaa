@@ -22,6 +22,9 @@ find_package(Boost REQUIRED COMPONENTS
   program_options unit_test_framework iostreams graph)
 find_package(Eigen3 REQUIRED)
 
+## rapidcheck for property-based testing
+add_subdirectory("./rapidcheck")
+
 include_directories(
   monaa/
   libmonaa/
@@ -117,8 +120,15 @@ add_executable(unit_test EXCLUDE_FROM_ALL
   ${FLEX_tre_lexer_OUTPUTS}
   ${BISON_tre_parser_OUTPUTS})
 
+target_include_directories(unit_test
+  PRIVATE
+  .
+  ${CMAKE_CURRENT_BINARY_DIR}
+  rapidcheck/extras/boost_test/include/)
+
 target_link_libraries(unit_test
-  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+  rapidcheck)
 
 add_test(NAME unit_test
   COMMAND $<TARGET_FILE:unit_test>
