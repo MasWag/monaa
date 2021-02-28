@@ -16,7 +16,9 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
     - name: install_dependencies
       run: |
         sudo pacman -Sy doxygen graphviz --noconfirm
