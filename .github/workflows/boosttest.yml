@@ -10,7 +10,9 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
     - name: default build
       run: |
         mkdir build
@@ -22,7 +24,9 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
     - name: set gcc env
       run: |
         export CC=/usr/bin/gcc
@@ -38,7 +42,9 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
     - name: set clang env
       run: |
         export CC=/usr/bin/clang
@@ -53,7 +59,9 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
     - name: Install required packages
       run: sudo apt-get install cmake bison libbison-dev flex libfl-dev libeigen3-dev libboost-all-dev -y
     - name: build and test
@@ -66,7 +74,9 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
     - name: Install required packages
       run: sudo apt-get install cmake bison libbison-dev flex libfl-dev libeigen3-dev libboost-all-dev -y
     - name: build and test
