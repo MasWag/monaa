@@ -1,8 +1,8 @@
 project(libmonaa)
 cmake_minimum_required(VERSION 3.1)
 set(VERSION_MAJOR 0)
-set(VERSION_MINOR 4)
-set(VERSION_PATCH 1)
+set(VERSION_MINOR 5)
+set(VERSION_PATCH 2)
 
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen)
