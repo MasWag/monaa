@@ -79,6 +79,11 @@ struct Interval {
     plusIntervals.emplace_back(std::make_shared<Interval>(Bounds{lowerBound.first * m, lowerBound.second},
                                                           Bounds{std::numeric_limits<double>::infinity(), false}));
   }
+
+  inline bool contain(double value) const {
+    return (lowerBound.second ? lowerBound.first <= value : lowerBound.first < value) and
+      (upperBound.second ? value <= upperBound.first : value < upperBound.first);
+  }
 };
 
 //! @brief The intersection of two intervals

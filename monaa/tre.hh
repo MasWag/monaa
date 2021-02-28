@@ -38,6 +38,9 @@ public:
   // Kleene Plus
   TRE(op tag, const std::shared_ptr<TRE> expr) : tag(tag), regExpr(expr) {
     assert(tag == op::plus);
+    if (regExpr->tag == op::plus) {
+      regExpr = regExpr->regExpr;
+    }
   }
 
   // Concat, Disjunction, and Conjunction
