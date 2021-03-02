@@ -22,9 +22,6 @@ find_package(Boost REQUIRED COMPONENTS
   program_options unit_test_framework iostreams graph)
 find_package(Eigen3 REQUIRED)
 
-## rapidcheck for property-based testing
-add_subdirectory("./rapidcheck")
-
 include_directories(
   monaa/
   libmonaa/
@@ -88,51 +85,56 @@ add_library(libmonaa STATIC EXCLUDE_FROM_ALL
   libmonaa/ta2za.cc
 )
 
-## Config for Test
-enable_testing()
+## We require rapidcheck for property-based testing
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/rapidcheck/CMakeLists.txt")
+  ## Config for Test
+  enable_testing()
 
-add_executable(unit_test EXCLUDE_FROM_ALL
-  libmonaa/intersection.cc
-  libmonaa/ta2za.cc
-  monaa/tre.cc
-  monaa/intermediate_tre.cc
-  test/unit_test.cc
-  test/zone_automaton_test.cc
-  test/ta2za_test.cc
-  test/lazy_deque_test.cc
-# test/word_container_test.cc
-  test/ans_vec_test.cc
-  test/intersection_test.cc
-  test/timed_automaton_test.cc
-  test/constraint_test.cc
-  test/intersection_test.cc
-  test/zone_automaton_test.cc
-  test/sunday_skip_value_test.cc
-  test/kmp_skip_value_test.cc
-  test/zone_test.cc
-  test/intermediate_zone_test.cc
-  test/timedFJS_test.cc
-  test/tre_driver_test.cc
-  test/tre_test.cc
-  test/intermediate_tre_test.cc
-  test/interval_test.cc
-  test/timed_automaton_parser_test.cc
-  ${FLEX_tre_lexer_OUTPUTS}
-  ${BISON_tre_parser_OUTPUTS})
+  add_executable(unit_test EXCLUDE_FROM_ALL
+    libmonaa/intersection.cc
+    libmonaa/ta2za.cc
+    monaa/tre.cc
+    monaa/intermediate_tre.cc
+    test/unit_test.cc
+    test/zone_automaton_test.cc
+    test/ta2za_test.cc
+    test/lazy_deque_test.cc
+    # test/word_container_test.cc
+    test/ans_vec_test.cc
+    test/intersection_test.cc
+    test/timed_automaton_test.cc
+    test/constraint_test.cc
+    test/intersection_test.cc
+    test/zone_automaton_test.cc
+    test/sunday_skip_value_test.cc
+    test/kmp_skip_value_test.cc
+    test/zone_test.cc
+    test/intermediate_zone_test.cc
+    test/timedFJS_test.cc
+    test/tre_driver_test.cc
+    test/tre_test.cc
+    test/intermediate_tre_test.cc
+    test/interval_test.cc
+    test/timed_automaton_parser_test.cc
+    ${FLEX_tre_lexer_OUTPUTS}
+    ${BISON_tre_parser_OUTPUTS})
 
-target_include_directories(unit_test
-  PRIVATE
-  .
-  ${CMAKE_CURRENT_BINARY_DIR}
-  rapidcheck/extras/boost_test/include/)
+  add_subdirectory("./rapidcheck")
 
-target_link_libraries(unit_test
-  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-  rapidcheck)
+  target_include_directories(unit_test
+    PRIVATE
+    .
+    ${CMAKE_CURRENT_BINARY_DIR}
+    rapidcheck/extras/boost_test/include/)
 
-add_test(NAME unit_test
-  COMMAND $<TARGET_FILE:unit_test>
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+  target_link_libraries(unit_test
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+    rapidcheck)
+
+  add_test(NAME unit_test
+    COMMAND $<TARGET_FILE:unit_test>
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+endif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/rapidcheck/CMakeLists.txt")
 
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen)
