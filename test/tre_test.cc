@@ -289,8 +289,6 @@ RC_BOOST_PROP(untimedAccept,
   RC_ASSERT(TA.isMember(word));
 }
 
-int count = 0;
-
 RC_BOOST_PROP(conjunction, 
               (const std::vector<std::pair<Alphabet, double>> &wordDiff,
                const AtomTRE leftAtomic,
@@ -315,7 +313,6 @@ RC_BOOST_PROP(conjunction,
   }
   std::shared_ptr<TRE> conjunction = std::make_shared<TRE>(TRE::op::conjunction, left, right);
   TimedAutomaton leftTA, rightTA, TA;
-  std::cout << "hello world" << count++ << std::endl;
   left->toEventTA(leftTA);
   right->toEventTA(rightTA);
   conjunction->toEventTA(TA);
@@ -448,7 +445,7 @@ RC_BOOST_PROP(plus,
   tre->toEventTA(TA);
   plus->toEventTA(plusTA);
 
-  if (plusTA.isMember(word) != TA.isMember(originalWord)) {
+  if (!(!TA.isMember(originalWord) or plusTA.isMember(word))) {
     std::cout << "plus" << std::endl;
     std::cout << "word.size(): " << word.size() << std::endl;
     std::cout << "originalWord.size(): " << originalWord.size() << std::endl;
@@ -487,7 +484,7 @@ RC_BOOST_PROP(within,
   tre->toEventTA(TA);
   within->toEventTA(withinTA);
 
-  if (withinTA.isMember(word) != TA.isMember(word)) {
+  if ((TA.isMember(word) && interval->contain(totalTime)) != withinTA.isMember(word)) {
     std::cout << "within" << std::endl;
     std::cout << "word.size(): " << word.size() << std::endl;
     std::cout << withinTA.isMember(word) << std::endl;
@@ -496,7 +493,7 @@ RC_BOOST_PROP(within,
     std::cout << *interval << std::endl;
   }
   // (inTA && lowerBound <= totalTime <= upperBound) <--> inWithinTA
-  RC_ASSERT(!(TA.isMember(word) && interval->contain(totalTime)) or withinTA.isMember(word));
+  RC_ASSERT((TA.isMember(word) && interval->contain(totalTime)) == withinTA.isMember(word));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
