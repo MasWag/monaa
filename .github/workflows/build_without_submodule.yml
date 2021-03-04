@@ -1,0 +1,17 @@
+name: Build without submodule
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: maswag/monaa-test-env
+    strategy:
+      max-parallel: 4
+    steps:
+    - uses: actions/checkout@v2
+    - name: default build
+      run: |
+        mkdir build
+        cd build && cmake .. && make monaa tre2ta && ./monaa --version
