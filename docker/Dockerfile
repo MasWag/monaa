@@ -1,5 +1,5 @@
 FROM alpine:3.10.2
-MAINTAINER "Masaki Waga" <masakiwaga@gmail.com>
+LABEL maintainer "Masaki Waga <masakiwaga@gmail.com>"
 
 # Install depending packages
 RUN apk add --no-cache g++ make cmake bison flex-dev eigen-dev boost-dev doxygen git 
@@ -13,7 +13,7 @@ RUN git clone https://github.com/MasWag/monaa.git
 # Build MONAA
 RUN mkdir -p monaa/build && cd monaa/build && cmake -DCMAKE_MODULE_PATH=/eigen/cmake -DCMAKE_BUILD_TYPE=Release .. && make monaa && make install
 
-# Install build only dependencies
+# Uninstall build only dependencies
 RUN apk del --no-cache make cmake bison flex eigen-dev doxygen git
 RUN rm -rf /monaa /eigen
 
