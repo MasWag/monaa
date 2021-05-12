@@ -27,15 +27,23 @@ static inline std::ostream& operator << (std::ostream& os, const Bounds& b) {
   return os;
 }
 
-#include <eigen3/Eigen/Core>
-//! @TODO configure include directory for eigen
+#include <Eigen/Core>
 
+/*!
+  @brief Implementation of a zone with DBM
+
+  @note internally, the variable 0 is used for the constant while externally, the actual clock variable is 0 origin, i.e., the variable 0 for the user is the variable 1 internally. So, we need increment or decrement to fill the gap.
+ */
 struct Zone {
   using Tuple = std::tuple<std::vector<Bounds>,Bounds>;
   Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic> value;
   Bounds M;
 
-  inline std::size_t getNumOfVar() const {
+  /*!
+    Returns the number of the variables represented by this zone
+    @returns the number of the variables
+   */
+  inline std::size_t getNumOfVar() const noexcept {
     return value.cols() - 1;
   }
 
@@ -100,17 +108,26 @@ struct Zone {
     }
   }
 
+  /*
+    @brief make the zone canonical
+   */
   void canonize() {
     for (int k = 0; k < value.cols(); k++) {
       close1(k);
     }
   }
 
+  /*
+    @brief check if the zone is satisfiable
+   */
   bool isSatisfiable() {
     canonize();
     return (value + value.transpose()).minCoeff() >= Bounds(0.0, true);
   }
 
+  /*
+    @brief truncate the constraints compared with a constant greater than or equal to M
+   */
   void abstractize() {
     static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
     for (auto it = value.data(); it < value.data() + value.size(); it++) {
@@ -120,6 +137,9 @@ struct Zone {
     }
   }
 
+  /*!
+    @brief make the zone unsatisfiable
+   */
   void makeUnsat() {
     value(0, 0) = Bounds(-std::numeric_limits<double>::infinity(), false);
   }
@@ -129,30 +149,3 @@ struct Zone {
     return value == z.value;
   }
 };
-
-// struct ZoneAutomaton : public AbstractionAutomaton<Zone> {
-//   struct TAEdge {
-//     State source;
-//     State target;
-//     Alphabet c;
-//     std::vector<Alphabet> resetVars;
-//     std::vector<Constraint> guard;
-//   };
-
-//   boost::unordered_map<std::tuple<State, State, Alphabet>, TAEdge> edgeMap;
-//   boost::unordered_map<std::pair<TAState, typename Zone::Tuple>, RAState> zones_in_za;
-//   int numOfVariables;
-// };
-
-// static inline std::ostream& operator << (std::ostream& os, const Zone& z) {
-//   for (int i = 0; i < z.value.rows();i++) {
-//     for (int j = 0; j < z.value.cols();j++) {
-//       os << z.value(i,j);
-//     }
-//     os << "\n";
-//   }
-//   os << std::endl;
-//   return os;
-// }
-
-

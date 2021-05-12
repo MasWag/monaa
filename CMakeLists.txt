@@ -27,7 +27,7 @@ include_directories(
   libmonaa/
   ${PROJECT_BINARY_DIR}
   ${Boost_INCLUDE_DIRS}
-  ${Eigen3_INCLUDE_DIRS})
+  ${EIGEN3_INCLUDE_DIRS})
 
 BISON_TARGET(tre_parser
   monaa/tre_parser.yy
