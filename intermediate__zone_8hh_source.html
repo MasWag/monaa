@@ -358,7 +358,7 @@ $(function() {
 <div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;            <span class="keyword">static</span> constexpr Bounds negInfinity = Bounds(-std::numeric_limits&lt;double&gt;::infinity(), <span class="keyword">false</span>);</div>
 <div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;            intervals[0].lowerBound = negInfinity;</div>
 <div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;          } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;            makeUnsat();</div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;            <a class="code" href="structZone.html#a06013e8ccb4c2860c7cc1858a6a55b2d">makeUnsat</a>();</div>
 <div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;          }</div>
 <div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;        }</div>
 <div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;      } <span class="keywordflow">else</span> {</div>
@@ -406,7 +406,8 @@ $(function() {
 <div class="ttc" id="ainterval_8hh_html"><div class="ttname"><a href="interval_8hh.html">interval.hh</a></div><div class="ttdoc">The implementation of the class Interval and related functions.</div></div>
 <div class="ttc" id="astructConstraint_html"><div class="ttname"><a href="structConstraint.html">Constraint</a></div><div class="ttdoc">A constraint in a guard of transitions.</div><div class="ttdef"><b>Definition:</b> constraint.hh:20</div></div>
 <div class="ttc" id="astructInterval_html"><div class="ttname"><a href="structInterval.html">Interval</a></div><div class="ttdoc">Class for an interval.</div><div class="ttdef"><b>Definition:</b> interval.hh:15</div></div>
-<div class="ttc" id="astructZone_html"><div class="ttname"><a href="structZone.html">Zone</a></div><div class="ttdoc">@TODO configure include directory for eigen</div><div class="ttdef"><b>Definition:</b> zone.hh:33</div></div>
+<div class="ttc" id="astructZone_html"><div class="ttname"><a href="structZone.html">Zone</a></div><div class="ttdoc">Implementation of a zone with DBM.</div><div class="ttdef"><b>Definition:</b> zone.hh:37</div></div>
+<div class="ttc" id="astructZone_html_a06013e8ccb4c2860c7cc1858a6a55b2d"><div class="ttname"><a href="structZone.html#a06013e8ccb4c2860c7cc1858a6a55b2d">Zone::makeUnsat</a></div><div class="ttdeci">void makeUnsat()</div><div class="ttdoc">make the zone unsatisfiable</div><div class="ttdef"><b>Definition:</b> zone.hh:143</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
