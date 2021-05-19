@@ -206,17 +206,45 @@ $(function() {
 <div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;    value(0, 0) = Bounds(-std::numeric_limits&lt;double&gt;::infinity(), <span class="keyword">false</span>);</div>
 <div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;  }</div>
 <div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160; </div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;  <span class="keywordtype">bool</span> operator== (<a class="code" href="structZone.html">Zone</a> z)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    z.value(0,0) = value(0,0);</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <span class="keywordflow">return</span> value == z.value;</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;  }</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;};</div>
+<div class="line"><a name="l00148"></a><span class="lineno"><a class="line" href="structZone.html#ad655e880812c9ddf9c37fe75ea274d77">  148</a></span>&#160;  std::vector&lt;Constraint&gt; <a class="code" href="structZone.html#ad655e880812c9ddf9c37fe75ea274d77">makeGuard</a>() {</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    std::vector&lt;Constraint&gt; guard;</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    canonize();</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    abstractize();</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; <a class="code" href="structZone.html#ab8f4403e28b54f3aacb13e98b6315f85">getNumOfVar</a>(); ++i) {</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;      <span class="comment">// the second element of Bound is true if the constraint is not strict, i.e., LE or GE.</span></div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;      Bounds lowerBound = value(0, i + 1);</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;      <span class="keywordflow">if</span> (lowerBound.first &gt; 0 or (lowerBound.first == 0 and lowerBound.second == <span class="keyword">false</span>)) {</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;        <span class="keywordflow">if</span> (lowerBound.second) {</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;          guard.push_back(<a class="code" href="classConstraintMaker.html">ConstraintMaker</a>(i) &gt;= lowerBound.first);</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;        } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;          guard.push_back(<a class="code" href="classConstraintMaker.html">ConstraintMaker</a>(i) &gt; lowerBound.first);</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;        }</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;      }</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;      Bounds upperBound = value(i + 1, 0);</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;      <span class="keywordflow">if</span> (upperBound &lt; M) {</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;        <span class="keywordflow">if</span> (upperBound.second) {</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;          guard.push_back(<a class="code" href="classConstraintMaker.html">ConstraintMaker</a>(i) &lt;= upperBound.first);</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;        } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;          guard.push_back(<a class="code" href="classConstraintMaker.html">ConstraintMaker</a>(i) &lt; upperBound.first);</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;        }</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;      }</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    }</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    <span class="keywordflow">return</span> guard;</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;  }</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160; </div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;  <span class="keywordtype">bool</span> operator== (<a class="code" href="structZone.html">Zone</a> z)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    z.value(0,0) = value(0,0);</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    <span class="keywordflow">return</span> value == z.value;</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;  }</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;};</div>
+<div class="ttc" id="aclassConstraintMaker_html"><div class="ttname"><a href="classConstraintMaker.html">ConstraintMaker</a></div><div class="ttdef"><b>Definition:</b> constraint.hh:81</div></div>
 <div class="ttc" id="ainterval_8hh_html_a3ccf74c23b1f2d7b140ab55fd2bf4a86"><div class="ttname"><a href="interval_8hh.html#a3ccf74c23b1f2d7b140ab55fd2bf4a86">operator+</a></div><div class="ttdeci">static Interval operator+(Interval left, const Interval &amp;right)</div><div class="ttdoc">The sum of two intervals. The formal definition is as follows.</div><div class="ttdef"><b>Definition:</b> interval.hh:153</div></div>
 <div class="ttc" id="ainterval_8hh_html_a49cee98c5f66b3a59f6ff62ad897ca30"><div class="ttname"><a href="interval_8hh.html#a49cee98c5f66b3a59f6ff62ad897ca30">operator+=</a></div><div class="ttdeci">static void operator+=(std::vector&lt; std::shared_ptr&lt; Interval &gt;&gt; &amp;left, const std::vector&lt; std::shared_ptr&lt; Interval &gt;&gt; &amp;right)</div><div class="ttdoc">The sum of two sets of intervals.</div><div class="ttdef"><b>Definition:</b> interval.hh:171</div></div>
 <div class="ttc" id="astructZone_html"><div class="ttname"><a href="structZone.html">Zone</a></div><div class="ttdoc">Implementation of a zone with DBM.</div><div class="ttdef"><b>Definition:</b> zone.hh:37</div></div>
 <div class="ttc" id="astructZone_html_a06013e8ccb4c2860c7cc1858a6a55b2d"><div class="ttname"><a href="structZone.html#a06013e8ccb4c2860c7cc1858a6a55b2d">Zone::makeUnsat</a></div><div class="ttdeci">void makeUnsat()</div><div class="ttdoc">make the zone unsatisfiable</div><div class="ttdef"><b>Definition:</b> zone.hh:143</div></div>
 <div class="ttc" id="astructZone_html_a7ec48f29e57d46d83c795f7be2fc546c"><div class="ttname"><a href="structZone.html#a7ec48f29e57d46d83c795f7be2fc546c">Zone::tighten</a></div><div class="ttdeci">void tighten(ClockVariables x, ClockVariables y, Bounds c)</div><div class="ttdoc">add the constraint x - y \le (c,s)</div><div class="ttdef"><b>Definition:</b> zone.hh:76</div></div>
 <div class="ttc" id="astructZone_html_ab8f4403e28b54f3aacb13e98b6315f85"><div class="ttname"><a href="structZone.html#ab8f4403e28b54f3aacb13e98b6315f85">Zone::getNumOfVar</a></div><div class="ttdeci">std::size_t getNumOfVar() const noexcept</div><div class="ttdef"><b>Definition:</b> zone.hh:46</div></div>
+<div class="ttc" id="astructZone_html_ad655e880812c9ddf9c37fe75ea274d77"><div class="ttname"><a href="structZone.html#ad655e880812c9ddf9c37fe75ea274d77">Zone::makeGuard</a></div><div class="ttdeci">std::vector&lt; Constraint &gt; makeGuard()</div><div class="ttdoc">make the strongest guard including the zone</div><div class="ttdef"><b>Definition:</b> zone.hh:148</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
