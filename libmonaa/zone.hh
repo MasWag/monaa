@@ -144,6 +144,33 @@ struct Zone {
     value(0, 0) = Bounds(-std::numeric_limits<double>::infinity(), false);
   }
 
+  //! @brief make the strongest guard including the zone
+  std::vector<Constraint> makeGuard() {
+    std::vector<Constraint> guard;
+    canonize();
+    abstractize();
+    for (int i = 0; i < getNumOfVar(); ++i) {
+      // the second element of Bound is true if the constraint is not strict, i.e., LE or GE.
+      Bounds lowerBound = value(0, i + 1);
+      if (lowerBound.first > 0 or (lowerBound.first == 0 and lowerBound.second == false)) {
+        if (lowerBound.second) {
+          guard.push_back(ConstraintMaker(i) >= lowerBound.first);
+        } else {
+          guard.push_back(ConstraintMaker(i) > lowerBound.first);
+        }
+      }
+      Bounds upperBound = value(i + 1, 0);
+      if (upperBound < M) {
+        if (upperBound.second) {
+          guard.push_back(ConstraintMaker(i) <= upperBound.first);
+        } else {
+          guard.push_back(ConstraintMaker(i) < upperBound.first);
+        }
+      }
+    }
+    return guard;
+  }
+
   bool operator== (Zone z) const {
     z.value(0,0) = value(0,0);
     return value == z.value;
