@@ -67,6 +67,18 @@ struct Zone {
     return zeroZone;
   }
 
+  static Zone universal(int size) {
+    static Zone zeroZone;
+    static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
+    if (zeroZone.value.cols() == size + 1) {
+      return zeroZone;
+    }
+    zeroZone.value.resize(size + 1, size + 1);
+    zeroZone.value.fill(infinity);
+    zeroZone.value(0,0) = Bounds(0, true);
+    return zeroZone;
+  }
+
   std::tuple<std::vector<Bounds>,Bounds> toTuple() const {
     // omit (0,0)
     return std::tuple<std::vector<Bounds>,Bounds>(std::vector<Bounds>(value.data() + 1, value.data() + value.size()),M);
@@ -174,5 +186,10 @@ struct Zone {
   bool operator== (Zone z) const {
     z.value(0,0) = value(0,0);
     return value == z.value;
+  }
+
+  void intersectionAssign(Zone z) {
+    assert(value.size() == z.value.size());
+    value.cwiseMin(z.value);
   }
 };

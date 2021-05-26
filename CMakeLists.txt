@@ -119,7 +119,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/rapidcheck/CMakeLists.txt")
     ${FLEX_tre_lexer_OUTPUTS}
     ${BISON_tre_parser_OUTPUTS})
 
-  add_subdirectory("./rapidcheck")
+  add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/rapidcheck/")
 
   target_include_directories(unit_test
     PRIVATE
