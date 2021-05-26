@@ -78,10 +78,16 @@ $(function() {
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;iostream&gt;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#ifndef PRODUCT</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#define printDuration(proc,mes) start = std::chrono::system_clock::now();proc;  end = std::chrono::system_clock::now(); dur = end - start; nsec = std::chrono::duration_cast&lt;std::chrono::nanoseconds&gt;(dur).count(); std::cout &lt;&lt; std::scientific &lt;&lt; mes &lt;&lt; nsec / 1000000.0 &lt;&lt; &quot; ms&quot;</span> &lt;&lt; std::endl</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#define printDuration(proc,mes) proc</span></div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#define printDuration(proc, mes)                                               \</span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">  start = std::chrono::system_clock::now();                                    \</span></div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">  proc;                                                                        \</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">  end = std::chrono::system_clock::now();                                      \</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">  dur = end - start;                                                           \</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">  nsec = std::chrono::duration_cast&lt;std::chrono::nanoseconds&gt;(dur).count();    \</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">  std::cout &lt;&lt; std::scientific &lt;&lt; mes &lt;&lt; nsec / 1000000.0 &lt;&lt; &quot; ms&quot;</span> &lt;&lt; std::endl</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#define printDuration(proc, mes) proc</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

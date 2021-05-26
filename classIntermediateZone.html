@@ -131,9 +131,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>deallocate</b> (const
 <tr class="memitem:abd19f4480d49de297c9670529388b2da inherit pub_methods_structZone"><td class="memItemLeft" align="right" valign="top"><a id="abd19f4480d49de297c9670529388b2da"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>cutVars</b> (std::shared_ptr&lt; <a class="el" href="structZone.html">Zone</a> &gt; &amp;out, std::size_t from, std::size_t to)</td></tr>
 <tr class="separator:abd19f4480d49de297c9670529388b2da inherit pub_methods_structZone"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a52b8ab84bdaf16f23f2b711271e2dc65 inherit pub_methods_structZone"><td class="memItemLeft" align="right" valign="top"><a id="a52b8ab84bdaf16f23f2b711271e2dc65"></a>
+<tr class="memitem:ad2569cb98e719827c41658e4061b2876 inherit pub_methods_structZone"><td class="memItemLeft" align="right" valign="top"><a id="ad2569cb98e719827c41658e4061b2876"></a>
 std::tuple&lt; std::vector&lt; Bounds &gt;, Bounds &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>toTuple</b> () const</td></tr>
-<tr class="separator:a52b8ab84bdaf16f23f2b711271e2dc65 inherit pub_methods_structZone"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:ad2569cb98e719827c41658e4061b2876 inherit pub_methods_structZone"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7ec48f29e57d46d83c795f7be2fc546c inherit pub_methods_structZone"><td class="memItemLeft" align="right" valign="top"><a id="a7ec48f29e57d46d83c795f7be2fc546c"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structZone.html#a7ec48f29e57d46d83c795f7be2fc546c">tighten</a> (ClockVariables x, ClockVariables y, Bounds c)</td></tr>
 <tr class="memdesc:a7ec48f29e57d46d83c795f7be2fc546c inherit pub_methods_structZone"><td class="mdescLeft">&#160;</td><td class="mdescRight">add the constraint x - y \le (c,s) <br /></td></tr>
@@ -167,6 +167,9 @@ std::vector&lt; <a class="el" href="structConstraint.html">Constraint</a> &gt;&#
 <tr class="memitem:a8310d6a49e0ca23305f0a7de92c6eade inherit pub_methods_structZone"><td class="memItemLeft" align="right" valign="top"><a id="a8310d6a49e0ca23305f0a7de92c6eade"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (<a class="el" href="structZone.html">Zone</a> z) const</td></tr>
 <tr class="separator:a8310d6a49e0ca23305f0a7de92c6eade inherit pub_methods_structZone"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa157ea267cfe75e14a8eec276111a826 inherit pub_methods_structZone"><td class="memItemLeft" align="right" valign="top"><a id="aa157ea267cfe75e14a8eec276111a826"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>intersectionAssign</b> (<a class="el" href="structZone.html">Zone</a> z)</td></tr>
+<tr class="separator:aa157ea267cfe75e14a8eec276111a826 inherit pub_methods_structZone"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -190,13 +193,16 @@ Bounds&#160;</td><td class="memItemRight" valign="bottom"><b>M</b></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pub_types_structZone"><td colspan="2" onclick="javascript:toggleInherit('pub_types_structZone')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="structZone.html">Zone</a></td></tr>
-<tr class="memitem:a98763c1dab7fef3330af7b2a170996fd inherit pub_types_structZone"><td class="memItemLeft" align="right" valign="top"><a id="a98763c1dab7fef3330af7b2a170996fd"></a>
+<tr class="memitem:ad036b3e1a510364a2bc4cb5b20043298 inherit pub_types_structZone"><td class="memItemLeft" align="right" valign="top"><a id="ad036b3e1a510364a2bc4cb5b20043298"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>Tuple</b> = std::tuple&lt; std::vector&lt; Bounds &gt;, Bounds &gt;</td></tr>
-<tr class="separator:a98763c1dab7fef3330af7b2a170996fd inherit pub_types_structZone"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:ad036b3e1a510364a2bc4cb5b20043298 inherit pub_types_structZone"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_static_methods_structZone"><td colspan="2" onclick="javascript:toggleInherit('pub_static_methods_structZone')"><img src="closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="structZone.html">Zone</a></td></tr>
 <tr class="memitem:afa9ff8c204aef9c094c20512eb939977 inherit pub_static_methods_structZone"><td class="memItemLeft" align="right" valign="top"><a id="afa9ff8c204aef9c094c20512eb939977"></a>
 static <a class="el" href="structZone.html">Zone</a>&#160;</td><td class="memItemRight" valign="bottom"><b>zero</b> (int size)</td></tr>
 <tr class="separator:afa9ff8c204aef9c094c20512eb939977 inherit pub_static_methods_structZone"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a651d7f8abebc8a18c6cda897dd1e6c24 inherit pub_static_methods_structZone"><td class="memItemLeft" align="right" valign="top"><a id="a651d7f8abebc8a18c6cda897dd1e6c24"></a>
+static <a class="el" href="structZone.html">Zone</a>&#160;</td><td class="memItemRight" valign="bottom"><b>universal</b> (int size)</td></tr>
+<tr class="separator:a651d7f8abebc8a18c6cda897dd1e6c24 inherit pub_static_methods_structZone"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a1fc84d937643c0fe452a45d925466369"></a>

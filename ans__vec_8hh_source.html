@@ -74,121 +74,94 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include&lt;vector&gt;</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &lt;iomanip&gt;</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;iostream&gt;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;iomanip&gt;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;vector&gt;</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &quot;zone.hh&quot;</span></div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160; </div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> Container&gt;</div>
-<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="classAnsContainer.html">   15</a></span>&#160;<span class="keyword">class </span><a class="code" href="classAnsContainer.html">AnsContainer</a></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;{</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">   19</a></span>&#160;  Container <a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>;</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="classAnsContainer.html#a8a67d8b638f3418b3a651264a3d40207">   22</a></span>&#160;  <a class="code" href="classAnsContainer.html#a8a67d8b638f3418b3a651264a3d40207">AnsContainer</a>(<span class="keyword">const</span> Container <a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>) : <a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>(<a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>) {}</div>
-<div class="line"><a name="l00024"></a><span class="lineno"><a class="line" href="classAnsContainer.html#abcf6d7ef8aba433d32fcc525a27c7b1b">   24</a></span>&#160;  <a class="code" href="classAnsContainer.html#abcf6d7ef8aba433d32fcc525a27c7b1b">AnsContainer</a>() : <a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>() {}</div>
-<div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="classAnsContainer.html#a546639f76333d9c944360a75db9a9827">   30</a></span>&#160;  std::size_t <a class="code" href="classAnsContainer.html#a546639f76333d9c944360a75db9a9827">size</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>.size();</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  }</div>
-<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="classAnsContainer.html#a98848a144ca676f457ed01fd8814515c">   38</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classAnsContainer.html#a98848a144ca676f457ed01fd8814515c">push_back</a>(<span class="keyword">typename</span> Container::value_type in) {</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>.push_back(in);</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  }</div>
-<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="classAnsContainer.html#a24aecd2c01c0b6b8eb252d86d7b3f075">   44</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classAnsContainer.html#a24aecd2c01c0b6b8eb252d86d7b3f075">clear</a>() {</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>.clear();</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  }</div>
-<div class="line"><a name="l00053"></a><span class="lineno"><a class="line" href="classAnsContainer.html#a72b199494dda29ccdda8c01f6b27699c">   53</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classAnsContainer.html#a72b199494dda29ccdda8c01f6b27699c">reserve</a>(std::size_t n) {</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>.reserve(n);</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  }</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;};</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; </div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;</div>
-<div class="line"><a name="l00059"></a><span class="lineno"><a class="line" href="classAnsVec.html">   59</a></span>&#160;<span class="keyword">class </span><a class="code" href="classAnsVec.html">AnsVec</a> : <span class="keyword">public</span> <a class="code" href="classAnsContainer.html">AnsContainer</a>&lt;std::vector&lt;T&gt;&gt;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;{</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <span class="keyword">typename</span> std::vector&lt;T&gt;::iterator begin() {</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="classAnsContainer.html">AnsContainer&lt;std::vector&lt;T&gt;</a>&gt;<a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">::vec</a>.begin();</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  }</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="keyword">typename</span> std::vector&lt;T&gt;::iterator end() {</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="classAnsContainer.html">AnsContainer&lt;std::vector&lt;T&gt;</a>&gt;<a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">::vec</a>.end();</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  }</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;};</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;</div>
-<div class="line"><a name="l00072"></a><span class="lineno"><a class="line" href="classIntContainer.html">   72</a></span>&#160;<span class="keyword">class </span><a class="code" href="classIntContainer.html">IntContainer</a> </div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;{</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  std::size_t count = 0;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  std::size_t size()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keywordflow">return</span> count;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  }</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <span class="keywordtype">void</span> push_back(T) {</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    count++;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  }</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  <span class="keywordtype">void</span> clear() {</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    count = 0;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  }</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <span class="keywordtype">void</span> reserve(std::size_t) {}</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  <span class="keyword">using</span> value_type = T;</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;};</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160; </div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="keyword">using</span> <a class="code" href="classAnsContainer.html">AnsNum</a> = <a class="code" href="classAnsContainer.html">AnsContainer&lt;IntContainer&lt;T&gt;</a>&gt;;</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160; </div>
-<div class="line"><a name="l00098"></a><span class="lineno"><a class="line" href="classPrintContainer.html">   98</a></span>&#160;<span class="keyword">class </span><a class="code" href="classPrintContainer.html">PrintContainer</a> </div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;{</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  std::size_t count = 0;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <span class="keywordtype">bool</span> isQuiet = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00109"></a><span class="lineno"><a class="line" href="classPrintContainer.html#adfac27785b18c69d88b5b18d2e862083">  109</a></span>&#160;  <a class="code" href="classPrintContainer.html#adfac27785b18c69d88b5b18d2e862083">PrintContainer</a>(<span class="keywordtype">bool</span> isQuiet) : isQuiet(isQuiet) {}</div>
-<div class="line"><a name="l00111"></a><span class="lineno"><a class="line" href="classPrintContainer.html#a09776ec00fc59d150120881b68b7392d">  111</a></span>&#160;  std::size_t <a class="code" href="classPrintContainer.html#a09776ec00fc59d150120881b68b7392d">size</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="keywordflow">return</span> count;</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  }</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  <span class="keywordtype">void</span> push_back(<span class="keyword">const</span> <a class="code" href="structZone.html">Zone</a> &amp;ans) {</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    count++;</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keywordflow">if</span> (!isQuiet) {</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;      printf(<span class="stringliteral">&quot;%10lf %8s t %s %10lf\n&quot;</span>, -ans.value(0, 1).first,</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;             (ans.value(0, 1).second ? <span class="stringliteral">&quot;&lt;=&quot;</span> : <span class="stringliteral">&quot;&lt;&quot;</span>),</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;             (ans.value(1, 0).second ? <span class="stringliteral">&quot;&lt;=&quot;</span> : <span class="stringliteral">&quot;&lt;&quot;</span>),</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;             ans.value(1, 0).first);</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;      printf(<span class="stringliteral">&quot;%10lf %8s t&#39; %s %10lf\n&quot;</span>, -ans.value(0, 2).first,</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;             (ans.value(0, 2).second ? <span class="stringliteral">&quot;&lt;=&quot;</span> : <span class="stringliteral">&quot;&lt;&quot;</span>),</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;             (ans.value(2, 0).second ? <span class="stringliteral">&quot;&lt;=&quot;</span> : <span class="stringliteral">&quot;&lt;&quot;</span>),</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;             ans.value(2, 0).first);</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;      printf(<span class="stringliteral">&quot;%10lf %8s t&#39; - t %s %10lf\n&quot;</span>, -ans.value(1, 2).first,</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;             (ans.value(1, 2).second ? <span class="stringliteral">&quot;&lt;=&quot;</span> : <span class="stringliteral">&quot;&lt;&quot;</span>),</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;             (ans.value(2, 1).second ? <span class="stringliteral">&quot;&lt;=&quot;</span> : <span class="stringliteral">&quot;&lt;&quot;</span>),</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;             ans.value(2, 1).first);</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;      puts(<span class="stringliteral">&quot;=============================&quot;</span>);</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    }</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;  }</div>
-<div class="line"><a name="l00133"></a><span class="lineno"><a class="line" href="classPrintContainer.html#adbb844adceb15fdaedca86aa9e2b7101">  133</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classPrintContainer.html#adbb844adceb15fdaedca86aa9e2b7101">clear</a>() {</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    count = 0;</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;  }</div>
-<div class="line"><a name="l00137"></a><span class="lineno"><a class="line" href="classPrintContainer.html#ac3c483b591f21dd0e6ea4700f26175f8">  137</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classPrintContainer.html#ac3c483b591f21dd0e6ea4700f26175f8">reserve</a>(std::size_t) {}</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;  <span class="keyword">using</span> value_type = <a class="code" href="structZone.html">Zone</a>;</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;};</div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160; </div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;<span class="keyword">using</span> <a class="code" href="classAnsContainer.html">AnsPrinter</a> = <a class="code" href="classAnsContainer.html">AnsContainer&lt;PrintContainer&gt;</a>;</div>
-<div class="ttc" id="aclassAnsContainer_html"><div class="ttname"><a href="classAnsContainer.html">AnsContainer</a></div><div class="ttdoc">Container class for the output zones.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:16</div></div>
-<div class="ttc" id="aclassAnsContainer_html_a24aecd2c01c0b6b8eb252d86d7b3f075"><div class="ttname"><a href="classAnsContainer.html#a24aecd2c01c0b6b8eb252d86d7b3f075">AnsContainer::clear</a></div><div class="ttdeci">void clear()</div><div class="ttdoc">Remove all the contained zones.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:44</div></div>
-<div class="ttc" id="aclassAnsContainer_html_a546639f76333d9c944360a75db9a9827"><div class="ttname"><a href="classAnsContainer.html#a546639f76333d9c944360a75db9a9827">AnsContainer::size</a></div><div class="ttdeci">std::size_t size() const</div><div class="ttdoc">Returns the number of the contained zones.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:30</div></div>
-<div class="ttc" id="aclassAnsContainer_html_a72b199494dda29ccdda8c01f6b27699c"><div class="ttname"><a href="classAnsContainer.html#a72b199494dda29ccdda8c01f6b27699c">AnsContainer::reserve</a></div><div class="ttdeci">void reserve(std::size_t n)</div><div class="ttdoc">Reserve the space to contain zones.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:53</div></div>
-<div class="ttc" id="aclassAnsContainer_html_a8a67d8b638f3418b3a651264a3d40207"><div class="ttname"><a href="classAnsContainer.html#a8a67d8b638f3418b3a651264a3d40207">AnsContainer::AnsContainer</a></div><div class="ttdeci">AnsContainer(const Container vec)</div><div class="ttdoc">Constructor.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:22</div></div>
-<div class="ttc" id="aclassAnsContainer_html_a9560aaf4c00bfeb65835d85c461955ce"><div class="ttname"><a href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">AnsContainer::vec</a></div><div class="ttdeci">Container vec</div><div class="ttdoc">The actual container of the zones.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:19</div></div>
+<div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="classAnsContainer.html">   17</a></span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> Container&gt; <span class="keyword">class </span><a class="code" href="classAnsContainer.html">AnsContainer</a> {</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">   20</a></span>&#160;  Container <a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00024"></a><span class="lineno"><a class="line" href="classAnsContainer.html#a8a67d8b638f3418b3a651264a3d40207">   24</a></span>&#160;  <a class="code" href="classAnsContainer.html#a8a67d8b638f3418b3a651264a3d40207">AnsContainer</a>(<span class="keyword">const</span> Container <a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>) : <a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>(<a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>) {}</div>
+<div class="line"><a name="l00026"></a><span class="lineno"><a class="line" href="classAnsContainer.html#abcf6d7ef8aba433d32fcc525a27c7b1b">   26</a></span>&#160;  <a class="code" href="classAnsContainer.html#abcf6d7ef8aba433d32fcc525a27c7b1b">AnsContainer</a>() : <a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>() {}</div>
+<div class="line"><a name="l00032"></a><span class="lineno"><a class="line" href="classAnsContainer.html#a546639f76333d9c944360a75db9a9827">   32</a></span>&#160;  std::size_t <a class="code" href="classAnsContainer.html#a546639f76333d9c944360a75db9a9827">size</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>.size(); }</div>
+<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="classAnsContainer.html#a98848a144ca676f457ed01fd8814515c">   38</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classAnsContainer.html#a98848a144ca676f457ed01fd8814515c">push_back</a>(<span class="keyword">typename</span> Container::value_type in) { <a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>.push_back(in); }</div>
+<div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="classAnsContainer.html#a24aecd2c01c0b6b8eb252d86d7b3f075">   42</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classAnsContainer.html#a24aecd2c01c0b6b8eb252d86d7b3f075">clear</a>() { <a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>.clear(); }</div>
+<div class="line"><a name="l00050"></a><span class="lineno"><a class="line" href="classAnsContainer.html#a72b199494dda29ccdda8c01f6b27699c">   50</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classAnsContainer.html#a72b199494dda29ccdda8c01f6b27699c">reserve</a>(std::size_t n) { <a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">vec</a>.reserve(n); }</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;};</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; </div>
+<div class="line"><a name="l00053"></a><span class="lineno"><a class="line" href="classAnsVec.html">   53</a></span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt; <span class="keyword">class </span><a class="code" href="classAnsVec.html">AnsVec</a> : <span class="keyword">public</span> <a class="code" href="classAnsContainer.html">AnsContainer</a>&lt;std::vector&lt;T&gt;&gt; {</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  <span class="keyword">typename</span> std::vector&lt;T&gt;::iterator begin() {</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="classAnsContainer.html">AnsContainer&lt;std::vector&lt;T&gt;</a>&gt;<a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">::vec</a>.begin();</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  }</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="keyword">typename</span> std::vector&lt;T&gt;::iterator end() {</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="classAnsContainer.html">AnsContainer&lt;std::vector&lt;T&gt;</a>&gt;<a class="code" href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">::vec</a>.end();</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  }</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;};</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160; </div>
+<div class="line"><a name="l00063"></a><span class="lineno"><a class="line" href="classIntContainer.html">   63</a></span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt; <span class="keyword">class </span><a class="code" href="classIntContainer.html">IntContainer</a> {</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  std::size_t count = 0;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  std::size_t size()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> count; }</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  <span class="keywordtype">void</span> push_back(T) { count++; }</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  <span class="keywordtype">void</span> clear() { count = 0; }</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  <span class="keywordtype">void</span> reserve(std::size_t) {}</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  <span class="keyword">using</span> value_type = T;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;};</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt; <span class="keyword">using</span> <a class="code" href="classAnsContainer.html">AnsNum</a> = <a class="code" href="classAnsContainer.html">AnsContainer&lt;IntContainer&lt;T&gt;</a>&gt;;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
+<div class="line"><a name="l00084"></a><span class="lineno"><a class="line" href="classPrintContainer.html">   84</a></span>&#160;<span class="keyword">class </span><a class="code" href="classPrintContainer.html">PrintContainer</a> {</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  std::size_t count = 0;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  <span class="keywordtype">bool</span> isQuiet = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00095"></a><span class="lineno"><a class="line" href="classPrintContainer.html#adfac27785b18c69d88b5b18d2e862083">   95</a></span>&#160;  <a class="code" href="classPrintContainer.html#adfac27785b18c69d88b5b18d2e862083">PrintContainer</a>(<span class="keywordtype">bool</span> isQuiet) : isQuiet(isQuiet) {}</div>
+<div class="line"><a name="l00097"></a><span class="lineno"><a class="line" href="classPrintContainer.html#a09776ec00fc59d150120881b68b7392d">   97</a></span>&#160;  std::size_t <a class="code" href="classPrintContainer.html#a09776ec00fc59d150120881b68b7392d">size</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> count; }</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  <span class="keywordtype">void</span> push_back(<span class="keyword">const</span> <a class="code" href="structZone.html">Zone</a> &amp;ans) {</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    count++;</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <span class="keywordflow">if</span> (!isQuiet) {</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;      printf(<span class="stringliteral">&quot;%10lf %8s t %s %10lf\n&quot;</span>, -ans.value(0, 1).first,</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;             (ans.value(0, 1).second ? <span class="stringliteral">&quot;&lt;=&quot;</span> : <span class="stringliteral">&quot;&lt;&quot;</span>),</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;             (ans.value(1, 0).second ? <span class="stringliteral">&quot;&lt;=&quot;</span> : <span class="stringliteral">&quot;&lt;&quot;</span>), ans.value(1, 0).first);</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;      printf(<span class="stringliteral">&quot;%10lf %8s t&#39; %s %10lf\n&quot;</span>, -ans.value(0, 2).first,</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;             (ans.value(0, 2).second ? <span class="stringliteral">&quot;&lt;=&quot;</span> : <span class="stringliteral">&quot;&lt;&quot;</span>),</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;             (ans.value(2, 0).second ? <span class="stringliteral">&quot;&lt;=&quot;</span> : <span class="stringliteral">&quot;&lt;&quot;</span>), ans.value(2, 0).first);</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;      printf(<span class="stringliteral">&quot;%10lf %8s t&#39; - t %s %10lf\n&quot;</span>, -ans.value(1, 2).first,</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;             (ans.value(1, 2).second ? <span class="stringliteral">&quot;&lt;=&quot;</span> : <span class="stringliteral">&quot;&lt;&quot;</span>),</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;             (ans.value(2, 1).second ? <span class="stringliteral">&quot;&lt;=&quot;</span> : <span class="stringliteral">&quot;&lt;&quot;</span>), ans.value(2, 1).first);</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;      puts(<span class="stringliteral">&quot;=============================&quot;</span>);</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    }</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  }</div>
+<div class="line"><a name="l00114"></a><span class="lineno"><a class="line" href="classPrintContainer.html#adbb844adceb15fdaedca86aa9e2b7101">  114</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classPrintContainer.html#adbb844adceb15fdaedca86aa9e2b7101">clear</a>() { count = 0; }</div>
+<div class="line"><a name="l00116"></a><span class="lineno"><a class="line" href="classPrintContainer.html#ac3c483b591f21dd0e6ea4700f26175f8">  116</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classPrintContainer.html#ac3c483b591f21dd0e6ea4700f26175f8">reserve</a>(std::size_t) {}</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  <span class="keyword">using</span> value_type = <a class="code" href="structZone.html">Zone</a>;</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;};</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160; </div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="keyword">using</span> <a class="code" href="classAnsContainer.html">AnsPrinter</a> = <a class="code" href="classAnsContainer.html">AnsContainer&lt;PrintContainer&gt;</a>;</div>
+<div class="ttc" id="aclassAnsContainer_html"><div class="ttname"><a href="classAnsContainer.html">AnsContainer</a></div><div class="ttdoc">Container class for the output zones.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:17</div></div>
+<div class="ttc" id="aclassAnsContainer_html_a24aecd2c01c0b6b8eb252d86d7b3f075"><div class="ttname"><a href="classAnsContainer.html#a24aecd2c01c0b6b8eb252d86d7b3f075">AnsContainer::clear</a></div><div class="ttdeci">void clear()</div><div class="ttdoc">Remove all the contained zones.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:42</div></div>
+<div class="ttc" id="aclassAnsContainer_html_a546639f76333d9c944360a75db9a9827"><div class="ttname"><a href="classAnsContainer.html#a546639f76333d9c944360a75db9a9827">AnsContainer::size</a></div><div class="ttdeci">std::size_t size() const</div><div class="ttdoc">Returns the number of the contained zones.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:32</div></div>
+<div class="ttc" id="aclassAnsContainer_html_a72b199494dda29ccdda8c01f6b27699c"><div class="ttname"><a href="classAnsContainer.html#a72b199494dda29ccdda8c01f6b27699c">AnsContainer::reserve</a></div><div class="ttdeci">void reserve(std::size_t n)</div><div class="ttdoc">Reserve the space to contain zones.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:50</div></div>
+<div class="ttc" id="aclassAnsContainer_html_a8a67d8b638f3418b3a651264a3d40207"><div class="ttname"><a href="classAnsContainer.html#a8a67d8b638f3418b3a651264a3d40207">AnsContainer::AnsContainer</a></div><div class="ttdeci">AnsContainer(const Container vec)</div><div class="ttdoc">Constructor.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:24</div></div>
+<div class="ttc" id="aclassAnsContainer_html_a9560aaf4c00bfeb65835d85c461955ce"><div class="ttname"><a href="classAnsContainer.html#a9560aaf4c00bfeb65835d85c461955ce">AnsContainer::vec</a></div><div class="ttdeci">Container vec</div><div class="ttdoc">The actual container of the zones.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:20</div></div>
 <div class="ttc" id="aclassAnsContainer_html_a98848a144ca676f457ed01fd8814515c"><div class="ttname"><a href="classAnsContainer.html#a98848a144ca676f457ed01fd8814515c">AnsContainer::push_back</a></div><div class="ttdeci">void push_back(typename Container::value_type in)</div><div class="ttdoc">Append a zone to the container.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:38</div></div>
-<div class="ttc" id="aclassAnsContainer_html_abcf6d7ef8aba433d32fcc525a27c7b1b"><div class="ttname"><a href="classAnsContainer.html#abcf6d7ef8aba433d32fcc525a27c7b1b">AnsContainer::AnsContainer</a></div><div class="ttdeci">AnsContainer()</div><div class="ttdoc">Constructor.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:24</div></div>
-<div class="ttc" id="aclassAnsVec_html"><div class="ttname"><a href="classAnsVec.html">AnsVec</a></div><div class="ttdef"><b>Definition:</b> ans_vec.hh:60</div></div>
-<div class="ttc" id="aclassIntContainer_html"><div class="ttname"><a href="classIntContainer.html">IntContainer</a></div><div class="ttdef"><b>Definition:</b> ans_vec.hh:73</div></div>
-<div class="ttc" id="aclassPrintContainer_html"><div class="ttname"><a href="classPrintContainer.html">PrintContainer</a></div><div class="ttdoc">A pseudo-container class to print the given zone to stdout. This is given to AnsContainer.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:99</div></div>
-<div class="ttc" id="aclassPrintContainer_html_a09776ec00fc59d150120881b68b7392d"><div class="ttname"><a href="classPrintContainer.html#a09776ec00fc59d150120881b68b7392d">PrintContainer::size</a></div><div class="ttdeci">std::size_t size() const</div><div class="ttdoc">Returns the count of output zones.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:111</div></div>
-<div class="ttc" id="aclassPrintContainer_html_ac3c483b591f21dd0e6ea4700f26175f8"><div class="ttname"><a href="classPrintContainer.html#ac3c483b591f21dd0e6ea4700f26175f8">PrintContainer::reserve</a></div><div class="ttdeci">void reserve(std::size_t)</div><div class="ttdoc">Does nothing.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:137</div></div>
-<div class="ttc" id="aclassPrintContainer_html_adbb844adceb15fdaedca86aa9e2b7101"><div class="ttname"><a href="classPrintContainer.html#adbb844adceb15fdaedca86aa9e2b7101">PrintContainer::clear</a></div><div class="ttdeci">void clear()</div><div class="ttdoc">Resets the count of output zones.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:133</div></div>
-<div class="ttc" id="aclassPrintContainer_html_adfac27785b18c69d88b5b18d2e862083"><div class="ttname"><a href="classPrintContainer.html#adfac27785b18c69d88b5b18d2e862083">PrintContainer::PrintContainer</a></div><div class="ttdeci">PrintContainer(bool isQuiet)</div><div class="ttdoc">Constructor.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:109</div></div>
-<div class="ttc" id="astructZone_html"><div class="ttname"><a href="structZone.html">Zone</a></div><div class="ttdoc">Implementation of a zone with DBM.</div><div class="ttdef"><b>Definition:</b> zone.hh:37</div></div>
+<div class="ttc" id="aclassAnsContainer_html_abcf6d7ef8aba433d32fcc525a27c7b1b"><div class="ttname"><a href="classAnsContainer.html#abcf6d7ef8aba433d32fcc525a27c7b1b">AnsContainer::AnsContainer</a></div><div class="ttdeci">AnsContainer()</div><div class="ttdoc">Constructor.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:26</div></div>
+<div class="ttc" id="aclassAnsVec_html"><div class="ttname"><a href="classAnsVec.html">AnsVec</a></div><div class="ttdef"><b>Definition:</b> ans_vec.hh:53</div></div>
+<div class="ttc" id="aclassIntContainer_html"><div class="ttname"><a href="classIntContainer.html">IntContainer</a></div><div class="ttdef"><b>Definition:</b> ans_vec.hh:63</div></div>
+<div class="ttc" id="aclassPrintContainer_html"><div class="ttname"><a href="classPrintContainer.html">PrintContainer</a></div><div class="ttdoc">A pseudo-container class to print the given zone to stdout. This is given to AnsContainer.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:84</div></div>
+<div class="ttc" id="aclassPrintContainer_html_a09776ec00fc59d150120881b68b7392d"><div class="ttname"><a href="classPrintContainer.html#a09776ec00fc59d150120881b68b7392d">PrintContainer::size</a></div><div class="ttdeci">std::size_t size() const</div><div class="ttdoc">Returns the count of output zones.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:97</div></div>
+<div class="ttc" id="aclassPrintContainer_html_ac3c483b591f21dd0e6ea4700f26175f8"><div class="ttname"><a href="classPrintContainer.html#ac3c483b591f21dd0e6ea4700f26175f8">PrintContainer::reserve</a></div><div class="ttdeci">void reserve(std::size_t)</div><div class="ttdoc">Does nothing.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:116</div></div>
+<div class="ttc" id="aclassPrintContainer_html_adbb844adceb15fdaedca86aa9e2b7101"><div class="ttname"><a href="classPrintContainer.html#adbb844adceb15fdaedca86aa9e2b7101">PrintContainer::clear</a></div><div class="ttdeci">void clear()</div><div class="ttdoc">Resets the count of output zones.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:114</div></div>
+<div class="ttc" id="aclassPrintContainer_html_adfac27785b18c69d88b5b18d2e862083"><div class="ttname"><a href="classPrintContainer.html#adfac27785b18c69d88b5b18d2e862083">PrintContainer::PrintContainer</a></div><div class="ttdeci">PrintContainer(bool isQuiet)</div><div class="ttdoc">Constructor.</div><div class="ttdef"><b>Definition:</b> ans_vec.hh:95</div></div>
+<div class="ttc" id="astructZone_html"><div class="ttname"><a href="structZone.html">Zone</a></div><div class="ttdoc">Implementation of a zone with DBM.</div><div class="ttdef"><b>Definition:</b> zone.hh:36</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
