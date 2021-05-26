@@ -1,7 +1,7 @@
 #pragma once
 
-#include <iostream>
 #include <boost/variant.hpp>
+#include <iostream>
 
 #include "interval.hh"
 #include "zone.hh"
@@ -10,6 +10,7 @@ class IntermediateZone : public Zone {
 private:
   std::vector<bool> isAllocated;
   static constexpr ClockVariables initialClock = 1;
+
 public:
   ClockVariables newestClock;
   // intervals]0]: t
@@ -21,8 +22,9 @@ public:
   /*!
     @brief construct an intermediate zone from an interval
 
-   */
-  IntermediateZone(const Interval& interval) : intervals({std::move(interval)}) {
+  */
+  IntermediateZone(const Interval &interval)
+      : intervals({std::move(interval)}) {
     useInterval = true;
     intervals[0].lowerBound.first *= -1;
     newestClock = 1;
@@ -33,8 +35,9 @@ public:
 
     x0 is the special constant variable (x0 == 0) as usual.
     When x1, the trimming starts and the last variable is the newest one.
-   */
-  IntermediateZone(Zone zone, std::size_t currentNewestClock = 0) : Zone(std::move(zone)) {
+  */
+  IntermediateZone(Zone zone, std::size_t currentNewestClock = 0)
+      : Zone(std::move(zone)) {
     useInterval = false;
     // The zone must have at least one variable
 #ifdef DEBUG
@@ -56,10 +59,12 @@ public:
   }
 
   //! @note lowerBound is not a bound but a cell in DBM
-  ClockVariables alloc(const std::pair<double,bool> &upperBound, const std::pair<double,bool> &lowerBound) {
-    static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
+  ClockVariables alloc(const std::pair<double, bool> &upperBound,
+                       const std::pair<double, bool> &lowerBound) {
+    static constexpr Bounds infinity =
+        Bounds(std::numeric_limits<double>::infinity(), false);
     ClockVariables newClock;
-#define likely(x)   __builtin_expect(!!(x), 1)
+#define likely(x) __builtin_expect(!!(x), 1)
 #ifdef __GNUC__
     if (likely(useInterval && intervals.size() == 1)) {
 #else
@@ -70,8 +75,10 @@ public:
       intervals.emplace_back(std::move(lowerBound), std::move(upperBound));
       // value(2, 1) <= value(2, 0) + value(0, 1)
       // value(1, 2) <= value(1, 0) + value(0, 2)
-      intervals.emplace_back(std::min(intervals[0].upperBound + intervals[1].lowerBound, Bounds{0, true}),
-                             intervals[1].upperBound + intervals[0].lowerBound);
+      intervals.emplace_back(
+          std::min(intervals[0].upperBound + intervals[1].lowerBound,
+                   Bounds{0, true}),
+          intervals[1].upperBound + intervals[0].lowerBound);
       return newestClock = 2;
     } else if (useInterval) {
       // convert intervals to a zone
@@ -79,7 +86,7 @@ public:
       isAllocated.resize(4, true);
       value.resize(4, 4);
       value.fill(Bounds(infinity));
-      for (int i = 0; i < 4; i++)  {
+      for (int i = 0; i < 4; i++) {
         value(i, i) = Bounds{0, true};
       }
       value(1, 0) = intervals[0].upperBound;
@@ -94,7 +101,8 @@ public:
       intervals.clear();
       newClock = 3;
     } else {
-      const auto newPos = std::find(isAllocated.begin(), isAllocated.end(), false);
+      const auto newPos =
+          std::find(isAllocated.begin(), isAllocated.end(), false);
 #ifdef DEBUG
       assert(value.cols() == value.rows());
 #endif
@@ -125,19 +133,24 @@ public:
     }
     for (int i = 0; i < value.rows(); i++) {
       // for (int x = 0; x < value.cols(); x++) {
-      //   value(i, newClock) = std::min(value(i, newClock), value(i, x) + value(x, newClock));
+      //   value(i, newClock) = std::min(value(i, newClock), value(i, x) +
+      //   value(x, newClock));
       // }
-      value(i, newClock) = std::min(value(i, newClock), (value.row(i) + value.col(newClock).transpose()).minCoeff());
+      value(i, newClock) =
+          std::min(value(i, newClock),
+                   (value.row(i) + value.col(newClock).transpose()).minCoeff());
     }
     for (int x = 0; x < value.rows(); x++) {
       for (int j = 0; j < value.cols(); j++) {
-        value(newClock, j) = std::min(value(newClock, j), value(newClock, x) + value(x, j));
+        value(newClock, j) =
+            std::min(value(newClock, j), value(newClock, x) + value(x, j));
       }
     }
     return newestClock = newClock;
   }
 
-  void update(const std::vector<boost::variant<double, ClockVariables>> &resetTime) {
+  void
+  update(const std::vector<boost::variant<double, ClockVariables>> &resetTime) {
     if (useInterval) {
       return;
     }
@@ -148,8 +161,8 @@ public:
     isAllocated[0] = true;
     isAllocated[initialClock] = true;
     isAllocated[newestClock] = true;
-    for (auto rtime: resetTime) {
-      const ClockVariables* p_x = boost::get<ClockVariables>(&rtime);
+    for (auto rtime : resetTime) {
+      const ClockVariables *p_x = boost::get<ClockVariables>(&rtime);
       if (p_x) {
         isAllocated[*p_x] = true;
       }
@@ -185,65 +198,79 @@ public:
 
   /*!
     @brief add the constraint x - y \le (c,s)
-    @note This is different from Zone::tighten because we have to handle x0, too. That is unnecessary and harmful in zone construction.
-   */
+    @note This is different from Zone::tighten because we have to handle x0,
+    too. That is unnecessary and harmful in zone construction.
+  */
   void tighten(const ClockVariables x, const ClockVariables y, Bounds c) {
     if (useInterval) {
       if (x == 0 && y == 1) {
         intervals[0].lowerBound = std::min(intervals[0].lowerBound, c);
         if (intervals.size() > 1) {
           // value(0, 2) <= value(0, 1) + value(1, 2)
-          intervals[1].lowerBound = std::min(intervals[1].lowerBound, 
-                                             intervals[0].lowerBound + intervals[2].lowerBound);
+          intervals[1].lowerBound =
+              std::min(intervals[1].lowerBound,
+                       intervals[0].lowerBound + intervals[2].lowerBound);
           // value(2, 1) <= value(2, 0) + value(0, 1)
-          intervals[2].upperBound = std::min(intervals[2].upperBound, 
-                                             intervals[1].upperBound + intervals[0].lowerBound);
+          intervals[2].upperBound =
+              std::min(intervals[2].upperBound,
+                       intervals[1].upperBound + intervals[0].lowerBound);
         }
       } else if (x == 1 && y == 0) {
         intervals[0].upperBound = std::min(intervals[0].upperBound, c);
         if (intervals.size() > 1) {
           // value(2, 0) <= value(2, 1) + value(1, 0)
-          intervals[1].upperBound = std::min(intervals[1].upperBound, 
-                                             intervals[2].upperBound + intervals[0].upperBound);
+          intervals[1].upperBound =
+              std::min(intervals[1].upperBound,
+                       intervals[2].upperBound + intervals[0].upperBound);
           // value(1, 2) <= value(1, 0) + value(0, 2)
-          intervals[2].lowerBound = std::min(intervals[2].lowerBound, 
-                                             intervals[0].upperBound + intervals[1].lowerBound);
+          intervals[2].lowerBound =
+              std::min(intervals[2].lowerBound,
+                       intervals[0].upperBound + intervals[1].lowerBound);
         }
       } else if (x == 0 && y == 2) {
         intervals[1].lowerBound = std::min(intervals[1].lowerBound, c);
-        intervals[0].lowerBound = std::min(intervals[0].lowerBound, 
-                                           intervals[1].lowerBound + intervals[2].upperBound);
-        intervals[2].lowerBound = std::min(intervals[2].lowerBound, 
-                                           intervals[1].lowerBound + intervals[0].upperBound);
+        intervals[0].lowerBound =
+            std::min(intervals[0].lowerBound,
+                     intervals[1].lowerBound + intervals[2].upperBound);
+        intervals[2].lowerBound =
+            std::min(intervals[2].lowerBound,
+                     intervals[1].lowerBound + intervals[0].upperBound);
       } else if (x == 2 && y == 0) {
         intervals[1].upperBound = std::min(intervals[1].upperBound, c);
-        intervals[0].upperBound = std::min(intervals[0].upperBound, 
-                                           intervals[1].upperBound + intervals[2].lowerBound);
-        intervals[2].upperBound = std::min(intervals[2].upperBound, 
-                                           intervals[1].upperBound + intervals[0].lowerBound);
+        intervals[0].upperBound =
+            std::min(intervals[0].upperBound,
+                     intervals[1].upperBound + intervals[2].lowerBound);
+        intervals[2].upperBound =
+            std::min(intervals[2].upperBound,
+                     intervals[1].upperBound + intervals[0].lowerBound);
       } else if (x == 1 && y == 2) {
         intervals[2].lowerBound = std::min(intervals[2].lowerBound, c);
-        intervals[0].upperBound = std::min(intervals[0].upperBound, 
-                                           intervals[1].upperBound + intervals[2].lowerBound);
-        intervals[1].lowerBound = std::min(intervals[1].lowerBound, 
-                                           intervals[2].lowerBound + intervals[0].lowerBound);
+        intervals[0].upperBound =
+            std::min(intervals[0].upperBound,
+                     intervals[1].upperBound + intervals[2].lowerBound);
+        intervals[1].lowerBound =
+            std::min(intervals[1].lowerBound,
+                     intervals[2].lowerBound + intervals[0].lowerBound);
       } else if (x == 2 && y == 1) {
         intervals[2].upperBound = std::min(intervals[2].upperBound, c);
-        intervals[1].upperBound = std::min(intervals[1].upperBound, 
-                                           intervals[2].upperBound + intervals[0].upperBound);
-        intervals[0].lowerBound = std::min(intervals[0].lowerBound, 
-                                           intervals[1].lowerBound + intervals[2].upperBound);
+        intervals[1].upperBound =
+            std::min(intervals[1].upperBound,
+                     intervals[2].upperBound + intervals[0].upperBound);
+        intervals[0].lowerBound =
+            std::min(intervals[0].lowerBound,
+                     intervals[1].lowerBound + intervals[2].upperBound);
       }
     } else {
-      value(x,y) = std::min(value(x, y), c);
-      if (value(x,y) == c && newestClock != initialClock) {
+      value(x, y) = std::min(value(x, y), c);
+      if (value(x, y) == c && newestClock != initialClock) {
         close1(x);
         close1(y);
       }
     }
   }
 
-  void tighten(const ClockVariables x, const Constraint &c, const ClockVariables reset = 0) {
+  void tighten(const ClockVariables x, const Constraint &c,
+               const ClockVariables reset = 0) {
     switch (c.odr) {
     case Constraint::Order::lt:
       tighten(x, reset, Bounds{c.c, false});
@@ -277,10 +304,13 @@ public:
     }
   }
 
-  void tighten(const std::vector<Constraint> &constraints, const std::vector<boost::variant<double, ClockVariables>> &resetTime) {
-    for (const Constraint &guard: constraints) {
-      const double* p_resetDouble = boost::get<double>(&resetTime[guard.x]);
-      const ClockVariables* p_resetClock = boost::get<ClockVariables>(&resetTime[guard.x]);
+  void tighten(
+      const std::vector<Constraint> &constraints,
+      const std::vector<boost::variant<double, ClockVariables>> &resetTime) {
+    for (const Constraint &guard : constraints) {
+      const double *p_resetDouble = boost::get<double>(&resetTime[guard.x]);
+      const ClockVariables *p_resetClock =
+          boost::get<ClockVariables>(&resetTime[guard.x]);
       if (p_resetDouble) {
         tighten(newestClock, guard, *p_resetDouble);
       } else {
@@ -289,15 +319,20 @@ public:
     }
   }
 
-  void tighten(const std::vector<Constraint> &constraints, const std::vector<boost::variant<double, ClockVariables>> &resetTime, const double t) {
-    for (const Constraint &guard: constraints) {
-      const double* p_resetDouble = boost::get<double>(&resetTime[guard.x]);
-      const ClockVariables* p_resetClock = boost::get<ClockVariables>(&resetTime[guard.x]);
+  void
+  tighten(const std::vector<Constraint> &constraints,
+          const std::vector<boost::variant<double, ClockVariables>> &resetTime,
+          const double t) {
+    for (const Constraint &guard : constraints) {
+      const double *p_resetDouble = boost::get<double>(&resetTime[guard.x]);
+      const ClockVariables *p_resetClock =
+          boost::get<ClockVariables>(&resetTime[guard.x]);
       if (p_resetDouble) {
         // This constraint is unsatisfyable
         if (!guard.satisfy(t - *p_resetDouble)) {
           if (useInterval) {
-            static constexpr Bounds negInfinity = Bounds(-std::numeric_limits<double>::infinity(), false);
+            static constexpr Bounds negInfinity =
+                Bounds(-std::numeric_limits<double>::infinity(), false);
             intervals[0].lowerBound = negInfinity;
           } else {
             makeUnsat();
@@ -319,21 +354,24 @@ public:
           break;
         }
       }
-    } 
+    }
   }
 
   bool isSatisfiableCanonized() {
     if (useInterval) {
-      return std::all_of(intervals.begin(), intervals.end(), [](const Interval &interval) {
-          return interval.upperBound + interval.lowerBound >= Bounds(0.0, true);
-        });
+      return std::all_of(intervals.begin(), intervals.end(),
+                         [](const Interval &interval) {
+                           return interval.upperBound + interval.lowerBound >=
+                                  Bounds(0.0, true);
+                         });
     } else {
       return (value + value.transpose()).minCoeff() >= Bounds(0.0, true);
     }
   }
 
   void deallocate(const ClockVariables x) {
-    static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
+    static constexpr Bounds infinity =
+        Bounds(std::numeric_limits<double>::infinity(), false);
     static constexpr Bounds zero = Bounds(0, true);
     value.col(x).fill(infinity);
     value.row(x).fill(infinity);

@@ -1,33 +1,36 @@
 #include <numeric>
 #include <ostream>
 
-#include "tre.hh"
 #include "intermediate_tre.hh"
+#include "tre.hh"
 
-std::ostream &
-operator<<(std::ostream &stream, const TRE &expr) {
+std::ostream &operator<<(std::ostream &stream, const TRE &expr) {
   switch (expr.tag) {
-    case TRE::op::atom:
-      stream << expr.c;
-      break;
-    case TRE::op::epsilon:
-      stream << '@';
-      break;
-    case TRE::op::plus:
-      stream << "(" << *(expr.regExpr) << "+)";
-      break;
-    case TRE::op::concat:
-      stream << "(" << *(expr.regExprPair.first) << *(expr.regExprPair.second) << ")";
-      break;
-    case TRE::op::disjunction:
-      stream << "(" << *(expr.regExprPair.first) << "|" << *(expr.regExprPair.second) << ")";
-      break;
-    case TRE::op::conjunction:
-      stream << "(" << *(expr.regExprPair.first) << "&" << *(expr.regExprPair.second) << ")";
-      break;
-    case TRE::op::within:
-      stream << "(" << *(expr.regExprWithin.first) << "%" << *(expr.regExprWithin.second) << ")";
-      break;
+  case TRE::op::atom:
+    stream << expr.c;
+    break;
+  case TRE::op::epsilon:
+    stream << '@';
+    break;
+  case TRE::op::plus:
+    stream << "(" << *(expr.regExpr) << "+)";
+    break;
+  case TRE::op::concat:
+    stream << "(" << *(expr.regExprPair.first) << *(expr.regExprPair.second)
+           << ")";
+    break;
+  case TRE::op::disjunction:
+    stream << "(" << *(expr.regExprPair.first) << "|"
+           << *(expr.regExprPair.second) << ")";
+    break;
+  case TRE::op::conjunction:
+    stream << "(" << *(expr.regExprPair.first) << "&"
+           << *(expr.regExprPair.second) << ")";
+    break;
+  case TRE::op::within:
+    stream << "(" << *(expr.regExprWithin.first) << "%"
+           << *(expr.regExprWithin.second) << ")";
+    break;
   }
 
   return stream;
@@ -36,17 +39,19 @@ operator<<(std::ostream &stream, const TRE &expr) {
 const std::shared_ptr<TRE> TRE::epsilon = std::make_shared<TRE>(op::epsilon);
 
 void concat2(TimedAutomaton &left, const TimedAutomaton &right) {
-  // make a transition to an accepting state of left to a transition to an initial state of right
+  // make a transition to an accepting state of left to a transition to an
+  // initial state of right
   std::vector<ClockVariables> rightClocks(right.clockSize());
   std::iota(rightClocks.begin(), rightClocks.end(), 0);
-  for (auto &s: left.states) {
-    for (auto &edges: s->next) {
+  for (auto &s : left.states) {
+    for (auto &edges : s->next) {
       std::vector<TATransition> newTransitions;
-      for (auto &edge: edges.second) {
+      for (auto &edge : edges.second) {
         TAState *target = edge.target;
         if (target && target->isMatch) {
-          newTransitions.reserve(newTransitions.size() + right.initialStates.size());
-          for (auto initState: right.initialStates) {
+          newTransitions.reserve(newTransitions.size() +
+                                 right.initialStates.size());
+          for (auto initState : right.initialStates) {
             TATransition transition = edge;
             transition.target = initState.get();
             transition.resetVars = rightClocks;
@@ -55,37 +60,44 @@ void concat2(TimedAutomaton &left, const TimedAutomaton &right) {
         }
       }
       if (!newTransitions.empty()) {
-        edges.second.insert(edges.second.end(), newTransitions.begin(), newTransitions.end());
+        edges.second.insert(edges.second.end(), newTransitions.begin(),
+                            newTransitions.end());
       }
     }
   }
 
-  // add right initial states to overall initial states if left has accepting and initial state
-  if (std::any_of(left.initialStates.begin(), left.initialStates.end(), [](auto state) {
-    return state->isMatch;
-  })) {
-    left.initialStates.insert(left.initialStates.end(), right.initialStates.begin(), right.initialStates.end());
+  // add right initial states to overall initial states if left has accepting
+  // and initial state
+  if (std::any_of(left.initialStates.begin(), left.initialStates.end(),
+                  [](auto state) { return state->isMatch; })) {
+    left.initialStates.insert(left.initialStates.end(),
+                              right.initialStates.begin(),
+                              right.initialStates.end());
   }
 
   // make accepting states of left non-accepting
-  for (auto &s: left.states) {
+  for (auto &s : left.states) {
     s->isMatch = false;
   }
 
-  left.states.insert(left.states.end(), right.states.begin(), right.states.end());
+  left.states.insert(left.states.end(), right.states.begin(),
+                     right.states.end());
 
   // we can reuse variables since we have no overwrapping constraints
-  left.maxConstraints.resize(std::max(left.maxConstraints.size(), right.maxConstraints.size()));
+  left.maxConstraints.resize(
+      std::max(left.maxConstraints.size(), right.maxConstraints.size()));
   std::vector<int> maxConstraints = right.maxConstraints;
-  maxConstraints.resize(std::max(left.maxConstraints.size(), maxConstraints.size()));
+  maxConstraints.resize(
+      std::max(left.maxConstraints.size(), maxConstraints.size()));
   for (std::size_t i = 0; i < left.maxConstraints.size(); ++i) {
-    left.maxConstraints[i] = std::max(left.maxConstraints[i], maxConstraints[i]);
+    left.maxConstraints[i] =
+        std::max(left.maxConstraints[i], maxConstraints[i]);
   }
 }
 
 void removeStuckStates(TimedAutomaton &out) {
   std::vector<TAState *> stuckStates;
-  for (auto &s: out.states) {
+  for (auto &s : out.states) {
     if (!s->isMatch && s->next.empty()) {
       stuckStates.push_back(s.get());
     }
@@ -94,14 +106,17 @@ void removeStuckStates(TimedAutomaton &out) {
   const auto isStuckState = [&stuckStates](const std::shared_ptr<TAState> s) {
     return std::binary_search(stuckStates.begin(), stuckStates.end(), s.get());
   };
-  const auto isStuckTransition = [&stuckStates](const TATransition &transition) {
-    return std::binary_search(stuckStates.begin(), stuckStates.end(), transition.target);
-  };
-  for (auto &source: out.states) {
-    for (auto &transitionVectorPair: source->next) {
+  const auto isStuckTransition =
+      [&stuckStates](const TATransition &transition) {
+        return std::binary_search(stuckStates.begin(), stuckStates.end(),
+                                  transition.target);
+      };
+  for (auto &source : out.states) {
+    for (auto &transitionVectorPair : source->next) {
       transitionVectorPair.second.erase(
-              std::remove_if(transitionVectorPair.second.begin(), transitionVectorPair.second.end(), isStuckTransition),
-              transitionVectorPair.second.end());
+          std::remove_if(transitionVectorPair.second.begin(),
+                         transitionVectorPair.second.end(), isStuckTransition),
+          transitionVectorPair.second.end());
     }
     for (auto it = source->next.begin(); it != source->next.end();) {
       if (it->second.empty()) {
@@ -111,15 +126,19 @@ void removeStuckStates(TimedAutomaton &out) {
       }
     }
   }
-  out.states.erase(std::remove_if(out.states.begin(), out.states.end(), isStuckState), out.states.end());
-  out.initialStates.erase(std::remove_if(out.initialStates.begin(), out.initialStates.end(), isStuckState),
+  out.states.erase(
+      std::remove_if(out.states.begin(), out.states.end(), isStuckState),
+      out.states.end());
+  out.initialStates.erase(std::remove_if(out.initialStates.begin(),
+                                         out.initialStates.end(), isStuckState),
                           out.initialStates.end());
 }
 
 void removeUnreachableStates(TimedAutomaton &out) {
   std::vector<TAState *> reachableStates;
   std::vector<TAState *> newReachableStates;
-  std::transform(out.initialStates.begin(), out.initialStates.end(), newReachableStates.begin(),
+  std::transform(out.initialStates.begin(), out.initialStates.end(),
+                 newReachableStates.begin(),
                  std::mem_fn(&std::shared_ptr<TAState>::get));
   std::sort(newReachableStates.begin(), newReachableStates.end());
   reachableStates = newReachableStates;
@@ -134,9 +153,9 @@ void removeUnreachableStates(TimedAutomaton &out) {
       reachableStates.swap(c);
     }
     std::vector<TAState *> nextReachableStates;
-    for (TAState *source: newReachableStates) {
-      for (auto &transitionVectorPair: source->next) {
-        for (auto &transition: transitionVectorPair.second) {
+    for (TAState *source : newReachableStates) {
+      for (auto &transitionVectorPair : source->next) {
+        for (auto &transition : transitionVectorPair.second) {
           nextReachableStates.push_back(transition.target);
         }
       }
@@ -155,16 +174,20 @@ void removeUnreachableStates(TimedAutomaton &out) {
   }
 
   out.states.erase(
-          std::remove_if(out.states.begin(), out.states.end(), [&reachableStates](const std::shared_ptr<TAState> s) {
-            return std::binary_search(reachableStates.begin(), reachableStates.end(), s.get());
-          }), out.states.end());
+      std::remove_if(out.states.begin(), out.states.end(),
+                     [&reachableStates](const std::shared_ptr<TAState> s) {
+                       return std::binary_search(reachableStates.begin(),
+                                                 reachableStates.end(),
+                                                 s.get());
+                     }),
+      out.states.end());
 }
 
 void reduceStates(TimedAutomaton &out) {
   for (;;) {
     const auto size = out.states.size();
     removeStuckStates(out);
-    //removeUnreachableStates(out);
+    // removeUnreachableStates(out);
     if (size == out.states.size()) {
       return;
     }
@@ -175,7 +198,7 @@ void TRE::toEventTA(TimedAutomaton &out) const {
   switch (tag) {
   case op::atom: {
     out.states.resize(2);
-    for (auto &state: out.states) {
+    for (auto &state : out.states) {
       state = std::make_shared<TAState>();
     }
     out.initialStates = {out.states[0]};
@@ -198,14 +221,15 @@ void TRE::toEventTA(TimedAutomaton &out) const {
   }
   case op::plus: {
     regExpr->toEventTA(out);
-    for (auto s: out.states) {
-      for (auto &edges: s->next) {
+    for (auto s : out.states) {
+      for (auto &edges : s->next) {
         std::vector<TATransition> newTransitions;
-        for (TATransition edge: edges.second) {
+        for (TATransition edge : edges.second) {
           TAState *target = edge.target;
           if (target && target->isMatch) {
-            newTransitions.reserve(newTransitions.size() + out.initialStates.size());
-            for (auto initState: out.initialStates) {
+            newTransitions.reserve(newTransitions.size() +
+                                   out.initialStates.size());
+            for (auto initState : out.initialStates) {
               TATransition transition = edge;
               transition.target = initState.get();
               for (std::size_t clock = 0; clock < out.clockSize(); clock++) {
@@ -215,7 +239,8 @@ void TRE::toEventTA(TimedAutomaton &out) const {
             }
           }
         }
-        edges.second.insert(edges.second.end(), newTransitions.begin(), newTransitions.end());
+        edges.second.insert(edges.second.end(), newTransitions.begin(),
+                            newTransitions.end());
       }
     }
     break;
@@ -232,21 +257,29 @@ void TRE::toEventTA(TimedAutomaton &out) const {
     regExprPair.first->toEventTA(out);
     TimedAutomaton another;
     regExprPair.second->toEventTA(another);
-    out.states.insert(out.states.end(), another.states.begin(), another.states.end());
-    out.initialStates.insert(out.initialStates.end(), another.initialStates.begin(), another.initialStates.end());
+    out.states.insert(out.states.end(), another.states.begin(),
+                      another.states.end());
+    out.initialStates.insert(out.initialStates.end(),
+                             another.initialStates.begin(),
+                             another.initialStates.end());
 
     // we can reuse variables since we have no overwrapping constraints
-    out.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
-    another.maxConstraints.resize(std::max(out.maxConstraints.size(), another.maxConstraints.size()));
+    out.maxConstraints.resize(
+        std::max(out.maxConstraints.size(), another.maxConstraints.size()));
+    another.maxConstraints.resize(
+        std::max(out.maxConstraints.size(), another.maxConstraints.size()));
     for (std::size_t i = 0; i < out.maxConstraints.size(); ++i) {
-      out.maxConstraints[i] = std::max(out.maxConstraints[i], another.maxConstraints[i]);
+      out.maxConstraints[i] =
+          std::max(out.maxConstraints[i], another.maxConstraints[i]);
     }
     break;
   }
   case op::conjunction: {
     TimedAutomaton tmpTA;
     TimedAutomaton another;
-    boost::unordered_map<std::pair<TAState *, TAState *>, std::shared_ptr<TAState>> toIState;
+    boost::unordered_map<std::pair<TAState *, TAState *>,
+                         std::shared_ptr<TAState>>
+        toIState;
     regExprPair.first->toEventTA(tmpTA);
     regExprPair.second->toEventTA(another);
     intersectionTA(tmpTA, another, out, toIState);
@@ -257,30 +290,32 @@ void TRE::toEventTA(TimedAutomaton &out) const {
 
     // add dummy accepting state
     bool isDummyUsed = false;
-    std::shared_ptr<TAState> dummyAcceptingState = std::make_shared<TAState>(true);
-    for (auto state: out.states) {
-      for (auto &edges: state->next) {
-        for (auto &edge: edges.second) {
+    std::shared_ptr<TAState> dummyAcceptingState =
+        std::make_shared<TAState>(true);
+    for (auto state : out.states) {
+      for (auto &edges : state->next) {
+        for (auto &edge : edges.second) {
           auto target = edge.target;
           if (target && target->isMatch) {
-            // we use dummyAcceptingState if there is a transition from the accepting state
+            // we use dummyAcceptingState if there is a transition from the
+            // accepting state
             if (target->next.empty()) {
               edge.guard.reserve(edge.guard.size() + 2);
               // upper bound
               if (regExprWithin.second->upperBound.second) {
-                edge.guard.emplace_back(
-                                        TimedAutomaton::X(out.clockSize()) <= regExprWithin.second->upperBound.first);
+                edge.guard.emplace_back(TimedAutomaton::X(out.clockSize()) <=
+                                        regExprWithin.second->upperBound.first);
               } else {
-                edge.guard.emplace_back(
-                                        TimedAutomaton::X(out.clockSize()) < regExprWithin.second->upperBound.first);
+                edge.guard.emplace_back(TimedAutomaton::X(out.clockSize()) <
+                                        regExprWithin.second->upperBound.first);
               }
               // lower bound
               if (regExprWithin.second->lowerBound.second) {
-                edge.guard.emplace_back(
-                                        TimedAutomaton::X(out.clockSize()) >= regExprWithin.second->lowerBound.first);
+                edge.guard.emplace_back(TimedAutomaton::X(out.clockSize()) >=
+                                        regExprWithin.second->lowerBound.first);
               } else {
-                edge.guard.emplace_back(
-                                        TimedAutomaton::X(out.clockSize()) > regExprWithin.second->lowerBound.first);
+                edge.guard.emplace_back(TimedAutomaton::X(out.clockSize()) >
+                                        regExprWithin.second->lowerBound.first);
               }
             } else {
               isDummyUsed = true;
@@ -291,18 +326,22 @@ void TRE::toEventTA(TimedAutomaton &out) const {
               // upper bound
               if (regExprWithin.second->upperBound.second) {
                 transition.guard.emplace_back(
-                                              TimedAutomaton::X(out.clockSize()) <= regExprWithin.second->upperBound.first);
+                    TimedAutomaton::X(out.clockSize()) <=
+                    regExprWithin.second->upperBound.first);
               } else {
                 transition.guard.emplace_back(
-                                              TimedAutomaton::X(out.clockSize()) < regExprWithin.second->upperBound.first);
+                    TimedAutomaton::X(out.clockSize()) <
+                    regExprWithin.second->upperBound.first);
               }
               // lower bound
               if (regExprWithin.second->lowerBound.second) {
                 transition.guard.emplace_back(
-                                              TimedAutomaton::X(out.clockSize()) >= regExprWithin.second->lowerBound.first);
+                    TimedAutomaton::X(out.clockSize()) >=
+                    regExprWithin.second->lowerBound.first);
               } else {
                 transition.guard.emplace_back(
-                                              TimedAutomaton::X(out.clockSize()) > regExprWithin.second->lowerBound.first);
+                    TimedAutomaton::X(out.clockSize()) >
+                    regExprWithin.second->lowerBound.first);
               }
               edges.second.emplace_back(std::move(transition));
             }
@@ -310,7 +349,7 @@ void TRE::toEventTA(TimedAutomaton &out) const {
         }
       }
     }
-    for (auto state: out.states) {
+    for (auto state : out.states) {
       if (!state->next.empty()) {
         state->isMatch = false;
       }
@@ -324,16 +363,17 @@ void TRE::toEventTA(TimedAutomaton &out) const {
   }
   // Merge accepting states w/o outgoing transitions
   std::vector<std::shared_ptr<TAState>> terminalAcceptingStates;
-  for (auto &s: out.states) {
+  for (auto &s : out.states) {
     if (s->isMatch && s->next.empty()) {
       terminalAcceptingStates.push_back(s);
     }
   }
   std::sort(terminalAcceptingStates.begin(), terminalAcceptingStates.end());
-  for (auto &source: out.states) {
-    for (auto &transitionVectorPair: source->next) {
-      for (auto &transition: transitionVectorPair.second) {
-        if (std::find_if(terminalAcceptingStates.begin(), terminalAcceptingStates.end(),
+  for (auto &source : out.states) {
+    for (auto &transitionVectorPair : source->next) {
+      for (auto &transition : transitionVectorPair.second) {
+        if (std::find_if(terminalAcceptingStates.begin(),
+                         terminalAcceptingStates.end(),
                          [&](std::shared_ptr<TAState> sp) {
                            return sp.get() == transition.target;
                          }) != terminalAcceptingStates.end()) {
@@ -343,25 +383,36 @@ void TRE::toEventTA(TimedAutomaton &out) const {
     }
   }
   if (terminalAcceptingStates.size() > 1) {
-    out.states.erase(std::remove_if(out.states.begin(), out.states.end(),
-                                    [&terminalAcceptingStates](const std::shared_ptr<TAState> s) {
-                                      return std::binary_search(std::next(terminalAcceptingStates.begin()),
-                                                                terminalAcceptingStates.end(), s);
-                                    }), out.states.end());
+    out.states.erase(
+        std::remove_if(
+            out.states.begin(), out.states.end(),
+            [&terminalAcceptingStates](const std::shared_ptr<TAState> s) {
+              return std::binary_search(
+                  std::next(terminalAcceptingStates.begin()),
+                  terminalAcceptingStates.end(), s);
+            }),
+        out.states.end());
     std::sort(out.initialStates.begin(), out.initialStates.end());
-    if (!std::binary_search(out.initialStates.begin(), out.initialStates.end(), terminalAcceptingStates.front()) &&
-        std::find_if(out.initialStates.begin(), out.initialStates.end(),
-                     [&terminalAcceptingStates](const std::shared_ptr<TAState> s) {
-                       return std::binary_search(std::next(terminalAcceptingStates.begin()),
-                                                 terminalAcceptingStates.end(), s);
-                     }) != out.initialStates.end()) {
+    if (!std::binary_search(out.initialStates.begin(), out.initialStates.end(),
+                            terminalAcceptingStates.front()) &&
+        std::find_if(
+            out.initialStates.begin(), out.initialStates.end(),
+            [&terminalAcceptingStates](const std::shared_ptr<TAState> s) {
+              return std::binary_search(
+                  std::next(terminalAcceptingStates.begin()),
+                  terminalAcceptingStates.end(), s);
+            }) != out.initialStates.end()) {
       out.initialStates.push_back(terminalAcceptingStates.front());
     }
-    out.initialStates.erase(std::remove_if(out.initialStates.begin(), out.initialStates.end(),
-                                           [&terminalAcceptingStates](const std::shared_ptr<TAState> s) {
-                                             return std::binary_search(std::next(terminalAcceptingStates.begin()),
-                                                                       terminalAcceptingStates.end(), s);
-                                           }), out.initialStates.end());
+    out.initialStates.erase(
+        std::remove_if(
+            out.initialStates.begin(), out.initialStates.end(),
+            [&terminalAcceptingStates](const std::shared_ptr<TAState> s) {
+              return std::binary_search(
+                  std::next(terminalAcceptingStates.begin()),
+                  terminalAcceptingStates.end(), s);
+            }),
+        out.initialStates.end());
   }
   reduceStates(out);
 }
@@ -381,10 +432,11 @@ void renameToEpsilonTransitions(TimedAutomaton &out) {
     }
     return false;
   };
-  for (auto s: out.states) {
-    for (auto &transitionsPair: s->next) {
+  for (auto s : out.states) {
+    for (auto &transitionsPair : s->next) {
       const Alphabet c = transitionsPair.first;
-      for (auto it = transitionsPair.second.begin(); it != transitionsPair.second.end();) {
+      for (auto it = transitionsPair.second.begin();
+           it != transitionsPair.second.end();) {
         TAState *target = it->target;
         if (target) {
           if (haveToChangeToEpsilon(target, c)) {
@@ -408,7 +460,7 @@ void renameToEpsilonTransitions(TimedAutomaton &out) {
     }
   }
 
-  for (const auto &pair: toAccepting) {
+  for (const auto &pair : toAccepting) {
     pair.first->isMatch = false;
     out.states.emplace_back(std::move(pair.second));
   }

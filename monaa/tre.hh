@@ -1,11 +1,11 @@
 #pragma once
 
-#include <cassert>
-#include <memory>
-#include <iostream>
+#include "intersection.hh"
 #include "interval.hh"
 #include "timed_automaton.hh"
-#include "intersection.hh"
+#include <cassert>
+#include <iostream>
+#include <memory>
 
 class SingletonTRE;
 class AtomicTRE;
@@ -26,14 +26,10 @@ public:
   static const std::shared_ptr<TRE> epsilon;
 
   // Atom
-  TRE(op tag) : tag(tag) {
-    assert(tag == op::epsilon);
-  }
+  TRE(op tag) : tag(tag) { assert(tag == op::epsilon); }
 
   // Atom
-  TRE(op tag, char c) : tag(tag), c(c) {
-    assert(tag == op::atom);
-  }
+  TRE(op tag, char c) : tag(tag), c(c) { assert(tag == op::atom); }
 
   // Kleene Plus
   TRE(op tag, const std::shared_ptr<TRE> expr) : tag(tag), regExpr(expr) {
@@ -44,22 +40,33 @@ public:
   }
 
   // Concat, Disjunction, and Conjunction
-  TRE(op tag, const std::shared_ptr<TRE> expr0, const std::shared_ptr<TRE> expr1) : tag(tag), regExprPair(std::pair<std::shared_ptr<TRE>, std::shared_ptr<TRE>>(expr0, expr1)) {
-    assert(tag == op::disjunction || tag == op::conjunction || tag == op::concat);
+  TRE(op tag, const std::shared_ptr<TRE> expr0,
+      const std::shared_ptr<TRE> expr1)
+      : tag(tag),
+        regExprPair(std::pair<std::shared_ptr<TRE>, std::shared_ptr<TRE>>(
+            expr0, expr1)) {
+    assert(tag == op::disjunction || tag == op::conjunction ||
+           tag == op::concat);
   }
 
   // Within
-  TRE(op tag, const std::shared_ptr<TRE> expr, const std::shared_ptr<Interval> interval) : tag(tag), regExprWithin(std::pair<std::shared_ptr<TRE>, std::shared_ptr<Interval>>(expr, interval)) {
+  TRE(op tag, const std::shared_ptr<TRE> expr,
+      const std::shared_ptr<Interval> interval)
+      : tag(tag),
+        regExprWithin(
+            std::pair<std::shared_ptr<TRE>, std::shared_ptr<Interval>>(
+                expr, interval)) {
     assert(tag == op::within);
   }
 
   /*!
-    @brief construct an event TA without unnecessary states (every states are reachable from an initial state and reachable to an accepting state)
+    @brief construct an event TA without unnecessary states (every states are
+    reachable from an initial state and reachable to an accepting state)
   */
-  void toEventTA(TimedAutomaton& out) const;
+  void toEventTA(TimedAutomaton &out) const;
 
   ~TRE() {
-    switch(tag) {
+    switch (tag) {
     case op::atom:
     case op::epsilon:
       break;
@@ -80,21 +87,20 @@ public:
   }
 
 private:
-
   const op tag;
 
   const union {
     char c;
     std::shared_ptr<TRE> regExpr;
     std::pair<std::shared_ptr<TRE>, std::shared_ptr<TRE>> regExprPair;
-    std::pair<std::shared_ptr<TRE>, std::shared_ptr<Interval>>  regExprWithin;
+    std::pair<std::shared_ptr<TRE>, std::shared_ptr<Interval>> regExprWithin;
   };
 
-  friend std::ostream& operator<<(std::ostream& os, const TRE&);
+  friend std::ostream &operator<<(std::ostream &os, const TRE &);
   friend SingletonTRE;
   friend AtomicTRE;
   friend DNFTRE;
 };
 
 //! @brief Construct a signal-TA
-void toSignalTA(std::shared_ptr<const TRE> tre, TimedAutomaton& out);
+void toSignalTA(std::shared_ptr<const TRE> tre, TimedAutomaton &out);

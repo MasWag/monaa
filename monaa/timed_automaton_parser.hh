@@ -8,24 +8,23 @@
 
 #include "../libmonaa/timed_automaton.hh"
 
-namespace boost{
-  enum vertex_match_t {vertex_match};
-  enum edge_label_t {edge_label};
-  enum edge_reset_t {edge_reset};
-  enum edge_guard_t {edge_guard};
-  BOOST_INSTALL_PROPERTY(vertex, match);
-  BOOST_INSTALL_PROPERTY(edge, label);
-  BOOST_INSTALL_PROPERTY(edge, reset);
-  BOOST_INSTALL_PROPERTY(edge, guard);
-}
+namespace boost {
+enum vertex_match_t { vertex_match };
+enum edge_label_t { edge_label };
+enum edge_reset_t { edge_reset };
+enum edge_guard_t { edge_guard };
+BOOST_INSTALL_PROPERTY(vertex, match);
+BOOST_INSTALL_PROPERTY(edge, label);
+BOOST_INSTALL_PROPERTY(edge, reset);
+BOOST_INSTALL_PROPERTY(edge, guard);
+} // namespace boost
 
-template<class T>
-static inline 
-std::ostream& operator<<(std::ostream& os, const std::vector<T>& guard)
-{
+template <class T>
+static inline std::ostream &operator<<(std::ostream &os,
+                                       const std::vector<T> &guard) {
   bool first = true;
   os << "{";
-  for (const auto &g: guard) {
+  for (const auto &g : guard) {
     if (!first) {
       os << ", ";
     }
@@ -36,9 +35,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& guard)
   return os;
 }
 
-static inline 
-std::istream& operator>>(std::istream& is, Constraint& p)
-{
+static inline std::istream &operator>>(std::istream &is, Constraint &p) {
   if (is.get() != 'x') {
     is.setstate(std::ios_base::failbit);
     return is;
@@ -97,12 +94,11 @@ std::istream& operator>>(std::istream& is, Constraint& p)
   return is;
 }
 
-static inline 
-std::ostream& operator<<(std::ostream& os, const std::string& resetVars)
-{
+static inline std::ostream &operator<<(std::ostream &os,
+                                       const std::string &resetVars) {
   bool first = true;
   os << "{";
-  for (const auto &x: resetVars) {
+  for (const auto &x : resetVars) {
     if (!first) {
       os << ", ";
     }
@@ -113,9 +109,8 @@ std::ostream& operator<<(std::ostream& os, const std::string& resetVars)
   return os;
 }
 
-static inline 
-std::istream& operator>>(std::istream& is, std::vector<ClockVariables>& resetVars)
-{
+static inline std::istream &operator>>(std::istream &is,
+                                       std::vector<ClockVariables> &resetVars) {
   resetVars.clear();
   if (!is) {
     is.setstate(std::ios_base::failbit);
@@ -160,9 +155,8 @@ std::istream& operator>>(std::istream& is, std::vector<ClockVariables>& resetVar
 }
 
 template <class T>
-static inline 
-std::istream& operator>>(std::istream& is, std::vector<T>& resetVars)
-{
+static inline std::istream &operator>>(std::istream &is,
+                                       std::vector<T> &resetVars) {
   resetVars.clear();
   if (!is) {
     is.setstate(std::ios_base::failbit);
@@ -206,47 +200,40 @@ std::istream& operator>>(std::istream& is, std::vector<T>& resetVars)
   return is;
 }
 
-
 namespace boost {
-  template <class T>
-  static inline 
-  std::ostream& operator<<(std::ostream& os, const boost::optional<T>& x)
-  {
-    if (x) {
-      os << x.get();
-    }
-    else {
-      os << "";
-    }
-    return os;
+template <class T>
+static inline std::ostream &operator<<(std::ostream &os,
+                                       const boost::optional<T> &x) {
+  if (x) {
+    os << x.get();
+  } else {
+    os << "";
   }
-
-  template <class T>
-  static inline 
-  std::istream& operator>>(std::istream& is, boost::optional<T>& x)
-  {
-    T result;
-    if (is >> result) {
-      x = result;
-    }
-    return is;
-  }
+  return os;
 }
+
+template <class T>
+static inline std::istream &operator>>(std::istream &is,
+                                       boost::optional<T> &x) {
+  T result;
+  if (is >> result) {
+    x = result;
+  }
+  return is;
+}
+} // namespace boost
 
 struct ResetVars {
   std::vector<ClockVariables> resetVars;
 };
 
-static inline 
-std::istream& operator>>(std::istream& is, ResetVars& resetVars)
-{
+static inline std::istream &operator>>(std::istream &is, ResetVars &resetVars) {
   is >> resetVars.resetVars;
   return is;
 }
 
-static inline 
-std::ostream& operator<<(std::ostream& os, const ResetVars& resetVars)
-{
+static inline std::ostream &operator<<(std::ostream &os,
+                                       const ResetVars &resetVars) {
   os << resetVars.resetVars;
   return os;
 }
@@ -263,18 +250,16 @@ struct BoostTATransition {
   std::vector<Constraint> guard;
 };
 
-using BoostTimedAutomaton = 
-                          boost::adjacency_list<
-  boost::listS, boost::vecS, boost::directedS,
-  BoostTAState, BoostTATransition>;
+using BoostTimedAutomaton =
+    boost::adjacency_list<boost::listS, boost::vecS, boost::directedS,
+                          BoostTAState, BoostTATransition>;
 
-static inline 
-void parseBoostTA(std::istream &file, BoostTimedAutomaton &BoostTA)
-{
+static inline void parseBoostTA(std::istream &file,
+                                BoostTimedAutomaton &BoostTA) {
 
   boost::dynamic_properties dp(boost::ignore_other_properties);
   dp.property("match", boost::get(&BoostTAState::isMatch, BoostTA));
-  dp.property("init",  boost::get(&BoostTAState::isInit, BoostTA));
+  dp.property("init", boost::get(&BoostTAState::isInit, BoostTA));
   dp.property("label", boost::get(&BoostTATransition::c, BoostTA));
   dp.property("reset", boost::get(&BoostTATransition::resetVars, BoostTA));
   dp.property("guard", boost::get(&BoostTATransition::guard, BoostTA));
@@ -282,35 +267,47 @@ void parseBoostTA(std::istream &file, BoostTimedAutomaton &BoostTA)
   boost::read_graphviz(file, BoostTA, dp, "id");
 }
 
-static inline 
-void convBoostTA(const BoostTimedAutomaton &BoostTA, TimedAutomaton &TA)
-{
+static inline void convBoostTA(const BoostTimedAutomaton &BoostTA,
+                               TimedAutomaton &TA) {
   TA.states.clear();
   TA.initialStates.clear();
   TA.maxConstraints.clear();
   auto vertex_range = boost::vertices(BoostTA);
-  std::unordered_map<BoostTimedAutomaton::vertex_descriptor, std::shared_ptr<TAState>> stateConvMap;
-  for (auto first = vertex_range.first, last = vertex_range.second; first != last; ++first) {
+  std::unordered_map<BoostTimedAutomaton::vertex_descriptor,
+                     std::shared_ptr<TAState>>
+      stateConvMap;
+  for (auto first = vertex_range.first, last = vertex_range.second;
+       first != last; ++first) {
     BoostTimedAutomaton::vertex_descriptor v = *first;
-    stateConvMap[v] = std::make_shared<TAState>(boost::get(&BoostTAState::isMatch, BoostTA, v));
+    stateConvMap[v] = std::make_shared<TAState>(
+        boost::get(&BoostTAState::isMatch, BoostTA, v));
     TA.states.emplace_back(stateConvMap[v]);
     if (boost::get(&BoostTAState::isInit, BoostTA, v)) {
       TA.initialStates.emplace_back(stateConvMap[v]);
     }
   }
 
-  for (auto first = vertex_range.first, last = vertex_range.second; first != last; ++first) {
+  for (auto first = vertex_range.first, last = vertex_range.second;
+       first != last; ++first) {
     auto edge_range = boost::out_edges(*first, BoostTA);
-    for (auto firstEdge = edge_range.first, lastEdge = edge_range.second; firstEdge != lastEdge; ++firstEdge) {    
+    for (auto firstEdge = edge_range.first, lastEdge = edge_range.second;
+         firstEdge != lastEdge; ++firstEdge) {
       TATransition transition;
-      transition.target = stateConvMap[boost::target(*firstEdge, BoostTA)].get();
-      transition.guard = boost::get(&BoostTATransition::guard, BoostTA, *firstEdge);
-      transition.resetVars = boost::get(&BoostTATransition::resetVars, BoostTA, *firstEdge).resetVars;
-      for (auto g: transition.guard) {
-        TA.maxConstraints.resize(std::max<std::size_t>(TA.maxConstraints.size(), g.x + 1));
+      transition.target =
+          stateConvMap[boost::target(*firstEdge, BoostTA)].get();
+      transition.guard =
+          boost::get(&BoostTATransition::guard, BoostTA, *firstEdge);
+      transition.resetVars =
+          boost::get(&BoostTATransition::resetVars, BoostTA, *firstEdge)
+              .resetVars;
+      for (auto g : transition.guard) {
+        TA.maxConstraints.resize(
+            std::max<std::size_t>(TA.maxConstraints.size(), g.x + 1));
         TA.maxConstraints[g.x] = std::max(TA.maxConstraints[g.x], g.c);
       }
-      stateConvMap[*first]->next[boost::get(&BoostTATransition::c, BoostTA, *firstEdge)].emplace_back(std::move(transition));
+      stateConvMap[*first]
+          ->next[boost::get(&BoostTATransition::c, BoostTA, *firstEdge)]
+          .emplace_back(std::move(transition));
     }
   }
 }

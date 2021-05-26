@@ -6,90 +6,108 @@
   * x = x1 or x2 + |C|
   * in1 and in2 can be same.
 */
-void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out, boost::unordered_map<std::pair<TAState*, TAState*>, std::shared_ptr<TAState>> &toIState)
-{
+void intersectionTA(const TimedAutomaton &in1, const TimedAutomaton &in2,
+                    TimedAutomaton &out,
+                    boost::unordered_map<std::pair<TAState *, TAState *>,
+                                         std::shared_ptr<TAState>> &toIState) {
   // toIState :: (in1.State, in2.State) -> out.State
 
   // make states
   toIState.reserve(in1.stateSize() * in2.stateSize());
   out.states.reserve(in1.stateSize() * in2.stateSize());
-  for (auto s1: in1.states) {
-    for (auto s2: in2.states) {
-      toIState[std::make_pair(s1.get(), s2.get())] = std::make_shared<TAState>(s1->isMatch && s2->isMatch);      
+  for (auto s1 : in1.states) {
+    for (auto s2 : in2.states) {
+      toIState[std::make_pair(s1.get(), s2.get())] =
+          std::make_shared<TAState>(s1->isMatch && s2->isMatch);
       out.states.push_back(toIState[std::make_pair(s1.get(), s2.get())]);
     }
   }
 
   // make initial states
-  out.initialStates.clear ();
-  out.initialStates.reserve (in1.initialStates.size() * in2.initialStates.size());
-  for (auto s1: in1.initialStates) {
-    for (auto s2: in2.initialStates) {
+  out.initialStates.clear();
+  out.initialStates.reserve(in1.initialStates.size() *
+                            in2.initialStates.size());
+  for (auto s1 : in1.initialStates) {
+    for (auto s2 : in2.initialStates) {
       out.initialStates.push_back(toIState[std::make_pair(s1.get(), s2.get())]);
     }
   }
 
   // make max constraints
-  out.maxConstraints.reserve( in1.maxConstraints.size() + in2.maxConstraints.size() ); // preallocate memory
-  out.maxConstraints.insert( out.maxConstraints.end(), in1.maxConstraints.begin(), in1.maxConstraints.end() );
-  out.maxConstraints.insert( out.maxConstraints.end(), in2.maxConstraints.begin(), in2.maxConstraints.end() );
+  out.maxConstraints.reserve(in1.maxConstraints.size() +
+                             in2.maxConstraints.size()); // preallocate memory
+  out.maxConstraints.insert(out.maxConstraints.end(),
+                            in1.maxConstraints.begin(),
+                            in1.maxConstraints.end());
+  out.maxConstraints.insert(out.maxConstraints.end(),
+                            in2.maxConstraints.begin(),
+                            in2.maxConstraints.end());
 
-  const auto addProductTransition = [&] (TAState *s1, TAState *s2, TAState *nextS1, TAState *nextS2, const TATransition &e1, const TATransition &e2, char c) {
+  const auto addProductTransition = [&](TAState *s1, TAState *s2,
+                                        TAState *nextS1, TAState *nextS2,
+                                        const TATransition &e1,
+                                        const TATransition &e2, char c) {
     TATransition transition;
     transition.target = toIState[std::make_pair(nextS1, nextS2)].get();
 
-    //concat resetVars
-    transition.resetVars.reserve (e1.resetVars.size() + e2.resetVars.size());
-    transition.resetVars.insert (transition.resetVars.end(),e1.resetVars.begin(), e1.resetVars.end());
-    transition.resetVars.insert (transition.resetVars.end(),e2.resetVars.begin(), e2.resetVars.end());
-    std::for_each (transition.resetVars.begin () + e1.resetVars.size(),
-                   transition.resetVars.end(),
-                   [&] (ClockVariables &v) { v += in1.clockSize();});
+    // concat resetVars
+    transition.resetVars.reserve(e1.resetVars.size() + e2.resetVars.size());
+    transition.resetVars.insert(transition.resetVars.end(),
+                                e1.resetVars.begin(), e1.resetVars.end());
+    transition.resetVars.insert(transition.resetVars.end(),
+                                e2.resetVars.begin(), e2.resetVars.end());
+    std::for_each(transition.resetVars.begin() + e1.resetVars.size(),
+                  transition.resetVars.end(),
+                  [&](ClockVariables &v) { v += in1.clockSize(); });
 
-    //concat constraints
-    transition.guard.reserve (e1.guard.size() + e2.guard.size());
-    transition.guard.insert (transition.guard.end(),e1.guard.begin(), e1.guard.end());
-    transition.guard.insert (transition.guard.end(),e2.guard.begin(), e2.guard.end());
-    std::for_each (transition.guard.begin () + e1.guard.size(),
-                   transition.guard.end(),
-                   [&] (Constraint &guard) { guard.x += in1.clockSize();});
+    // concat constraints
+    transition.guard.reserve(e1.guard.size() + e2.guard.size());
+    transition.guard.insert(transition.guard.end(), e1.guard.begin(),
+                            e1.guard.end());
+    transition.guard.insert(transition.guard.end(), e2.guard.begin(),
+                            e2.guard.end());
+    std::for_each(transition.guard.begin() + e1.guard.size(),
+                  transition.guard.end(),
+                  [&](Constraint &guard) { guard.x += in1.clockSize(); });
 
     toIState[std::make_pair(s1, s2)]->next[c].push_back(std::move(transition));
   };
 
   TATransition emptyTransition;
   // make edges
-  for (auto s1: in1.states) {
-    for (auto s2: in2.states) {
+  for (auto s1 : in1.states) {
+    for (auto s2 : in2.states) {
       // Epsilon transitions
-      for (const auto &e1: s1->next[0]) {
+      for (const auto &e1 : s1->next[0]) {
         auto nextS1 = e1.target;
         if (!nextS1) {
           continue;
         }
-        addProductTransition(s1.get(), s2.get(), nextS1, s2.get(), e1, emptyTransition, 0);
+        addProductTransition(s1.get(), s2.get(), nextS1, s2.get(), e1,
+                             emptyTransition, 0);
       }
-      for (const auto &e2: s2->next[0]) {
+      for (const auto &e2 : s2->next[0]) {
         auto nextS2 = e2.target;
         if (!nextS2) {
           continue;
         }
-        addProductTransition(s1.get(), s2.get(), s1.get(), nextS2, emptyTransition, e2, 0);
+        addProductTransition(s1.get(), s2.get(), s1.get(), nextS2,
+                             emptyTransition, e2, 0);
       }
 
       // Observable transitions
       for (auto it1 = s1->next.begin(); it1 != s1->next.end(); it1++) {
         const Alphabet c = it1->first;
-        for (const auto &e1: it1->second) {
+        for (const auto &e1 : it1->second) {
           auto nextS1 = e1.target;
           if (!nextS1) {
-              continue;
+            continue;
           }
           auto it2 = s2->next.find(c);
           if (it2 == s2->next.end()) {
             continue;
           }
-          for (const auto &e2: it2->second) {
+          for (const auto &e2 : it2->second) {
             auto nextS2 = e2.target;
             if (!nextS2) {
               continue;
@@ -102,105 +120,129 @@ void intersectionTA (const TimedAutomaton &in1, const TimedAutomaton &in2, Timed
   }
 }
 
-void updateInitAccepting(const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out, boost::unordered_map<std::pair<TAState*, TAState*>, std::shared_ptr<TAState>> toIState) {
+void updateInitAccepting(const TimedAutomaton &in1, const TimedAutomaton &in2,
+                         TimedAutomaton &out,
+                         boost::unordered_map<std::pair<TAState *, TAState *>,
+                                              std::shared_ptr<TAState>>
+                             toIState) {
   // update initial states
   out.initialStates.clear();
-  out.initialStates.reserve(in1.initialStates.size() * in2.initialStates.size());
-  for (auto init1: in1.initialStates) {
-    for (auto init2: in2.initialStates) {
-      out.initialStates.push_back(toIState[std::make_pair(init1.get(), init2.get())]);
+  out.initialStates.reserve(in1.initialStates.size() *
+                            in2.initialStates.size());
+  for (auto init1 : in1.initialStates) {
+    for (auto init2 : in2.initialStates) {
+      out.initialStates.push_back(
+          toIState[std::make_pair(init1.get(), init2.get())]);
     }
   }
 
   // update accepting states
-  for (auto it = toIState.begin(); it != toIState.end(); ) {
+  for (auto it = toIState.begin(); it != toIState.end();) {
     if (it->first.first && it->first.second && it->second) {
-     it->second->isMatch = it->first.first->isMatch && it->first.second->isMatch;    
-     it++;
+      it->second->isMatch =
+          it->first.first->isMatch && it->first.second->isMatch;
+      it++;
     } else {
       it = toIState.erase(it);
     }
   }
 }
 
-
-void intersectionSignalTA (const TimedAutomaton &in1, const TimedAutomaton &in2, TimedAutomaton &out)
-{
+void intersectionSignalTA(const TimedAutomaton &in1, const TimedAutomaton &in2,
+                          TimedAutomaton &out) {
   // toIState :: (in1.State, in2.State) -> out.State
-  boost::unordered_map<std::pair<TAState*, TAState*>, std::shared_ptr<TAState>> toIState;
+  boost::unordered_map<std::pair<TAState *, TAState *>,
+                       std::shared_ptr<TAState>>
+      toIState;
 
   // make states
   toIState.reserve(in1.stateSize() * in2.stateSize());
   out.states.reserve(in1.stateSize() * in2.stateSize());
-  for (auto s1: in1.states) {
-    for (auto s2: in2.states) {
-      toIState[std::make_pair(s1.get(), s2.get())] = std::make_shared<TAState>(s1->isMatch && s2->isMatch);      
+  for (auto s1 : in1.states) {
+    for (auto s2 : in2.states) {
+      toIState[std::make_pair(s1.get(), s2.get())] =
+          std::make_shared<TAState>(s1->isMatch && s2->isMatch);
       out.states.push_back(toIState[std::make_pair(s1.get(), s2.get())]);
     }
   }
 
   // make initial states
-  out.initialStates.clear ();
-  out.initialStates.reserve (in1.initialStates.size() * in2.initialStates.size());
-  for (auto s1: in1.initialStates) {
-    for (auto s2: in2.initialStates) {
+  out.initialStates.clear();
+  out.initialStates.reserve(in1.initialStates.size() *
+                            in2.initialStates.size());
+  for (auto s1 : in1.initialStates) {
+    for (auto s2 : in2.initialStates) {
       out.initialStates.push_back(toIState[std::make_pair(s1.get(), s2.get())]);
     }
   }
 
   // make max constraints
-  out.maxConstraints.reserve( in1.maxConstraints.size() + in2.maxConstraints.size() ); // preallocate memory
-  out.maxConstraints.insert( out.maxConstraints.end(), in1.maxConstraints.begin(), in1.maxConstraints.end() );
-  out.maxConstraints.insert( out.maxConstraints.end(), in2.maxConstraints.begin(), in2.maxConstraints.end() );
+  out.maxConstraints.reserve(in1.maxConstraints.size() +
+                             in2.maxConstraints.size()); // preallocate memory
+  out.maxConstraints.insert(out.maxConstraints.end(),
+                            in1.maxConstraints.begin(),
+                            in1.maxConstraints.end());
+  out.maxConstraints.insert(out.maxConstraints.end(),
+                            in2.maxConstraints.begin(),
+                            in2.maxConstraints.end());
 
-  const auto addProductTransition = [&] (TAState *s1, TAState *s2, TAState *nextS1, TAState *nextS2, const TATransition &e1, const TATransition &e2, char c) {
+  const auto addProductTransition = [&](TAState *s1, TAState *s2,
+                                        TAState *nextS1, TAState *nextS2,
+                                        const TATransition &e1,
+                                        const TATransition &e2, char c) {
     TATransition transition;
     transition.target = toIState[std::make_pair(nextS1, nextS2)].get();
 
-    //concat resetVars
-    transition.resetVars.reserve (e1.resetVars.size() + e2.resetVars.size());
-    transition.resetVars.insert (transition.resetVars.end(),e1.resetVars.begin(), e1.resetVars.end());
-    transition.resetVars.insert (transition.resetVars.end(),e2.resetVars.begin(), e2.resetVars.end());
-    std::for_each (transition.resetVars.begin () + e1.resetVars.size(),
-                   transition.resetVars.end(),
-                   [&] (ClockVariables &v) { v += in1.clockSize();});
+    // concat resetVars
+    transition.resetVars.reserve(e1.resetVars.size() + e2.resetVars.size());
+    transition.resetVars.insert(transition.resetVars.end(),
+                                e1.resetVars.begin(), e1.resetVars.end());
+    transition.resetVars.insert(transition.resetVars.end(),
+                                e2.resetVars.begin(), e2.resetVars.end());
+    std::for_each(transition.resetVars.begin() + e1.resetVars.size(),
+                  transition.resetVars.end(),
+                  [&](ClockVariables &v) { v += in1.clockSize(); });
 
-    //concat constraints
-    transition.guard.reserve (e1.guard.size() + e2.guard.size());
-    transition.guard.insert (transition.guard.end(),e1.guard.begin(), e1.guard.end());
-    transition.guard.insert (transition.guard.end(),e2.guard.begin(), e2.guard.end());
-    std::for_each (transition.guard.begin () + e1.guard.size(),
-                   transition.guard.end(),
-                   [&] (Constraint &guard) { guard.x += in1.clockSize();});
+    // concat constraints
+    transition.guard.reserve(e1.guard.size() + e2.guard.size());
+    transition.guard.insert(transition.guard.end(), e1.guard.begin(),
+                            e1.guard.end());
+    transition.guard.insert(transition.guard.end(), e2.guard.begin(),
+                            e2.guard.end());
+    std::for_each(transition.guard.begin() + e1.guard.size(),
+                  transition.guard.end(),
+                  [&](Constraint &guard) { guard.x += in1.clockSize(); });
 
     toIState[std::make_pair(s1, s2)]->next[c].push_back(std::move(transition));
   };
 
   TATransition emptyTransition;
   // make edges
-  for (auto s1: in1.states) {
-    for (auto s2: in2.states) {
+  for (auto s1 : in1.states) {
+    for (auto s2 : in2.states) {
       // Epsilon transitions
-      for (const auto &e1: s1->next[0]) {
+      for (const auto &e1 : s1->next[0]) {
         auto nextS1 = e1.target;
         if (!nextS1) {
           continue;
         }
-        addProductTransition(s1.get(), s2.get(), nextS1, s2.get(), e1, emptyTransition, 0);
+        addProductTransition(s1.get(), s2.get(), nextS1, s2.get(), e1,
+                             emptyTransition, 0);
       }
-      for (const auto &e2: s2->next[0]) {
+      for (const auto &e2 : s2->next[0]) {
         auto nextS2 = e2.target;
         if (!nextS2) {
           continue;
         }
-        addProductTransition(s1.get(), s2.get(), s1.get(), nextS2, emptyTransition, e2, 0);
+        addProductTransition(s1.get(), s2.get(), s1.get(), nextS2,
+                             emptyTransition, e2, 0);
       }
 
       // Observable transitions
       for (auto it1 = s1->next.begin(); it1 != s1->next.end(); it1++) {
         const Alphabet c = it1->first;
         // Syncronous transition
-        for (const auto &e1: it1->second) {
+        for (const auto &e1 : it1->second) {
           auto nextS1 = e1.target;
           if (!nextS1) {
             continue;
@@ -209,7 +251,7 @@ void intersectionSignalTA (const TimedAutomaton &in1, const TimedAutomaton &in2,
           if (it2 == s2->next.end()) {
             continue;
           }
-          for (const auto &e2: it2->second) {
+          for (const auto &e2 : it2->second) {
             auto nextS2 = e2.target;
             if (!nextS2) {
               continue;
@@ -220,12 +262,13 @@ void intersectionSignalTA (const TimedAutomaton &in1, const TimedAutomaton &in2,
 
         // Asyncronous transition
         if (s2->next.find(c) != s2->next.end()) {
-          for (const auto &e1: it1->second) {
+          for (const auto &e1 : it1->second) {
             auto nextS1 = e1.target;
             if (!nextS1) {
               continue;
             }
-            addProductTransition(s1.get(), s2.get(), nextS1, s2.get(), e1, emptyTransition, 0);
+            addProductTransition(s1.get(), s2.get(), nextS1, s2.get(), e1,
+                                 emptyTransition, 0);
           }
         }
 
@@ -233,12 +276,13 @@ void intersectionSignalTA (const TimedAutomaton &in1, const TimedAutomaton &in2,
         if (it2 == s2->next.end()) {
           continue;
         }
-        for (const auto &e2: it2->second) {
+        for (const auto &e2 : it2->second) {
           auto nextS2 = e2.target;
           if (!nextS2) {
             continue;
           }
-          addProductTransition(s1.get(), s2.get(), s1.get(), nextS2, emptyTransition, e2, 0);
+          addProductTransition(s1.get(), s2.get(), s1.get(), nextS2,
+                               emptyTransition, e2, 0);
         }
       }
     }

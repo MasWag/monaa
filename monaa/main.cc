@@ -1,9 +1,9 @@
-#include <iostream>
 #include <boost/program_options.hpp>
+#include <iostream>
 
 #include "monaa.hh"
-#include "tre_driver.hh"
 #include "timed_automaton_parser.hh"
+#include "tre_driver.hh"
 
 using namespace boost::program_options;
 
@@ -11,12 +11,11 @@ using namespace boost::program_options;
 #define MONAA_VERSION "HEAD"
 #endif
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   const auto programName = "monaa";
   const auto errorHeader = "monaa: ";
 
-  const auto die = [&errorHeader] (const char* message, int status) {
+  const auto die = [&errorHeader](const char *message, int status) {
     std::cerr << errorHeader << message << std::endl;
     exit(status);
   };
@@ -29,17 +28,46 @@ int main(int argc, char *argv[])
   std::stringstream treStream;
   bool isBinary = false;
   bool isSignal = false;
-  visible.add_options()
-    ("help,h", "help")
-    ("quiet,q", "quiet")
-    ("version,V", "version")
-    ("ascii,a", "ascii mode [default]")
-    ("binary,b", "binary mode (experimental)")
-    ("event,E", "event mode [default]")
-    ("signal,S", "signal mode (experimental)")
-    ("input,i", value<std::string>(&timedWordFileName)->default_value("stdin"),"input file of Timed Words")
-    ("automaton,f", value<std::string>(&timedAutomatonFileName)->default_value(""),"input file of Timed Automaton")
-    ("expression,e", value<std::string>(&tre)->default_value(""),"pattern Timed Regular Expression");
+  visible.add_options()("help,h", "help")(
+      "quiet,q",
+      "quiet")("version,V", "version")("ascii,a",
+                                       "ascii mode [default]")("binary,b",
+                                                               "binary mode "
+                                                               "(experimental"
+                                                               ")")("event,E",
+                                                                    "event "
+                                                                    "mode "
+                                                                    "[default"
+                                                                    "]")("signa"
+                                                                         "l,S",
+                                                                         "signa"
+                                                                         "l "
+                                                                         "mode "
+                                                                         "(expe"
+                                                                         "rimen"
+                                                                         "tal"
+                                                                         ")")("input, i",
+                                                                              value<
+                                                                                  std::
+                                                                                      string>(
+                                                                                  &timedWordFileName)
+                                                                                  ->default_value(
+                                                                                      "stdin"),
+                                                                              "input file of Timed Words")("automaton, f",
+                                                                                                           value<
+                                                                                                               std::
+                                                                                                                   string>(
+                                                                                                               &timedAutomatonFileName)
+                                                                                                               ->default_value(
+                                                                                                                   ""),
+                                                                                                           "input file of Timed Automaton")("expression, e",
+                                                                                                                                            value<
+                                                                                                                                                std::
+                                                                                                                                                    string>(
+                                                                                                                                                &tre)
+                                                                                                                                                ->default_value(
+                                                                                                                                                    ""),
+                                                                                                                                            "pattern Timed Regular Expression");
 
   command_line_parser parser(argc, argv);
   parser.options(visible);
@@ -48,7 +76,8 @@ int main(int argc, char *argv[])
   store(parseResult, vm);
   notify(vm);
 
-  for (auto const& str: collect_unrecognized(parseResult.options, include_positional)) {
+  for (auto const &str :
+       collect_unrecognized(parseResult.options, include_positional)) {
     if (timedAutomatonFileName.empty() && tre.empty()) {
       tre = std::move(str);
     } else if (timedWordFileName == "stdin") {
@@ -57,28 +86,34 @@ int main(int argc, char *argv[])
   }
 
   if (vm.count("version")) {
-    std::cout << "MONAA (a MONitoring tool Acceralated by Automata) " << MONAA_VERSION << "\n" <<
-      "Copyright (C) 2017-2021 Masaki Waga.\n\n" <<
-      "This program is free software; you can redistribute it and/or modify\n" <<
-      "it under the terms of the GNU General Public License as published by\n" <<
-      "the Free Software Foundation; either version 3 of the License, or\n" <<
-      "(at your option) any later version.\n\n" <<
-      "This program is distributed in the hope that it will be useful,\n" <<
-      "but WITHOUT ANY WARRANTY; without even the implied warranty of\n" <<
-      "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" <<
-      "GNU General Public License for more details.\n\n" <<
-      "You should have received a copy of the GNU General Public License\n" <<
-      "along with this program. If not, see http://www.gnu.org/licenses/." << std::endl;
+    std::cout
+        << "MONAA (a MONitoring tool Acceralated by Automata) " << MONAA_VERSION
+        << "\n"
+        << "Copyright (C) 2017-2021 Masaki Waga.\n\n"
+        << "This program is free software; you can redistribute it and/or "
+           "modify\n"
+        << "it under the terms of the GNU General Public License as published "
+           "by\n"
+        << "the Free Software Foundation; either version 3 of the License, or\n"
+        << "(at your option) any later version.\n\n"
+        << "This program is distributed in the hope that it will be useful,\n"
+        << "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+        << "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+        << "GNU General Public License for more details.\n\n"
+        << "You should have received a copy of the GNU General Public License\n"
+        << "along with this program. If not, see http://www.gnu.org/licenses/."
+        << std::endl;
     return 0;
   }
   if ((timedAutomatonFileName.empty() && tre.empty()) || vm.count("help")) {
-    std::cout << programName << " [OPTIONS] PATTERN [FILE]\n" 
-              << programName << " [OPTIONS] -e PATTERN [FILE]\n" 
-              << programName << " [OPTIONS] -f FILE [FILE]\n" 
+    std::cout << programName << " [OPTIONS] PATTERN [FILE]\n"
+              << programName << " [OPTIONS] -e PATTERN [FILE]\n"
+              << programName << " [OPTIONS] -f FILE [FILE]\n"
               << visible << std::endl;
     return 0;
   }
-  if ((vm.count("ascii") && vm.count("binary")) || (vm.count("signal") && vm.count("event"))) {
+  if ((vm.count("ascii") && vm.count("binary")) ||
+      (vm.count("signal") && vm.count("event"))) {
     die("conflicting input formats specified", 1);
   }
   if (vm.count("binary")) {
@@ -92,7 +127,8 @@ int main(int argc, char *argv[])
     isSignal = false;
   }
   if (!timedAutomatonFileName.empty() && !tre.empty()) {
-    die("both a timed automaton and a timed regular expression are specified", 1);
+    die("both a timed automaton and a timed regular expression are specified",
+        1);
   }
 
   TimedAutomaton TA;
@@ -120,7 +156,7 @@ int main(int argc, char *argv[])
     convBoostTA(BoostTA, TA);
   }
 
-  FILE* file = stdin;
+  FILE *file = stdin;
   if (timedWordFileName != "stdin") {
     file = fopen(timedWordFileName.c_str(), "r");
     if (!file) {
