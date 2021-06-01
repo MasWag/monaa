@@ -11,7 +11,6 @@
 #include <tuple>
 #include <vector>
 #include <boost/unordered_map.hpp>
-#include <Eigen/Core>
 
 #include "common_types.hh"
 #include "constraint.hh"
@@ -31,6 +30,8 @@ static inline std::ostream &operator<<(std::ostream &os, const Bounds &b) {
   os << "(" << b.first << ", " << b.second << ")";
   return os;
 }
+
+#include <Eigen/Core>
 
 /*!
   @brief Implementation of a zone with DBM

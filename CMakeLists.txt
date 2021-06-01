@@ -10,10 +10,12 @@ set(VERSION_MAJOR 0)
 set(VERSION_MINOR 5)
 set(VERSION_PATCH 2)
 
-if(${CMAKE_VERSION} VERSION_LESS "3.12.0") 
-  add_definitions("-DMONAA_VERSION=\"${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}\"")
+if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
+  add_definitions(
+    "-DMONAA_VERSION=\"${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}\"")
 else()
-  add_compile_definitions(MONAA_VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+  add_compile_definitions(
+    MONAA_VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 endif()
 
 find_package(BISON REQUIRED)
@@ -29,13 +31,13 @@ include_directories(
   ${Boost_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS})
 
-BISON_TARGET(tre_parser
+bison_target(TRE_PARSER
   monaa/tre_parser.yy
   ${CMAKE_CURRENT_BINARY_DIR}/tre_parser.tab.cc)
-FLEX_TARGET(tre_lexer
+flex_target(TRE_LEXER
   monaa/tre_lexer.l
   ${CMAKE_CURRENT_BINARY_DIR}/tre_lexer.yy.cc)
-ADD_FLEX_BISON_DEPENDENCY(tre_lexer tre_parser)
+add_flex_bison_dependency(TRE_LEXER TRE_PARSER)
 
 ## Config for Main monaa
 add_executable(monaa
@@ -44,8 +46,8 @@ add_executable(monaa
   libmonaa/ta2za.cc
   monaa/tre.cc
   monaa/intermediate_tre.cc
-  ${FLEX_tre_lexer_OUTPUTS}
-  ${BISON_tre_parser_OUTPUTS})
+  ${FLEX_TRE_LEXER_OUTPUTS}
+  ${BISON_TRE_PARSER_OUTPUTS})
 
 target_link_libraries(monaa
 #  profiler
@@ -65,8 +67,8 @@ add_executable(tre2ta EXCLUDE_FROM_ALL
   monaa/tre.cc
   monaa/intermediate_tre.cc
   libmonaa/intersection.cc
-  ${FLEX_tre_lexer_OUTPUTS}
-  ${BISON_tre_parser_OUTPUTS})
+  ${FLEX_TRE_LEXER_OUTPUTS}
+  ${BISON_TRE_PARSER_OUTPUTS})
 
 target_link_libraries(tre2ta
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
@@ -116,8 +118,8 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/rapidcheck/CMakeLists.txt")
     test/intermediate_tre_test.cc
     test/interval_test.cc
     test/timed_automaton_parser_test.cc
-    ${FLEX_tre_lexer_OUTPUTS}
-    ${BISON_tre_parser_OUTPUTS})
+    ${FLEX_TRE_LEXER_OUTPUTS}
+    ${BISON_TRE_PARSER_OUTPUTS})
 
   add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/rapidcheck/")
 
@@ -134,11 +136,13 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/rapidcheck/CMakeLists.txt")
   add_test(NAME unit_test
     COMMAND $<TARGET_FILE:unit_test>
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-endif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/rapidcheck/CMakeLists.txt")
+endif()
 
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen)
-option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+option(BUILD_DOCUMENTATION
+  "Create and install the HTML based API documentation (requires Doxygen)"
+  ${DOXYGEN_FOUND})
 
 if(BUILD_DOCUMENTATION)
     if(NOT DOXYGEN_FOUND)
