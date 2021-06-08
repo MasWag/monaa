@@ -86,6 +86,8 @@ jobs:
 
   macOS_Catalina:
     runs-on: macos-10.15
+    strategy:
+      max-parallel: 4
     steps:
     - uses: actions/checkout@v2
       with:
