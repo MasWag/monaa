@@ -44,7 +44,7 @@ MONAA is tested on Arch Linux, Ubuntu (18.04 and 20.04), and macOS 10.15 Catalin
 * Boost (>= 1.59)
 * Eigen
 * CMake
-* Bison
+* Bison (>= 3.0)
 * Flex
 
 ### Instructions
