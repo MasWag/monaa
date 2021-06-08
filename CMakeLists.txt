@@ -59,7 +59,7 @@ include_directories(
   ${FLEX_INCLUDE_DIRS}
   ${PROJECT_BINARY_DIR}
   ${Boost_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS})
+  ${EIGEN3_INCLUDE_DIR})
 
 bison_target(TRE_PARSER
   monaa/tre_parser.yy
