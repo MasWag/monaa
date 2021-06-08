@@ -594,7 +594,7 @@ void monaa(WordContainer<InputContainer> word, TimedAutomaton A,
                 continue;
               }
               IntermediateZone tmpZ = econfig.z;
-              ClockVariables newClock;
+              ClockVariables newClock = 0;
               tmpZ.alloc({word[j].second, true},
                          ((j > 0) ? Bounds{-word[j - 1].second, false}
                                   : Bounds{0, true}));
