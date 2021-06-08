@@ -36,7 +36,7 @@ Usage
 Installation
 ------------
 
-MONAA is tested on Arch Linux, Ubuntu (18.04 and 20.04), and Mac OSX 10.11.6. We also provide a [docker image](https://hub.docker.com/repository/docker/maswag/monaa).
+MONAA is tested on Arch Linux, Ubuntu (18.04 and 20.04), and macOS 10.15 Catalina. We also provide a [docker image](https://hub.docker.com/repository/docker/maswag/monaa).
 
 ### Requirements
 
