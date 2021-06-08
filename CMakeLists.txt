@@ -18,20 +18,19 @@ else()
     MONAA_VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 endif()
 
-# Mostly taken from the following but
-# https://stackoverflow.com/questions/53877344/cannot-configure-cmake-to-look-for-homebrew-installed-version-of-bison
 # On macOS, search Homebrew for keg-only versions of Bison and Flex. Xcode does
 # not provide new enough versions for us to use.
-if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
+if(CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
     execute_process(
         COMMAND brew --prefix bison
         RESULT_VARIABLE BREW_BISON
         OUTPUT_VARIABLE BREW_BISON_PREFIX
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-    if (BREW_BISON EQUAL 0 AND EXISTS "${BREW_BISON_PREFIX}")
-        message(STATUS "Found Bison keg installed by Homebrew at ${BREW_BISON_PREFIX}")
-        set(CMAKE_FIND_ROOT_PATH "${BREW_BISON_PREFIX};${CMAKE_FIND_ROOT_PATH}")
+    if(BREW_BISON EQUAL 0 AND EXISTS "${BREW_BISON_PREFIX}")
+      message(STATUS
+        "Found Bison keg installed by Homebrew at ${BREW_BISON_PREFIX}")
+      set(CMAKE_FIND_ROOT_PATH "${BREW_BISON_PREFIX};${CMAKE_FIND_ROOT_PATH}")
     endif()
 
     execute_process(
@@ -40,8 +39,9 @@ if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
         OUTPUT_VARIABLE BREW_FLEX_PREFIX
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-    if (BREW_FLEX EQUAL 0 AND EXISTS "${BREW_FLEX_PREFIX}")
-        message(STATUS "Found Flex keg installed by Homebrew at ${BREW_FLEX_PREFIX}")
+    if(BREW_FLEX EQUAL 0 AND EXISTS "${BREW_FLEX_PREFIX}")
+      message(STATUS
+        "Found Flex keg installed by Homebrew at ${BREW_FLEX_PREFIX}")
         set(CMAKE_FIND_ROOT_PATH "${BREW_FLEX_PREFIX};${CMAKE_FIND_ROOT_PATH}")
     endif()
 endif()
