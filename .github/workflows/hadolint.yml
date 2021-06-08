@@ -1,0 +1,16 @@
+name: hadolint
+
+on:
+  push:
+    paths:
+      - 'docker/Dockerfile'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run hadolint
+      uses: hadolint/hadolint-action@v1.5.0
+      with:
+        dockerfile: docker/Dockerfile
