@@ -18,6 +18,9 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: true
+    - name: install_dependencies
+      run: |
+        sudo apt-get update -y && sudo apt-get install doxygen graphviz -y
     - name: build_doxygen
       run: |
         mkdir -p /tmp/build && cd /tmp/build
