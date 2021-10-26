@@ -8,14 +8,22 @@
 #include "timed_automaton.hh"
 #include "zone_automaton.hh"
 
+/*!
+ * @brief The skip value function based on Sunday's quick search
+ *
+ * @note We construct the table maintaining all the skip values in the constructor for the efficiency at runtime.
+ * @sa https://doi.org/10.1145/79173.79184
+ */
 class SundaySkipValue {
 private:
+  //! @brief Minimum length of the recognized language
   int m;
-  std::array<unsigned int, CHAR_MAX> delta;
+  std::array<unsigned int, CHAR_MAX> delta{};
+  //! @brief The set of the m-th characters of the untimed projection of the recognized language
   std::unordered_set<char> endChars;
 
 public:
-  SundaySkipValue(TimedAutomaton TA) {
+  explicit SundaySkipValue(const TimedAutomaton &TA) {
     ZoneAutomaton ZA;
     ta2za(TA, ZA);
     ZA.removeDeadStates();
@@ -32,13 +40,13 @@ public:
       std::vector<std::shared_ptr<ZAState>> NStates;
       m++;
       charSet.resize(m);
-      for (auto zstate : CStates) {
+      for (const auto& zaState : CStates) {
         std::unordered_set<std::shared_ptr<ZAState>> closure;
-        closure.insert(zstate);
+        closure.insert(zaState);
         epsilonClosure(closure);
-        for (auto state : closure) {
+        for (const auto& state : closure) {
           for (char c = 1; c < CHAR_MAX; c++) {
-            for (auto nextState : state->next[c]) {
+            for (const auto& nextState : state->next[c]) {
               auto sharedNext = nextState.lock();
               if (!sharedNext) {
                 continue;
@@ -53,7 +61,7 @@ public:
       CStates = NStates;
     }
 
-    // Calc Sunday's Skip Value
+    // Construct the table of Sunday's skip value
     delta.fill(m + 1);
     for (int i = 0; i <= m - 1; i++) {
       for (char s : charSet[i]) {
@@ -64,9 +72,9 @@ public:
   }
   unsigned int at(std::size_t n) const { return delta.at(n); }
   unsigned int operator[](std::size_t n) const { return delta[n]; }
-  //! @brief Minumum length of the language
+  //! @brief Minimum length of the recognized language
   int getM() const { return m; }
-  void getEndChars(std::unordered_set<char> &endChars) const {
-    endChars = this->endChars;
+  void getEndChars(std::unordered_set<char> &endCharsHolder) const {
+    endCharsHolder = this->endChars;
   }
 };
