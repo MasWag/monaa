@@ -76,6 +76,11 @@ $(function() {
 <div class="title">KMPSkipValue Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>The skip value function based on the KMP algorithm for string matching.  
+ <a href="classKMPSkipValue.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="kmp__skip__value_8hh_source.html">kmp_skip_value.hh</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -88,14 +93,18 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>at</b> (const <a class
 <tr class="memitem:a3ec27ea481836dd8e8499080a1229d98"><td class="memItemLeft" align="right" valign="top"><a id="a3ec27ea481836dd8e8499080a1229d98"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>operator[]</b> (const <a class="el" href="structTAState.html">TAState</a> *s) const</td></tr>
 <tr class="separator:a3ec27ea481836dd8e8499080a1229d98"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7ed8d8ab44b7c56b3a1a477e7db3a04b"><td class="memItemLeft" align="right" valign="top"><a id="a7ed8d8ab44b7c56b3a1a477e7db3a04b"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>at</b> (std::shared_ptr&lt; <a class="el" href="structTAState.html">TAState</a> &gt; s) const</td></tr>
-<tr class="separator:a7ed8d8ab44b7c56b3a1a477e7db3a04b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7680f005acf4370956be2d8aff3babf0"><td class="memItemLeft" align="right" valign="top"><a id="a7680f005acf4370956be2d8aff3babf0"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>operator[]</b> (std::shared_ptr&lt; <a class="el" href="structTAState.html">TAState</a> &gt; s) const</td></tr>
-<tr class="separator:a7680f005acf4370956be2d8aff3babf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e3ffa7f4a2636af275bb19f4bb40f23"><td class="memItemLeft" align="right" valign="top"><a id="a8e3ffa7f4a2636af275bb19f4bb40f23"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>at</b> (const std::shared_ptr&lt; <a class="el" href="structTAState.html">TAState</a> &gt; &amp;s) const</td></tr>
+<tr class="separator:a8e3ffa7f4a2636af275bb19f4bb40f23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa68c8d9057a6eca293eb72fec5f8163"><td class="memItemLeft" align="right" valign="top"><a id="afa68c8d9057a6eca293eb72fec5f8163"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>operator[]</b> (const std::shared_ptr&lt; <a class="el" href="structTAState.html">TAState</a> &gt; &amp;s) const</td></tr>
+<tr class="separator:afa68c8d9057a6eca293eb72fec5f8163"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this class was generated from the following file:<ul>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>The skip value function based on the KMP algorithm for string matching. </p>
+<dl class="section note"><dt>Note</dt><dd>We construct the table maintaining all the skip values in the constructor for the efficiency at runtime. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a href="https://doi.org/10.1137%2F0206024">https://doi.org/10.1137%2F0206024</a> </dd></dl>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="kmp__skip__value_8hh_source.html">kmp_skip_value.hh</a></li>
 </ul>
 </div><!-- contents -->
