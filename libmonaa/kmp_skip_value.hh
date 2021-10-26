@@ -8,6 +8,12 @@
 #include "timed_automaton.hh"
 #include "zone_automaton.hh"
 
+/*!
+ * @brief The skip value function based on the KMP algorithm for string matching
+ *
+ * @note We construct the table maintaining all the skip values in the constructor for the efficiency at runtime.
+ * @sa https://doi.org/10.1137%2F0206024
+ */
 class KMPSkipValue {
 private:
   std::unordered_map<const TAState *, int> beta;
@@ -21,18 +27,16 @@ public:
         toIState;
     // A0 is the automaton in A_{+n}^* in the paper. What we do is: 1) construct
     // a dummy accepting state, and 2) construct m-dummy states to the original
-    // intial states
+    // initial states
     TimedAutomaton A0;
     std::unordered_map<TAState *, std::shared_ptr<TAState>> old2new0;
     TA.deepCopy(A0, old2new0);
     // Vector of extended initial states. if the accepting state is
     // extendedInitialStates[n], the TA reads n-additional events.
     std::vector<std::shared_ptr<TAState>> extendedInitialStates(m + 1);
-    for (auto &es : extendedInitialStates) {
-      es = std::make_shared<TAState>();
-    }
+    std::generate(extendedInitialStates.begin(), extendedInitialStates.end(), std::make_shared<TAState>);
 
-    for (auto initialState : A0.initialStates) {
+    for (const auto& initialState : A0.initialStates) {
       for (auto it = initialState->next.begin(); it != initialState->next.end();
            it++) {
         for (TATransition edge : it->second) {
@@ -59,14 +63,14 @@ public:
           {dummyAcceptingState.get(), {}, {}});
     }
     for (auto &state : A0.states) {
-      for (auto it = state->next.begin(); it != state->next.end(); it++) {
-        for (TATransition edge : it->second) {
+      for (auto & it : state->next) {
+        for (TATransition edge : it.second) {
           const auto target = edge.target;
           // We can modify edge because it is copied
           if (target && target->isMatch) {
             edge.target = dummyAcceptingState.get();
             widen(edge.guard);
-            it->second.emplace_back(std::move(edge));
+            it.second.emplace_back(std::move(edge));
           }
         }
       }
@@ -85,7 +89,7 @@ public:
     std::unordered_map<std::shared_ptr<TAState>, std::shared_ptr<TAState>>
         toDummyState;
     toDummyState.reserve(TA.states.size());
-    for (auto state : As.states) {
+    for (const auto& state : As.states) {
       toDummyState[state] = std::make_shared<TAState>();
       state->next[0].push_back({toDummyState[state].get(), {}, {}});
       // add self loop
@@ -95,19 +99,19 @@ public:
       }
     }
     As.states.reserve(As.states.size() * 2);
-    for (auto dummyState : toDummyState) {
+    for (const auto& dummyState : toDummyState) {
       As.states.push_back(dummyState.second);
     }
 
     intersectionTA(A0, As, A2, toIState);
 
     // Calculate KMP-type skip value
-    for (auto origState : TA.states) {
+    for (const auto& origState : TA.states) {
       for (auto &stateAs : As.states) {
         stateAs->isMatch = stateAs == old2newS[origState.get()] ||
                            stateAs == toDummyState[old2newS[origState.get()]];
       }
-      // Find the minumum n such that the intersection of the two languages is
+      // Find the minimum n such that the intersection of the two languages is
       // not empty.
       for (int n = 1; n <= m; n++) {
         A0.initialStates = {extendedInitialStates[n]};
@@ -121,16 +125,14 @@ public:
         }
       }
       // When the emptiness checking always failed, we set m
-      if (beta.find(origState.get()) == beta.end()) {
-        beta[origState.get()] = m;
-      }
+      beta.insert(std::make_pair(origState.get(), m));
     }
   }
 
   inline int at(const TAState *s) const { return beta.at(s); }
   inline int operator[](const TAState *s) const { return beta.at(s); }
-  inline int at(std::shared_ptr<TAState> s) const { return beta.at(s.get()); }
-  inline int operator[](std::shared_ptr<TAState> s) const {
+  inline int at(const std::shared_ptr<TAState>& s) const { return beta.at(s.get()); }
+  inline int operator[](const std::shared_ptr<TAState>& s) const {
     return beta.at(s.get());
   }
 };
