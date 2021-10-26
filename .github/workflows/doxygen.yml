@@ -12,16 +12,12 @@ on:
 jobs:
   doxygen:
     runs-on: ubuntu-latest
-    container: maswag/monaa-test-env
     strategy:
       max-parallel: 4
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: true
-    - name: install_dependencies
-      run: |
-        sudo pacman -Sy doxygen graphviz --noconfirm
     - name: build_doxygen
       run: |
         mkdir -p /tmp/build && cd /tmp/build
