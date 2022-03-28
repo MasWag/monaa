@@ -1,10 +1,10 @@
 Installing MONAA
 ================
 
-MacOS
+macOS
 -----
 
-On MacOS, you can install MONAA using [Homebrew](https://brew.sh).
+On macOS, you can install MONAA using [Homebrew](https://brew.sh).
 
 1. First, you have to setup Homebrew if you have not set it up yet.
 
@@ -12,7 +12,7 @@ On MacOS, you can install MONAA using [Homebrew](https://brew.sh).
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
 
-2. Then, you can install MONAA using Homebrew :)
+2. Then, you can install MONAA using Homebrew :-)
 
 ```bash
 brew install maswag/scientific/monaa
@@ -42,13 +42,12 @@ git clone https://github.com/MasWag/monaa.git
 3. Build MONAA
 
 ```bash
-cd monaa
-mkdir build
-cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make && make install
+mkdir monaa/build
+cd monaa/build && cmake -DCMAKE_BUILD_TYPE=Release .. && make && make install
 ```
 
-Ubuntu 18.04 (bionics)
-----------------------
+Ubuntu 18.04 (bionic) and Ubuntu 20.04 (focal)
+----------------------------------------------
 
 1. Install the required packages
 
@@ -65,9 +64,8 @@ git clone https://github.com/MasWag/monaa.git
 3. Build MONAA
 
 ```bash
-cd monaa
-mkdir build
-cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make && make install
+mkdir monaa/build
+cd monaa/build && cmake -DCMAKE_BUILD_TYPE=Release .. && make && make install
 ```
 
 Docker
@@ -76,8 +74,8 @@ Docker
 
 1. Install [docker](https://www.docker.com/)
 
-2. pull the docker image by `docker pull maswag/monaa`.
+2. Pull the docker image by `docker pull maswag/monaa`.
 
-3. Use the container e.g., `docker run -i maswag/monaa -e '(AB)$' < ./getting_started/timed_word.txt`.
+3. Use the container, e.g., `docker run -i maswag/monaa -e '(AB)$' < ./getting_started/timed_word.txt`.
 
 [Docker Hub page](https://cloud.docker.com/u/maswag/repository/docker/maswag/monaa)
