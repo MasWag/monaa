@@ -56,7 +56,14 @@ cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make && make install
 
 ### Usage of the docker image
 
+Note: Docker support is experimental. It seems this image does not work with Docker Desktop for macOS.
+
 You can use monaa via docker by `docker run -it maswag/monaa ...` instead of `monaa ...`.
+The following shows an example.
+
+```sh
+docker run -v $PWD:/mnt -it maswag/monaa -f /mnt/examples/small.dot -i /mnt/examples/small.txt
+```
 
 Examples
 --------
