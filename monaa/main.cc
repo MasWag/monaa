@@ -28,46 +28,17 @@ int main(int argc, char *argv[]) {
   std::stringstream treStream;
   bool isBinary = false;
   bool isSignal = false;
-  visible.add_options()("help,h", "help")(
-      "quiet,q",
-      "quiet")("version,V", "version")("ascii,a",
-                                       "ascii mode [default]")("binary,b",
-                                                               "binary mode "
-                                                               "(experimental"
-                                                               ")")("event,E",
-                                                                    "event "
-                                                                    "mode "
-                                                                    "[default"
-                                                                    "]")("signa"
-                                                                         "l,S",
-                                                                         "signa"
-                                                                         "l "
-                                                                         "mode "
-                                                                         "(expe"
-                                                                         "rimen"
-                                                                         "tal"
-                                                                         ")")("input, i",
-                                                                              value<
-                                                                                  std::
-                                                                                      string>(
-                                                                                  &timedWordFileName)
-                                                                                  ->default_value(
-                                                                                      "stdin"),
-                                                                              "input file of Timed Words")("automaton, f",
-                                                                                                           value<
-                                                                                                               std::
-                                                                                                                   string>(
-                                                                                                               &timedAutomatonFileName)
-                                                                                                               ->default_value(
-                                                                                                                   ""),
-                                                                                                           "input file of Timed Automaton")("expression, e",
-                                                                                                                                            value<
-                                                                                                                                                std::
-                                                                                                                                                    string>(
-                                                                                                                                                &tre)
-                                                                                                                                                ->default_value(
-                                                                                                                                                    ""),
-                                                                                                                                            "pattern Timed Regular Expression");
+  visible.add_options()
+    ("help,h", "help")
+    ("quiet,q", "quiet")
+    ("version,V", "version")
+    ("ascii,a", "ascii mode [default]")
+    ("binary,b", "binary mode (experimental)")
+    ("event,E", "event mode [default]")
+    ("signal,S", "signal mode (experimental)")
+    ("input,i", value<std::string>(&timedWordFileName)->default_value("stdin"), "input file of Timed Words")
+    ("automaton,f", value<std::string>(&timedAutomatonFileName)->default_value(""), "input file of Timed Automaton")
+    ("expression,e", value<std::string>(&tre)->default_value(""), "pattern Timed Regular Expression");
 
   command_line_parser parser(argc, argv);
   parser.options(visible);
@@ -87,13 +58,10 @@ int main(int argc, char *argv[]) {
 
   if (vm.count("version")) {
     std::cout
-        << "MONAA (a MONitoring tool Acceralated by Automata) " << MONAA_VERSION
-        << "\n"
-        << "Copyright (C) 2017-2021 Masaki Waga.\n\n"
-        << "This program is free software; you can redistribute it and/or "
-           "modify\n"
-        << "it under the terms of the GNU General Public License as published "
-           "by\n"
+        << "MONAA (a MONitoring tool Acceralated by Automata) " << MONAA_VERSION << "\n"
+        << "Copyright (C) 2017-2022 Masaki Waga.\n\n"
+        << "This program is free software; you can redistribute it and/or modify\n"
+        << "it under the terms of the GNU General Public License as published by\n"
         << "the Free Software Foundation; either version 3 of the License, or\n"
         << "(at your option) any later version.\n\n"
         << "This program is distributed in the hope that it will be useful,\n"
@@ -127,8 +95,7 @@ int main(int argc, char *argv[]) {
     isSignal = false;
   }
   if (!timedAutomatonFileName.empty() && !tre.empty()) {
-    die("both a timed automaton and a timed regular expression are specified",
-        1);
+    die("both a timed automaton and a timed regular expression are specified", 1);
   }
 
   TimedAutomaton TA;
