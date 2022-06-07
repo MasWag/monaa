@@ -4,9 +4,9 @@ project(MONAA CXX)
 
 cmake_minimum_required(VERSION 3.1)
 set(CMAKE_CXX_FLAGS "-Wall -std=c++14")
-# Hack to disable -march=native if it is not supported (e.g., clang on Apple M1 does not)
+# Hack to disable -march=native if it is not supported
 include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
+check_cxx_compiler_flag("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
 if(COMPILER_SUPPORTS_MARCH_NATIVE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 endif()
