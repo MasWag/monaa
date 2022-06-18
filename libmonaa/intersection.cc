@@ -17,8 +17,12 @@ void intersectionTA(const TimedAutomaton &in1, const TimedAutomaton &in2,
   out.states.reserve(in1.stateSize() * in2.stateSize());
   for (auto s1 : in1.states) {
     for (auto s2 : in2.states) {
+      if (s1->zeroDuration != s2->zeroDuration) {
+        continue;
+      }
       toIState[std::make_pair(s1.get(), s2.get())] =
           std::make_shared<TAState>(s1->isMatch && s2->isMatch);
+      toIState[std::make_pair(s1.get(), s2.get())]->zeroDuration = s1->zeroDuration;
       out.states.push_back(toIState[std::make_pair(s1.get(), s2.get())]);
     }
   }
@@ -29,6 +33,9 @@ void intersectionTA(const TimedAutomaton &in1, const TimedAutomaton &in2,
                             in2.initialStates.size());
   for (auto s1 : in1.initialStates) {
     for (auto s2 : in2.initialStates) {
+      if (s1->zeroDuration != s2->zeroDuration) {
+        continue;
+      }
       out.initialStates.push_back(toIState[std::make_pair(s1.get(), s2.get())]);
     }
   }
@@ -77,6 +84,9 @@ void intersectionTA(const TimedAutomaton &in1, const TimedAutomaton &in2,
   // make edges
   for (auto s1 : in1.states) {
     for (auto s2 : in2.states) {
+      if (s1->zeroDuration != s2->zeroDuration) {
+        continue;
+      }
       // Epsilon transitions
       for (const auto &e1 : s1->next[0]) {
         auto nextS1 = e1.target;
@@ -131,6 +141,9 @@ void updateInitAccepting(const TimedAutomaton &in1, const TimedAutomaton &in2,
                             in2.initialStates.size());
   for (auto init1 : in1.initialStates) {
     for (auto init2 : in2.initialStates) {
+      if (init1->zeroDuration != init2->zeroDuration) {
+        continue;
+      }
       out.initialStates.push_back(
           toIState[std::make_pair(init1.get(), init2.get())]);
     }
@@ -160,6 +173,9 @@ void intersectionSignalTA(const TimedAutomaton &in1, const TimedAutomaton &in2,
   out.states.reserve(in1.stateSize() * in2.stateSize());
   for (auto s1 : in1.states) {
     for (auto s2 : in2.states) {
+      if (s1->zeroDuration != s2->zeroDuration) {
+        continue;
+      }
       toIState[std::make_pair(s1.get(), s2.get())] =
           std::make_shared<TAState>(s1->isMatch && s2->isMatch);
       out.states.push_back(toIState[std::make_pair(s1.get(), s2.get())]);
@@ -172,6 +188,9 @@ void intersectionSignalTA(const TimedAutomaton &in1, const TimedAutomaton &in2,
                             in2.initialStates.size());
   for (auto s1 : in1.initialStates) {
     for (auto s2 : in2.initialStates) {
+      if (s1->zeroDuration != s2->zeroDuration) {
+        continue;
+      }
       out.initialStates.push_back(toIState[std::make_pair(s1.get(), s2.get())]);
     }
   }
@@ -220,6 +239,9 @@ void intersectionSignalTA(const TimedAutomaton &in1, const TimedAutomaton &in2,
   // make edges
   for (auto s1 : in1.states) {
     for (auto s2 : in2.states) {
+      if (s1->zeroDuration != s2->zeroDuration) {
+        continue;
+      }
       // Epsilon transitions
       for (const auto &e1 : s1->next[0]) {
         auto nextS1 = e1.target;

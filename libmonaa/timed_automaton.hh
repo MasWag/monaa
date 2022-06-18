@@ -20,6 +20,12 @@ struct TAState {
   //! @brief The value is true if and only if the state is an accepting state.
   bool isMatch;
   /*!
+   * @brief The value is true if the duration to stay this state must be zero.
+   *
+   * Such state only exists during the translation from a TRE to a TA.
+   */
+  bool zeroDuration = false;
+  /*!
     @brief An mapping of a character to the transitions.
     @note Because of non-determinism, the second element is a vector.
    */
@@ -154,8 +160,11 @@ static inline std::ostream &operator<<(std::ostream &os,
 
   for (std::shared_ptr<TAState> state : TA.states) {
     os << "        loc" << stateNumber.at(state.get())
-       << " [init=" << isInit.at(state.get()) << ", match=" << state->isMatch
-       << "]\n";
+       << " [init=" << isInit.at(state.get()) << ", match=" << state->isMatch;
+    if (state->zeroDuration) {
+      os << ", zero_duration=" << state->zeroDuration;
+        }
+    os << "]\n";
   }
 
   for (std::shared_ptr<TAState> source : TA.states) {
