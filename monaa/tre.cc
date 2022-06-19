@@ -56,6 +56,7 @@ void concat2(TimedAutomaton &left, const TimedAutomaton &right) {
             transition.target = initState.get();
             transition.resetVars = rightClocks;
             newTransitions.emplace_back(std::move(transition));
+            transition.target->zeroDuration = false;
           }
         }
       }
@@ -216,6 +217,7 @@ void TRE::toEventTA(TimedAutomaton &out) const {
     out.states[0] = std::make_shared<TAState>();
     out.initialStates = {out.states[0]};
     out.states[0]->isMatch = true;
+    out.states[0]->zeroDuration = true;
     out.maxConstraints.clear();
     break;
   }
@@ -226,10 +228,13 @@ void TRE::toEventTA(TimedAutomaton &out) const {
         std::vector<TATransition> newTransitions;
         for (TATransition edge : edges.second) {
           TAState *target = edge.target;
-          if (target && target->isMatch) {
+          if (target && target->isMatch && !target->zeroDuration) {
             newTransitions.reserve(newTransitions.size() +
                                    out.initialStates.size());
             for (auto initState : out.initialStates) {
+              if (initState->zeroDuration) {
+                continue;
+              }
               TATransition transition = edge;
               transition.target = initState.get();
               for (std::size_t clock = 0; clock < out.clockSize(); clock++) {
@@ -292,6 +297,16 @@ void TRE::toEventTA(TimedAutomaton &out) const {
     bool isDummyUsed = false;
     std::shared_ptr<TAState> dummyAcceptingState =
         std::make_shared<TAState>(true);
+    // Make all the zero duration states non-initial
+    // Note: this would not work well if we allow constraints >= 0
+    out.initialStates.erase(std::remove_if(
+                              out.initialStates.begin(), out.initialStates.end(),
+                              [](auto &state) {return state->zeroDuration;}),
+                            out.initialStates.end());
+    // Make all the state non-zero duration
+    for (auto state : out.states) {
+      state->zeroDuration = false;
+    }
     for (auto state : out.states) {
       for (auto &edges : state->next) {
         for (auto &edge : edges.second) {

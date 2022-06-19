@@ -129,7 +129,7 @@ We can use [Kleene plus](https://en.wikipedia.org/wiki/Kleene_star#Kleene_plus) 
 ```
 
 If you want match zero times repetition, i.e., empty events, you can use [Kleene star](https://en.wikipedia.org/wiki/Kleene_star).
-We note that this does not change the result because in the log, we do not have any blank interval longer than 1.
+We note that in the current example, this does not change the result because zero times repetition has zero duration, which is inconsistent with the constraint `%(1,20)``
 
 ```
 ../build/monaa -e '((A(B|C))*%(1,20))$' < ../examples/getting_started/timed_word.txt

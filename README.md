@@ -120,10 +120,6 @@ Syntax of Timed Regular Expressions
          | expr % (s,t) (Time Restriction)
 
 
-### Note on time restriction of Kleene star
-
-Our TRE translation algorithm produces an incorrect TA for a time restriction of Kleene star. For example, `(A*)%(1,20)$` is not translated correctly, while `(AB*)%(1,20)$` is translated correctly. This is because such expression requires restriction of empty area, which requires an unobservable transition or TRE rewriting such as `(A*)%(1,2)$` into `((A+)%(1,2)$)|($%(>1))`. 
-
 References
 -------------
 
