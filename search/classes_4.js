@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['lazydeque_89',['LazyDeque',['../classLazyDeque.html',1,'']]]
+  ['lazydeque_90',['LazyDeque',['../classLazyDeque.html',1,'']]]
 ];

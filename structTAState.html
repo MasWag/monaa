@@ -98,6 +98,9 @@ Public Attributes</h2></td></tr>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structTAState.html#ad521e4d3a78d4f9719480c19b5ef786e">isMatch</a></td></tr>
 <tr class="memdesc:ad521e4d3a78d4f9719480c19b5ef786e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The value is true if and only if the state is an accepting state. <br /></td></tr>
 <tr class="separator:ad521e4d3a78d4f9719480c19b5ef786e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a275bed2e845a89efc758efb1b31d9d73"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structTAState.html#a275bed2e845a89efc758efb1b31d9d73">zeroDuration</a> = false</td></tr>
+<tr class="memdesc:a275bed2e845a89efc758efb1b31d9d73"><td class="mdescLeft">&#160;</td><td class="mdescRight">The value is true if the duration to stay this state must be zero.  <a href="structTAState.html#a275bed2e845a89efc758efb1b31d9d73">More...</a><br /></td></tr>
+<tr class="separator:a275bed2e845a89efc758efb1b31d9d73"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a221f8fecde158d102e71bd637e97c626"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; Alphabet, std::vector&lt; <a class="el" href="structTATransition.html">TATransition</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structTAState.html#a221f8fecde158d102e71bd637e97c626">next</a></td></tr>
 <tr class="memdesc:a221f8fecde158d102e71bd637e97c626"><td class="mdescLeft">&#160;</td><td class="mdescRight">An mapping of a character to the transitions.  <a href="structTAState.html#a221f8fecde158d102e71bd637e97c626">More...</a><br /></td></tr>
 <tr class="separator:a221f8fecde158d102e71bd637e97c626"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -119,6 +122,23 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stru
 
 <p>An mapping of a character to the transitions. </p>
 <dl class="section note"><dt>Note</dt><dd>Because of non-determinism, the second element is a vector. </dd></dl>
+
+</div>
+</div>
+<a id="a275bed2e845a89efc758efb1b31d9d73"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a275bed2e845a89efc758efb1b31d9d73">&#9670;&nbsp;</a></span>zeroDuration</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool TAState::zeroDuration = false</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The value is true if the duration to stay this state must be zero. </p>
+<p>Such state only exists during the translation from a TRE to a TA. </p>
 
 </div>
 </div>
