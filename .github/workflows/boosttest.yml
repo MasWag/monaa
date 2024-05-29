@@ -10,7 +10,7 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - name: default build
@@ -24,7 +24,7 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - name: set gcc env
@@ -42,7 +42,7 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - name: set clang env
@@ -54,12 +54,12 @@ jobs:
         mkdir -p clang_build
         cd clang_build && cmake .. && make unit_test && ./unit_test
         
-  ubuntu_bionic:
-    runs-on: ubuntu-18.04
+  ubuntu_noble:
+    runs-on: ubuntu-24.04
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - name: Install required packages
@@ -67,14 +67,29 @@ jobs:
     - name: build and test
       run: |
         mkdir -p build
-        cd build && cmake .. && make unit_test && ./unit_test    
+        cd build && cmake .. && make unit_test && ./unit_test
+
+  ubuntu_jammy:
+    runs-on: ubuntu-22.04
+    strategy:
+      max-parallel: 4
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Install required packages
+      run: sudo apt-get install cmake bison libbison-dev flex libfl-dev libeigen3-dev libboost-all-dev -y
+    - name: build and test
+      run: |
+        mkdir -p build
+        cd build && cmake .. && make unit_test && ./unit_test
 
   ubuntu_focal:
     runs-on: ubuntu-20.04
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - name: Install required packages
@@ -84,12 +99,12 @@ jobs:
         mkdir -p build
         cd build && cmake .. && make unit_test && ./unit_test    
 
-  macOS_Catalina:
-    runs-on: macos-10.15
+  macOS_intel:
+    runs-on: macos-latest-large
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - name: Install required packages

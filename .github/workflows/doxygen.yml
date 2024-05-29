@@ -15,7 +15,7 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - name: install_dependencies
@@ -26,7 +26,7 @@ jobs:
         mkdir -p /tmp/build && cd /tmp/build
         cmake $OLDPWD/libmonaa && make doc
     - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_branch: gh-pages
