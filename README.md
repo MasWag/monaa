@@ -119,6 +119,11 @@ Syntax of Timed Regular Expressions
          | expr & expr (Conjunction)
          | expr % (s,t) (Time Restriction)
 
+Related Tool
+-------------
+
+- [TimeTrace](https://time-trace.vercel.app/): A web frontend of MONAA
+    - GitHub: https://github.com/JonasGLund99/TimeTrace
 
 References
 -------------
