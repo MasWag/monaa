@@ -99,8 +99,44 @@ jobs:
         mkdir -p build
         cd build && cmake .. && make unit_test && ./unit_test    
 
-  macOS_intel:
-    runs-on: macos-latest-large
+  macOS_Sonoma:
+    runs-on: macos-14
+    strategy:
+      max-parallel: 4
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Install required packages
+      run: brew install eigen boost bison flex
+    - name: build and test
+      run: |
+        mkdir -p build
+        export PATH="/usr/local/opt/bison/bin:/usr/local/opt/flex/bin:$PATH"
+        LDFLAGS="-L/usr/local/opt/bison/lib -L/usr/local/opt/flex/lib"
+        export CPPFLAGS="-I/usr/local/opt/flex/include"
+        cd build && cmake .. && make unit_test && ./unit_test
+
+  macOS_Ventura:
+    runs-on: macos-13
+    strategy:
+      max-parallel: 4
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Install required packages
+      run: brew install eigen boost bison flex
+    - name: build and test
+      run: |
+        mkdir -p build
+        export PATH="/usr/local/opt/bison/bin:/usr/local/opt/flex/bin:$PATH"
+        LDFLAGS="-L/usr/local/opt/bison/lib -L/usr/local/opt/flex/lib"
+        export CPPFLAGS="-I/usr/local/opt/flex/include"
+        cd build && cmake .. && make unit_test && ./unit_test
+
+  macOS_Monterey:
+    runs-on: macos-12
     strategy:
       max-parallel: 4
     steps:
