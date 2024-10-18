@@ -42,7 +42,14 @@
   WITHIN      "%"
   LPAREN      "("
   RPAREN      ")"
+  LSQPAREN    "["
+  RSQPAREN    "]"
   COMMA       ","
+  GT          ">"
+  GE          ">="
+  LE          "<="
+  LT          "<"
+  EQ          "="
 ;
 
 %locations
@@ -69,6 +76,15 @@ expr : ATOM { $$ = std::make_shared<TRE>(TRE::op::atom, $1); }
 
 /* We support only open intervals now */
 interval : LPAREN INT COMMA INT RPAREN { $$ = std::make_shared<Interval>($2, $4); }
+         | LSQPAREN INT COMMA INT RPAREN { $$ = std::make_shared<Interval>(Bounds($2, 1), Bounds($4, 0)); }
+         | LPAREN INT COMMA INT RSQPAREN { $$ = std::make_shared<Interval>(Bounds($2, 0), Bounds($4, 1)); }
+         | LSQPAREN INT COMMA INT RSQPAREN { $$ = std::make_shared<Interval>(Bounds($2, 1), Bounds($4, 1)); }
+         | LT INT { $$ = std::make_shared<Interval>(Bounds(0, 1), Bounds($2, 0)); }
+         | LE INT { $$ = std::make_shared<Interval>(Bounds(0, 1), Bounds($2, 1)); }
+         | EQ INT { $$ = std::make_shared<Interval>(Bounds($2, 1), Bounds($2, 1)); }
+         | GE INT { $$ = std::make_shared<Interval>(Bounds($2, 1), Bounds(std::numeric_limits<double>::infinity(), 0)); }
+         | GT INT { $$ = std::make_shared<Interval>($2); }
+         | LPAREN interval RPAREN { $$ = $2; }
 %%
 
 

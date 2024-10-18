@@ -117,7 +117,7 @@ Syntax of Timed Regular Expressions
          | expr expr (Concatenation)
          | expr | expr (Disjunction)
          | expr & expr (Conjunction)
-         | expr % (s,t) (Time Restriction)
+         | expr % (s,t) | expr % [s,t) | expr % (s,t] | expr % [s,t] | expr % (>s) | expr % (>=s) | expr % (<t) | expr % (<=t) | expr % (=t) (Time Restriction)
 
 Related Tool
 -------------
