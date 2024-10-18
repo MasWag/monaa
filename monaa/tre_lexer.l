@@ -33,6 +33,13 @@ using token = MONAA::TREParser::token;
 "%"          return token::WITHIN;
 "("          return token::LPAREN;
 ")"          return token::RPAREN;
+"["          return token::LSQPAREN;
+"]"          return token::RSQPAREN;
+"<"          return token::LT;
+">"          return token::GT;
+"<="         return token::LE;
+">="         return token::GE;
+"="          return token::EQ;
 ","          return token::COMMA;
 
 [a-zA-Z$] {
@@ -45,8 +52,7 @@ using token = MONAA::TREParser::token;
     return token::INT;
 }
 
+[[:blank:]]+
 "\n"         return token::END;
 
 %%
-
-

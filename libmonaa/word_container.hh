@@ -10,7 +10,8 @@
   definition must be done in the class Container passed by template argument. An
   example is @link LazyDeque @endlink.
 */
-template <class Container> class WordContainer {
+template <class Container>
+class WordContainer {
 protected:
   //! @brief The actual container of the timed word.
   Container vec;
@@ -24,7 +25,7 @@ public:
     simulation is directly passed), this can be ignored.
     @param [in] isBinary A flag if the input is in a binary file.
   */
-  WordContainer<Container>(FILE *file, bool isBinary = false)
+  WordContainer(FILE *file, bool isBinary = false)
       : vec(file, isBinary) {}
   /*!
     @brief Access an element of the container.

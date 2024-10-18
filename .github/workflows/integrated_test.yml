@@ -39,7 +39,7 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         submodules: true
     - name: Install required packages
@@ -62,9 +62,6 @@ jobs:
     - name: build and test
       run: |
         mkdir -p build
-        export PATH="/usr/local/opt/bison/bin:/usr/local/opt/flex/bin:$PATH"
-        LDFLAGS="-L/usr/local/opt/bison/lib -L/usr/local/opt/flex/lib"
-        export CPPFLAGS="-I/usr/local/opt/flex/include"
         cd build && cmake .. && make monaa && ../examples/integrated_test.sh
 
   macOS_Ventura:
@@ -80,9 +77,6 @@ jobs:
     - name: build and test
       run: |
         mkdir -p build
-        export PATH="/usr/local/opt/bison/bin:/usr/local/opt/flex/bin:$PATH"
-        LDFLAGS="-L/usr/local/opt/bison/lib -L/usr/local/opt/flex/lib"
-        export CPPFLAGS="-I/usr/local/opt/flex/include"
         cd build && cmake .. && make monaa && ../examples/integrated_test.sh
 
   macOS_Monterey:
@@ -98,7 +92,4 @@ jobs:
     - name: build and test
       run: |
         mkdir -p build
-        export PATH="/usr/local/opt/bison/bin:/usr/local/opt/flex/bin:$PATH"
-        LDFLAGS="-L/usr/local/opt/bison/lib -L/usr/local/opt/flex/lib"
-        export CPPFLAGS="-I/usr/local/opt/flex/include"
         cd build && cmake .. && make monaa && ../examples/integrated_test.sh        

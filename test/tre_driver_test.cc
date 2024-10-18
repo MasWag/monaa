@@ -39,6 +39,78 @@ BOOST_FIXTURE_TEST_CASE(simpleTimedParse, SimpleTimedExpression)
   result << *(driver.getResult());
   BOOST_CHECK_EQUAL(result.str(), "((a(ba))%((1, 0),(2, 0)))");
 }
+
+BOOST_AUTO_TEST_CASE(closeTimedParse) {
+  TREDriver driver;
+  std::stringstream stream, result;
+  stream << "(aba)%[2,4]";
+  BOOST_TEST_REQUIRE(driver.parse(stream));
+  result << *(driver.getResult());
+  BOOST_CHECK_EQUAL(result.str(), "((a(ba))%((2, 1),(4, 1)))");
+}
+
+BOOST_AUTO_TEST_CASE(leftOpenTimedParse) {
+  TREDriver driver;
+  std::stringstream stream, result;
+  stream << "(aba)%(2,4]";
+  BOOST_TEST_REQUIRE(driver.parse(stream));
+  result << *(driver.getResult());
+  BOOST_CHECK_EQUAL(result.str(), "((a(ba))%((2, 0),(4, 1)))");
+}
+
+BOOST_AUTO_TEST_CASE(rightOpenTimedParse) {
+  TREDriver driver;
+  std::stringstream stream, result;
+  stream << "(aba)%[2,4)";
+  BOOST_TEST_REQUIRE(driver.parse(stream));
+  result << *(driver.getResult());
+  BOOST_CHECK_EQUAL(result.str(), "((a(ba))%((2, 1),(4, 0)))");
+}
+
+BOOST_AUTO_TEST_CASE(ltParse) {
+  TREDriver driver;
+  std::stringstream stream, result;
+  stream << "(aba)%(< 3)";
+  BOOST_TEST_REQUIRE(driver.parse(stream));
+  result << *(driver.getResult());
+  BOOST_CHECK_EQUAL(result.str(), "((a(ba))%((0, 1),(3, 0)))");
+}
+
+BOOST_AUTO_TEST_CASE(leParse) {
+  TREDriver driver;
+  std::stringstream stream, result;
+  stream << "(aba)%(<= 3)";
+  BOOST_TEST_REQUIRE(driver.parse(stream));
+  result << *(driver.getResult());
+  BOOST_CHECK_EQUAL(result.str(), "((a(ba))%((0, 1),(3, 1)))");
+}
+
+BOOST_AUTO_TEST_CASE(eqParse) {
+  TREDriver driver;
+  std::stringstream stream, result;
+  stream << "(aba)%(= 3)";
+  BOOST_TEST_REQUIRE(driver.parse(stream));
+  result << *(driver.getResult());
+  BOOST_CHECK_EQUAL(result.str(), "((a(ba))%((3, 1),(3, 1)))");
+}
+
+BOOST_AUTO_TEST_CASE(geParse) {
+  TREDriver driver;
+  std::stringstream stream, result;
+  stream << "(aba)%(>= 3)";
+  BOOST_TEST_REQUIRE(driver.parse(stream));
+  result << *(driver.getResult());
+  BOOST_CHECK_EQUAL(result.str(), "((a(ba))%((3, 1),(inf, 0)))");
+}
+
+BOOST_AUTO_TEST_CASE(gtParse) {
+  TREDriver driver;
+  std::stringstream stream, result;
+  stream << "(aba)%(> 3)";
+  BOOST_TEST_REQUIRE(driver.parse(stream));
+  result << *(driver.getResult());
+  BOOST_CHECK_EQUAL(result.str(), "((a(ba))%((3, 0),(inf, 0)))");
+}
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE_END()

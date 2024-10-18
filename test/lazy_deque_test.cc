@@ -1,5 +1,8 @@
-#include <boost/test/unit_test.hpp>
+#include <filesystem>
 #include <cstdio>
+
+#include <boost/test/unit_test.hpp>
+
 #include "../libmonaa/lazy_deque.hh"
 
 BOOST_AUTO_TEST_SUITE(LazyDequeTest)
@@ -9,7 +12,7 @@ private:
   FILE* file;
 public:
   // "a 1.1 b 3.2 c 5.3 d 7.4 e 9.5 f 11.6 g 13.7 h 15.8"
-  DQASCIIFixture() : file(fopen("../test/ascii_test.txt", "r")), dqAscii(file) {}
+  DQASCIIFixture() : file(fopen(std::filesystem::path{PROJECT_ROOT_DIR}.append("test").append("ascii_test.txt").c_str(), "r")), dqAscii(file) {}
   LazyDeque dqAscii;
 };
 
@@ -18,7 +21,7 @@ private:
   FILE* file;
 public:
   // "0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15"
-  DQBinaryFixture() : file(fopen("../test/binary_test.bin", "r")), dqBinary(file, true) {}
+  DQBinaryFixture() : file(fopen(std::filesystem::path{PROJECT_ROOT_DIR}.append("test").append("binary_test.bin").c_str(), "r")), dqBinary(file, true) {}
   LazyDeque dqBinary;
 };
 

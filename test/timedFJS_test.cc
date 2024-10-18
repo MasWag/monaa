@@ -1,4 +1,5 @@
 #define BOOST_GRAPH_USE_SPIRIT_PARSER // for header only
+#include <filesystem>
 #include <boost/test/unit_test.hpp>
 
 #include "../libmonaa/monaa.hh"
@@ -27,7 +28,8 @@ BOOST_AUTO_TEST_CASE(timedFJS) {
 
   TA.maxConstraints = {1};
 
-  FILE* file(fopen("../test/timed_word.txt", "r"));
+  std::filesystem::path inputPath = std::filesystem::path{PROJECT_ROOT_DIR}.append("test").append("timed_word.txt");
+  FILE* file(fopen(inputPath.c_str(), "r"));
   WordVector<std::pair<Alphabet,double> > w(file, false);
   AnsVec<Zone> ans;
   monaa(w, TA, ans);
@@ -61,7 +63,8 @@ BOOST_AUTO_TEST_CASE(timedFJSa0_1b0_1) {
 
   TA.maxConstraints = {1};
 
-  FILE* file(fopen("../test/ascii_test.txt", "r"));
+  std::filesystem::path inputPath = std::filesystem::path{PROJECT_ROOT_DIR}.append("test").append("ascii_test.txt");
+  FILE* file(fopen(inputPath.c_str(), "r"));
   WordVector<std::pair<Alphabet,double> > w(file, false);
   AnsVec<Zone> ans;
   monaa(w, TA, ans);
@@ -76,13 +79,15 @@ BOOST_AUTO_TEST_CASE(timedFJSa0_1b0_1) {
 }
 
 BOOST_AUTO_TEST_CASE(timedFJSTorque) {
-  std::ifstream taStream("../test/torque.dot");
+  std::filesystem::path inputPath = std::filesystem::path{PROJECT_ROOT_DIR}.append("test").append("torque.dot");
+  std::ifstream taStream(inputPath);
   BoostTimedAutomaton BoostTA;
   TimedAutomaton TA;
   parseBoostTA(taStream, BoostTA);
   convBoostTA(BoostTA, TA);
 
-  FILE* file(fopen("../test/torque_short.txt", "r"));
+  inputPath = std::filesystem::path{PROJECT_ROOT_DIR}.append("test").append("torque_short.txt");
+  FILE* file(fopen(inputPath.c_str(), "r"));
   WordVector<std::pair<Alphabet,double> > w(file, false);
 
   AnsVec<Zone> ans;

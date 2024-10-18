@@ -16,7 +16,7 @@ expr : c (An event)
      | expr expr (Concatenation)
      | expr | expr (Disjunction)
      | expr & expr (Conjunction)
-     | expr % (s,t) (Time Restriction)
+     | expr % (s,t) | expr % [s,t) | expr % (s,t] | expr % [s,t] | expr % (>s) | expr % (>=s) | expr % (<t) | expr % (<=t) | expr % (=t) (Time Restriction)
 ```
 
 For the basic examples, please read [Getting Started](./getting_started.md). We only show advanced specifications here.

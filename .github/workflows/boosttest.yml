@@ -112,9 +112,6 @@ jobs:
     - name: build and test
       run: |
         mkdir -p build
-        export PATH="/usr/local/opt/bison/bin:/usr/local/opt/flex/bin:$PATH"
-        LDFLAGS="-L/usr/local/opt/bison/lib -L/usr/local/opt/flex/lib"
-        export CPPFLAGS="-I/usr/local/opt/flex/include"
         cd build && cmake .. && make unit_test && ./unit_test
 
   macOS_Ventura:
@@ -130,9 +127,6 @@ jobs:
     - name: build and test
       run: |
         mkdir -p build
-        export PATH="/usr/local/opt/bison/bin:/usr/local/opt/flex/bin:$PATH"
-        LDFLAGS="-L/usr/local/opt/bison/lib -L/usr/local/opt/flex/lib"
-        export CPPFLAGS="-I/usr/local/opt/flex/include"
         cd build && cmake .. && make unit_test && ./unit_test
 
   macOS_Monterey:
@@ -148,7 +142,4 @@ jobs:
     - name: build and test
       run: |
         mkdir -p build
-        export PATH="/usr/local/opt/bison/bin:/usr/local/opt/flex/bin:$PATH"
-        LDFLAGS="-L/usr/local/opt/bison/lib -L/usr/local/opt/flex/lib"
-        export CPPFLAGS="-I/usr/local/opt/flex/include"
         cd build && cmake .. && make unit_test && ./unit_test
