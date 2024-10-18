@@ -1,9 +1,9 @@
+cmake_minimum_required(VERSION 3.30)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-register")
 
-project(MONAA CXX)
-
-cmake_minimum_required(VERSION 3.1)
-set(CMAKE_CXX_FLAGS "-Wall -std=c++14")
+project(MONAA LANGUAGES CXX)
+set(CMAKE_CXX_FLAGS "-Wall")
 # Hack to disable -march=native if it is not supported
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
@@ -16,13 +16,9 @@ set(VERSION_MAJOR 0)
 set(VERSION_MINOR 5)
 set(VERSION_PATCH 4)
 
-if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
-  add_definitions(
-    "-DMONAA_VERSION=\"${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}\"")
-else()
-  add_compile_definitions(
-    MONAA_VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
-endif()
+add_compile_definitions(
+  MONAA_VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
+  PROJECT_ROOT_DIR="${CMAKE_SOURCE_DIR}")
 
 # On macOS, search Homebrew for keg-only versions of Bison and Flex. Xcode does
 # not provide new enough versions for us to use.
@@ -94,8 +90,7 @@ target_include_directories(monaa
   PRIVATE
   .
   ${CMAKE_CURRENT_BINARY_DIR})
-set_property(TARGET monaa
-  PROPERTY CXX_STANDARD 14)
+target_compile_features(monaa PRIVATE cxx_std_20)
 
 ## Config for TRE2TA
 add_executable(tre2ta EXCLUDE_FROM_ALL
@@ -114,8 +109,7 @@ target_include_directories(tre2ta
   PRIVATE
   .
   ${CMAKE_CURRENT_BINARY_DIR})
-set_property(TARGET tre2ta
-  PROPERTY CXX_STANDARD 14)
+target_compile_features(tre2ta PRIVATE cxx_std_20)
 
 ## Config for libmonaa
 add_library(libmonaa STATIC EXCLUDE_FROM_ALL
@@ -172,6 +166,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/rapidcheck/CMakeLists.txt")
   add_test(NAME unit_test
     COMMAND $<TARGET_FILE:unit_test>
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+  target_compile_features(unit_test PRIVATE cxx_std_20)
 endif()
 
 # add a target to generate API documentation with Doxygen

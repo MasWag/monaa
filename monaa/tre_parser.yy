@@ -1,9 +1,10 @@
+/* -*- mode: bison; -*- */
 %skeleton "lalr1.cc"
 %require  "3.0"
 %debug 
 %defines 
 %define api.namespace {MONAA}
-%define parser_class_name {TREParser}
+%define api.parser.class {TREParser}
 
 %code requires{
    #include <memory>

@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
   if (vm.count("version")) {
     std::cout
         << "MONAA (a MONitoring tool Acceralated by Automata) " << MONAA_VERSION << "\n"
-        << "Copyright (C) 2017-2022 Masaki Waga.\n\n"
+        << "Copyright (C) 2017-2024 Masaki Waga.\n\n"
         << "This program is free software; you can redistribute it and/or modify\n"
         << "it under the terms of the GNU General Public License as published by\n"
         << "the Free Software Foundation; either version 3 of the License, or\n"

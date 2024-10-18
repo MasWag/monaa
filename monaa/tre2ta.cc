@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
     std::cout
         << "MONAA (a MONitoring tool Acceralated by Automata) " << MONAA_VERSION
         << "\n"
-        << "Copyright (C) 2017-2019 Masaki Waga.\n\n"
+        << "Copyright (C) 2017-2024 Masaki Waga.\n\n"
         << "This program is free software; you can redistribute it and/or "
            "modify\n"
         << "it under the terms of the GNU General Public License as published "

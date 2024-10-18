@@ -43,10 +43,10 @@ MONAA is tested on Arch Linux, Ubuntu (20.04, 22.04, 24.04), and macOS (12 Monte
 
 ### Requirements
 
-* C++ compiler supporting C++14 and the corresponding libraries.
+* C++ compiler supporting C++20 and the corresponding libraries.
 * Boost (>= 1.59)
 * Eigen
-* CMake
+* CMake (>= 3.30)
 * Bison (>= 3.0)
 * Flex
 

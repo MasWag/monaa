@@ -1,13 +1,15 @@
 #define BOOST_GRAPH_USE_SPIRIT_PARSER // for header only
 
+#include <filesystem>
 #include <boost/test/unit_test.hpp>
-#include "../monaa/timed_automaton_parser.hh"
+#include "timed_automaton_parser.hh"
 
 BOOST_AUTO_TEST_SUITE(timedAutomatonParserTests)
 BOOST_AUTO_TEST_CASE(parseBoostPhi7TATest)
 {
   BoostTimedAutomaton BoostTA;
-  std::ifstream file("../test/phi7.dot");
+  std::filesystem::path inputPath = std::filesystem::path{PROJECT_ROOT_DIR}.append("test").append("phi7.dot");
+  std::ifstream file(inputPath);
   parseBoostTA(file, BoostTA);
 
   BOOST_TEST(!BoostTA[0].isMatch);
@@ -27,7 +29,8 @@ BOOST_AUTO_TEST_CASE(parseBoostPhi7TATest)
 BOOST_AUTO_TEST_CASE(parseBoostTATest)
 {
   BoostTimedAutomaton BoostTA;
-  std::ifstream file("../test/timed_automaton.dot");
+  std::filesystem::path inputPath = std::filesystem::path{PROJECT_ROOT_DIR}.append("test").append("timed_automaton.dot");
+  std::ifstream file(inputPath);
   parseBoostTA(file, BoostTA);
 
   BOOST_TEST(!BoostTA[0].isMatch);
@@ -51,7 +54,8 @@ BOOST_AUTO_TEST_CASE(parseBoostTATest)
 BOOST_AUTO_TEST_CASE(parseBoostTASimpleTest)
 {
   BoostTimedAutomaton BoostTA;
-  std::ifstream file("../test/small.dot");
+  std::filesystem::path inputPath = std::filesystem::path{PROJECT_ROOT_DIR}.append("test").append("small.dot");
+  std::ifstream file(inputPath);
   parseBoostTA(file, BoostTA);
 
   std::array<bool, 4> initResult  = {{true, false, false, false}};
@@ -93,7 +97,8 @@ BOOST_AUTO_TEST_CASE(convBoostTATest)
 {
   BoostTimedAutomaton BoostTA;
   TimedAutomaton TA;
-  std::ifstream file("../test/timed_automaton.dot");
+  std::filesystem::path inputPath = std::filesystem::path{PROJECT_ROOT_DIR}.append("test").append("timed_automaton.dot");
+  std::ifstream file(inputPath);
   parseBoostTA(file, BoostTA);
   convBoostTA(BoostTA, TA);
 
