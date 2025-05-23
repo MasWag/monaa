@@ -1,5 +1,7 @@
 <map id="ZAState" name="ZAState">
-<area shape="rect" id="node1" title=" " alt="" coords="48,95,123,121"/>
-<area shape="rect" id="node2" href="$structTAState.html" title="A state of timed automata." alt="" coords="5,5,77,32"/>
-<area shape="rect" id="node3" href="$structZone.html" title="Implementation of a zone with DBM." alt="" coords="102,5,157,32"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="48,93,123,119"/>
+<area shape="rect" id="Node000002" href="$structTAState.html" title="A state of timed automata." alt="" coords="5,5,77,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="44,44,50,68,71,91,67,95,46,71,39,45"/>
+<area shape="rect" id="Node000003" href="$structZone.html" title="Implementation of a zone with DBM." alt="" coords="102,5,157,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="119,44,94,94,89,92,115,42"/>
 </map>

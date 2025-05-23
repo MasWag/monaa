@@ -1,6 +1,9 @@
 <map id="InternalState" name="InternalState">
-<area shape="rect" id="node1" title=" " alt="" coords="117,171,224,197"/>
-<area shape="rect" id="node2" href="$classIntermediateZone.html" title=" " alt="" coords="5,81,144,108"/>
-<area shape="rect" id="node3" href="$structZone.html" title="Implementation of a zone with DBM." alt="" coords="47,5,102,32"/>
-<area shape="rect" id="node4" href="$structTAState.html" title="A state of timed automata." alt="" coords="168,81,240,108"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="31,168,137,193"/>
+<area shape="rect" id="Node000002" href="$structTAState.html" title="A state of timed automata." alt="" coords="5,80,77,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="56,117,80,166,76,169,51,119"/>
+<area shape="rect" id="Node000003" href="$classIntermediateZone.html" title=" " alt="" coords="101,80,240,105"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="151,117,98,169,94,166,148,113"/>
+<area shape="rect" id="Node000004" href="$structZone.html" title="Implementation of a zone with DBM." alt="" coords="143,5,198,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="173,45,173,80,168,80,168,45"/>
 </map>

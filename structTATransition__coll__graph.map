@@ -1,4 +1,5 @@
 <map id="TATransition" name="TATransition">
-<area shape="rect" id="node1" title="A state of timed automata." alt="" coords="5,95,105,121"/>
-<area shape="rect" id="node2" href="$structTAState.html" title="A state of timed automata." alt="" coords="19,5,91,32"/>
+<area shape="rect" id="Node000001" title="A state of timed automata." alt="" coords="5,93,105,119"/>
+<area shape="rect" id="Node000002" href="$structTAState.html" title="A state of timed automata." alt="" coords="19,5,91,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="58,45,58,93,53,93,53,45"/>
 </map>

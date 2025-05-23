@@ -1,4 +1,5 @@
 <map id="WordVector&lt; T &gt;" name="WordVector&lt; T &gt;">
-<area shape="rect" id="node1" title="Word container without any runtime memory alloc / free." alt="" coords="25,95,160,121"/>
-<area shape="rect" id="node2" href="$classWordContainer.html" title=" " alt="" coords="5,5,180,47"/>
+<area shape="rect" id="Node000001" title="Word container without any runtime memory alloc / free." alt="" coords="25,93,160,119"/>
+<area shape="rect" id="Node000002" href="$classWordContainer.html" title=" " alt="" coords="5,5,180,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,59,95,93,90,93,90,59"/>
 </map>
