@@ -2,144 +2,160 @@ name: Boost.Test
 
 on:
   push:
+  pull_request:
 
 jobs:
   build:
+    name: Container Build
     runs-on: ubuntu-latest
-    container: maswag/monaa-test-env
-    strategy:
-      max-parallel: 4
+    container:
+      image: maswag/monaa-test-env
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: default build
-      run: |
-        mkdir build
-        cd build && cmake .. && make monaa unit_test tre2ta
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Default build
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          make monaa unit_test tre2ta
 
   gcc_unit_test:
+    name: GCC Unit Test (Container)
     runs-on: ubuntu-latest
-    container: maswag/monaa-test-env
-    strategy:
-      max-parallel: 4
+    container:
+      image: maswag/monaa-test-env
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: set gcc env
-      run: |
-        export CC=/usr/bin/gcc
-        export CXX=/usr/bin/g++
-    - name: build and test
-      run: |
-        mkdir -p gcc_build
-        cd gcc_build && cmake .. && make unit_test && ./unit_test
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Build and test with GCC
+        run: |
+          export CC=/usr/bin/gcc
+          export CXX=/usr/bin/g++
+          mkdir -p gcc_build
+          cd gcc_build
+          cmake ..
+          make unit_test
+          ./unit_test
 
   clang_unit_test:
+    name: Clang Unit Test (Container)
     runs-on: ubuntu-latest
-    container: maswag/monaa-test-env
-    strategy:
-      max-parallel: 4
+    container:
+      image: maswag/monaa-test-env
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: set clang env
-      run: |
-        export CC=/usr/bin/clang
-        export CXX=/usr/bin/clang++
-    - name: build and test
-      run: |
-        mkdir -p clang_build
-        cd clang_build && cmake .. && make unit_test && ./unit_test
-        
-  ubuntu_noble:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Build and test with Clang
+        run: |
+          export CC=/usr/bin/clang
+          export CXX=/usr/bin/clang++
+          mkdir -p clang_build
+          cd clang_build
+          cmake ..
+          make unit_test
+          ./unit_test
+
+  noble:
+    name: Ubuntu Noble (24.04)
     runs-on: ubuntu-24.04
-    strategy:
-      max-parallel: 4
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Install required packages
-      run: sudo apt-get install cmake bison libbison-dev flex libfl-dev libeigen3-dev libboost-all-dev -y
-    - name: build and test
-      run: |
-        mkdir -p build
-        cd build && cmake .. && make unit_test && ./unit_test
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install required packages
+        run: |
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+            ca-certificates \
+            build-essential \
+            libppl-dev \
+            libboost-all-dev \
+            cmake \
+            libgmp-dev \
+            git
+      - name: Build and test
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make unit_test
+          ./unit_test
 
-  ubuntu_jammy:
+  jammy:
+    name: Ubuntu Jammy (22.04)
     runs-on: ubuntu-22.04
-    strategy:
-      max-parallel: 4
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Install required packages
-      run: sudo apt-get install cmake bison libbison-dev flex libfl-dev libeigen3-dev libboost-all-dev -y
-    - name: build and test
-      run: |
-        mkdir -p build
-        cd build && cmake .. && make unit_test && ./unit_test
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install required packages
+        run: |
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+            ca-certificates \
+            build-essential \
+            libppl-dev \
+            libboost-all-dev \
+            cmake \
+            libgmp-dev \
+            git
+      - name: Build and test
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make unit_test
+          ./unit_test
 
-  ubuntu_focal:
-    runs-on: ubuntu-20.04
-    strategy:
-      max-parallel: 4
+  sequoia:
+    name: macOS Sequoia (15)
+    runs-on: macos-15
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Install required packages
-      run: sudo apt-get install cmake bison libbison-dev flex libfl-dev libeigen3-dev libboost-all-dev -y
-    - name: build and test
-      run: |
-        mkdir -p build
-        cd build && cmake .. && make unit_test && ./unit_test    
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install required packages
+        run: brew update && brew install boost gmp ppl cmake
+      - name: Build and test
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make unit_test
+          ./unit_test
 
-  macOS_Sonoma:
+  sonoma:
+    name: macOS Sonoma (14)
     runs-on: macos-14
-    strategy:
-      max-parallel: 4
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Install required packages
-      run: brew install eigen boost bison flex
-    - name: build and test
-      run: |
-        mkdir -p build
-        cd build && cmake .. && make unit_test && ./unit_test
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install required packages
+        run: brew update && brew install boost gmp ppl cmake
+      - name: Build and test
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make unit_test
+          ./unit_test
 
-  macOS_Ventura:
+  ventura:
+    name: macOS Ventura (13)
     runs-on: macos-13
-    strategy:
-      max-parallel: 4
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Install required packages
-      run: brew install eigen boost bison flex
-    - name: build and test
-      run: |
-        mkdir -p build
-        cd build && cmake .. && make unit_test && ./unit_test
-
-  macOS_Monterey:
-    runs-on: macos-12
-    strategy:
-      max-parallel: 4
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Install required packages
-      run: brew install eigen boost bison flex
-    - name: build and test
-      run: |
-        mkdir -p build
-        cd build && cmake .. && make unit_test && ./unit_test
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install required packages
+        run: brew update && brew install boost gmp ppl cmake
+      - name: Build and test
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make unit_test
+          ./unit_test
