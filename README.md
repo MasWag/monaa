@@ -3,8 +3,8 @@ MONAA --- A Tool for Timed Patten Matching with Automata-Based Acceleration
 
 [![Boost.Test](https://github.com/MasWag/monaa/actions/workflows/boosttest.yml/badge.svg?branch=master)](https://github.com/MasWag/monaa/actions/workflows/boosttest.yml)
 [![Documentation Status](https://readthedocs.org/projects/monaa/badge/?version=latest)](https://monaa.readthedocs.io/en/latest/?badge=latest)
+[![Docker Pulls](https://img.shields.io/docker/pulls/maswag/monaa)](https://hub.docker.com/r/maswag/monaa)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
-[![Docker Automated build](https://img.shields.io/docker/cloud/automated/maswag/monaa.svg)](https://hub.docker.com/r/maswag/monaa/)
 
 
 This is the source code repository for MONAA --- A Tool for Timed Patten Matching with Automata-Based Acceleration.
