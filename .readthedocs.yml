@@ -2,17 +2,20 @@
 # Read the Docs configuration file
 # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
-# Required
 version: 2
 
-# Build documentation in the docs/ directory with Sphinx
-# sphinx:
-#   configuration: docs/conf.py
-
-# Build documentation with MkDocs
+# Build documentation using MkDocs
 mkdocs:
   configuration: mkdocs.yml
-  fail_on_warning: false
+  fail_on_warning: true  # optional: makes sure you catch broken links or other issues
 
-# Optionally build your docs in additional formats such as PDF and ePub
-formats: all
+# Set the Python version and install dependencies if needed
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.12"
+
+# Additional output formats
+formats:
+  - pdf
+  - epub

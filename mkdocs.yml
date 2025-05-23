@@ -1,14 +1,43 @@
 site_name: monaa
 site_url: https://monaa.readthedocs.io/en/latest/
 repo_url: https://github.com/MasWag/monaa
-site_author: 'Masaki Waga'
-copyright: copyright 2019
-theme: readthedocs
+repo_name: MasWag/monaa
+site_author: Masaki Waga
+site_description: "Documentation for monaa: a tool for timed automata and timed regular expressions"
+copyright: "© 2019–2025 Masaki Waga"
 docs_dir: doc
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.suggest
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+  font:
+    text: Roboto
+    code: Roboto Mono
+
 nav:
-#  - Home: index.md
-  - Getting started: getting_started.md
-  - Installation guide: install.md
-  - Timed regular expressions: TRE.md
-  - Timed automata: TA.md
-  - Related Tool: related_tools.md
+  - Home: index.md
+  - Getting Started: getting_started.md
+  - Installation Guide: install.md
+  - Timed Regular Expressions: TRE.md
+  - Timed Automata: TA.md
+  - Related Tools: related_tools.md
+
+extra:
+  version:
+    provider: mike
+
+plugins:
+  - search
+  - mkdocs-material
