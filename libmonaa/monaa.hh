@@ -340,7 +340,7 @@ void monaa(WordContainer<InputContainer> word, TimedAutomaton A,
                 case Constraint::Order::le:
                   upperDeltaConstraint = std::min(
                       upperDeltaConstraint,
-                      Bounds{delta.c, {delta.odr == Constraint::Order::le}});
+                      Bounds{static_cast<double>(delta.c), {delta.odr == Constraint::Order::le}});
                   // (2, 0) <= (2, 1) + (1, 0)
                   upperEndConstraint =
                       std::min(upperEndConstraint,
@@ -354,7 +354,7 @@ void monaa(WordContainer<InputContainer> word, TimedAutomaton A,
                 case Constraint::Order::ge:
                   lowerDeltaConstraint = std::min(
                       lowerDeltaConstraint,
-                      Bounds{-delta.c, {delta.odr == Constraint::Order::ge}});
+                      Bounds{static_cast<double>(-delta.c), {delta.odr == Constraint::Order::ge}});
                   // (1, 0) <= (1, 2) + (2, 0)
                   upperBeginConstraint =
                       std::min(upperBeginConstraint,
@@ -916,7 +916,7 @@ void monaaDollar(WordContainer<InputContainer> word, TimedAutomaton A,
                 case Constraint::Order::le:
                   upperDeltaConstraint = std::min(
                       upperDeltaConstraint,
-                      Bounds{delta.c, {delta.odr == Constraint::Order::le}});
+                      Bounds{static_cast<double>(delta.c), {delta.odr == Constraint::Order::le}});
                   // (2, 0) <= (2, 1) + (1, 0)
                   upperEndConstraint =
                       std::min(upperEndConstraint,
@@ -930,7 +930,7 @@ void monaaDollar(WordContainer<InputContainer> word, TimedAutomaton A,
                 case Constraint::Order::ge:
                   lowerDeltaConstraint = std::min(
                       lowerDeltaConstraint,
-                      Bounds{-delta.c, {delta.odr == Constraint::Order::ge}});
+                      Bounds{static_cast<double>(-delta.c), {delta.odr == Constraint::Order::ge}});
                   // (1, 0) <= (1, 2) + (2, 0)
                   upperBeginConstraint =
                       std::min(upperBeginConstraint,
@@ -1094,7 +1094,7 @@ void monaaDollar(WordContainer<InputContainer> word, TimedAutomaton A,
                 case Constraint::Order::le:
                   upperDeltaConstraint = std::min(
                       upperDeltaConstraint,
-                      Bounds{delta.c, {delta.odr == Constraint::Order::le}});
+                      Bounds{static_cast<double>(delta.c), {delta.odr == Constraint::Order::le}});
                   // (2, 0) <= (2, 1) + (1, 0)
                   upperEndConstraint =
                       std::min(upperEndConstraint,
@@ -1108,7 +1108,7 @@ void monaaDollar(WordContainer<InputContainer> word, TimedAutomaton A,
                 case Constraint::Order::ge:
                   lowerDeltaConstraint = std::min(
                       lowerDeltaConstraint,
-                      Bounds{-delta.c, {delta.odr == Constraint::Order::ge}});
+                      Bounds{static_cast<double>(-delta.c), {delta.odr == Constraint::Order::ge}});
                   // (1, 0) <= (1, 2) + (2, 0)
                   upperBeginConstraint =
                       std::min(upperBeginConstraint,
@@ -1384,7 +1384,7 @@ void monaaNotNecessaryDollar(WordContainer<InputContainer> word,
                 case Constraint::Order::le:
                   upperDeltaConstraint = std::min(
                       upperDeltaConstraint,
-                      Bounds{delta.c, {delta.odr == Constraint::Order::le}});
+                      Bounds{static_cast<double>(delta.c), {delta.odr == Constraint::Order::le}});
                   // (2, 0) <= (2, 1) + (1, 0)
                   upperEndConstraint =
                       std::min(upperEndConstraint,
@@ -1398,7 +1398,7 @@ void monaaNotNecessaryDollar(WordContainer<InputContainer> word,
                 case Constraint::Order::ge:
                   lowerDeltaConstraint = std::min(
                       lowerDeltaConstraint,
-                      Bounds{-delta.c, {delta.odr == Constraint::Order::ge}});
+                      Bounds{static_cast<double>(-delta.c), {delta.odr == Constraint::Order::ge}});
                   // (1, 0) <= (1, 2) + (2, 0)
                   upperBeginConstraint =
                       std::min(upperBeginConstraint,
@@ -1598,7 +1598,7 @@ void monaaNotNecessaryDollar(WordContainer<InputContainer> word,
                 case Constraint::Order::le:
                   upperDeltaConstraint = std::min(
                       upperDeltaConstraint,
-                      Bounds{delta.c, {delta.odr == Constraint::Order::le}});
+                      Bounds{static_cast<double>(delta.c), {delta.odr == Constraint::Order::le}});
                   // (2, 0) <= (2, 1) + (1, 0)
                   upperEndConstraint =
                       std::min(upperEndConstraint,
@@ -1612,7 +1612,7 @@ void monaaNotNecessaryDollar(WordContainer<InputContainer> word,
                 case Constraint::Order::ge:
                   lowerDeltaConstraint = std::min(
                       lowerDeltaConstraint,
-                      Bounds{-delta.c, {delta.odr == Constraint::Order::ge}});
+                      Bounds{static_cast<double>(-delta.c), {delta.odr == Constraint::Order::ge}});
                   // (1, 0) <= (1, 2) + (2, 0)
                   upperBeginConstraint =
                       std::min(upperBeginConstraint,
