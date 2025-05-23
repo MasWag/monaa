@@ -2,94 +2,52 @@ name: Integrated.Test
 
 on:
   push:
+  pull_request:
 
 jobs:
-  ubuntu_noble:
-    runs-on: ubuntu-24.04
+  integrated_test:
+    name: Integrated Test (${{ matrix.os_label }})
+    runs-on: ${{ matrix.runner }}
     strategy:
-      max-parallel: 4
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Install required packages
-      run: sudo apt-get install cmake bison libbison-dev flex libfl-dev libeigen3-dev libboost-all-dev -y
-    - name: build and test
-      run: |
-        mkdir -p build
-        cd build && cmake .. && make monaa && ../examples/integrated_test.sh
+      fail-fast: false
+      matrix:
+        include:
+          - os_label: "Ubuntu Noble"
+            runner: ubuntu-24.04
+          - os_label: "Ubuntu Jammy"
+            runner: ubuntu-22.04
+          - os_label: "Ubuntu Noble ARM"
+            runner: ubuntu-24.04-arm
+          - os_label: "Ubuntu Jammy ARM"
+            runner: ubuntu-22.04-arm
+          - os_label: "macOS Sequoia"
+            runner: macos-15
+          - os_label: "macOS Sonoma"
+            runner: macos-14
+          - os_label: "macOS Ventura"
+            runner: macos-13
 
-  ubuntu_jammy:
-    runs-on: ubuntu-22.04
-    strategy:
-      max-parallel: 4
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Install required packages
-      run: sudo apt-get install cmake bison libbison-dev flex libfl-dev libeigen3-dev libboost-all-dev -y
-    - name: build and test
-      run: |
-        mkdir -p build
-        cd build && cmake .. && make monaa && ../examples/integrated_test.sh
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-  ubuntu_focal:
-    runs-on: ubuntu-20.04
-    strategy:
-      max-parallel: 4
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Install required packages
-      run: sudo apt-get install cmake bison libbison-dev flex libfl-dev libeigen3-dev libboost-all-dev -y
-    - name: build and test
-      run: |
-        mkdir -p build
-        cd build && cmake .. && make monaa && ../examples/integrated_test.sh
+      - name: Install required packages (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake bison libbison-dev flex libfl-dev libeigen3-dev libboost-all-dev
 
-  macOS_Sonoma:
-    runs-on: macos-14
-    strategy:
-      max-parallel: 4
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Install required packages
-      run: brew install eigen boost bison flex
-    - name: build and test
-      run: |
-        mkdir -p build
-        cd build && cmake .. && make monaa && ../examples/integrated_test.sh
+      - name: Install required packages (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install eigen boost bison flex
 
-  macOS_Ventura:
-    runs-on: macos-13
-    strategy:
-      max-parallel: 4
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Install required packages
-      run: brew install eigen boost bison flex
-    - name: build and test
-      run: |
-        mkdir -p build
-        cd build && cmake .. && make monaa && ../examples/integrated_test.sh
-
-  macOS_Monterey:
-    runs-on: macos-12
-    strategy:
-      max-parallel: 4
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Install required packages
-      run: brew install eigen boost bison flex
-    - name: build and test
-      run: |
-        mkdir -p build
-        cd build && cmake .. && make monaa && ../examples/integrated_test.sh        
+      - name: Build and run integrated test
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make monaa
+          ../examples/integrated_test.sh
