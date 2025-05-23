@@ -379,7 +379,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>                <span class="keywordflow">case</span> Constraint::Order::le:</div>
 <div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>                  upperDeltaConstraint = std::min(</div>
 <div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>                      upperDeltaConstraint,</div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>                      Bounds{delta.c, {delta.odr == Constraint::Order::le}});</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>                      Bounds{<span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(delta.c), {delta.odr == Constraint::Order::le}});</div>
 <div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>                  <span class="comment">// (2, 0) &lt;= (2, 1) + (1, 0)</span></div>
 <div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>                  upperEndConstraint =</div>
 <div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>                      std::min(upperEndConstraint,</div>
@@ -393,7 +393,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>                <span class="keywordflow">case</span> Constraint::Order::ge:</div>
 <div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>                  lowerDeltaConstraint = std::min(</div>
 <div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>                      lowerDeltaConstraint,</div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>                      Bounds{-delta.c, {delta.odr == Constraint::Order::ge}});</div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>                      Bounds{<span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(-delta.c), {delta.odr == Constraint::Order::ge}});</div>
 <div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>                  <span class="comment">// (1, 0) &lt;= (1, 2) + (2, 0)</span></div>
 <div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>                  upperBeginConstraint =</div>
 <div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>                      std::min(upperBeginConstraint,</div>
@@ -950,7 +950,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00916" name="l00916"></a><span class="lineno">  916</span>                <span class="keywordflow">case</span> Constraint::Order::le:</div>
 <div class="line"><a id="l00917" name="l00917"></a><span class="lineno">  917</span>                  upperDeltaConstraint = std::min(</div>
 <div class="line"><a id="l00918" name="l00918"></a><span class="lineno">  918</span>                      upperDeltaConstraint,</div>
-<div class="line"><a id="l00919" name="l00919"></a><span class="lineno">  919</span>                      Bounds{delta.c, {delta.odr == Constraint::Order::le}});</div>
+<div class="line"><a id="l00919" name="l00919"></a><span class="lineno">  919</span>                      Bounds{<span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(delta.c), {delta.odr == Constraint::Order::le}});</div>
 <div class="line"><a id="l00920" name="l00920"></a><span class="lineno">  920</span>                  <span class="comment">// (2, 0) &lt;= (2, 1) + (1, 0)</span></div>
 <div class="line"><a id="l00921" name="l00921"></a><span class="lineno">  921</span>                  upperEndConstraint =</div>
 <div class="line"><a id="l00922" name="l00922"></a><span class="lineno">  922</span>                      std::min(upperEndConstraint,</div>
@@ -964,7 +964,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00930" name="l00930"></a><span class="lineno">  930</span>                <span class="keywordflow">case</span> Constraint::Order::ge:</div>
 <div class="line"><a id="l00931" name="l00931"></a><span class="lineno">  931</span>                  lowerDeltaConstraint = std::min(</div>
 <div class="line"><a id="l00932" name="l00932"></a><span class="lineno">  932</span>                      lowerDeltaConstraint,</div>
-<div class="line"><a id="l00933" name="l00933"></a><span class="lineno">  933</span>                      Bounds{-delta.c, {delta.odr == Constraint::Order::ge}});</div>
+<div class="line"><a id="l00933" name="l00933"></a><span class="lineno">  933</span>                      Bounds{<span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(-delta.c), {delta.odr == Constraint::Order::ge}});</div>
 <div class="line"><a id="l00934" name="l00934"></a><span class="lineno">  934</span>                  <span class="comment">// (1, 0) &lt;= (1, 2) + (2, 0)</span></div>
 <div class="line"><a id="l00935" name="l00935"></a><span class="lineno">  935</span>                  upperBeginConstraint =</div>
 <div class="line"><a id="l00936" name="l00936"></a><span class="lineno">  936</span>                      std::min(upperBeginConstraint,</div>
@@ -1128,7 +1128,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01094" name="l01094"></a><span class="lineno"> 1094</span>                <span class="keywordflow">case</span> Constraint::Order::le:</div>
 <div class="line"><a id="l01095" name="l01095"></a><span class="lineno"> 1095</span>                  upperDeltaConstraint = std::min(</div>
 <div class="line"><a id="l01096" name="l01096"></a><span class="lineno"> 1096</span>                      upperDeltaConstraint,</div>
-<div class="line"><a id="l01097" name="l01097"></a><span class="lineno"> 1097</span>                      Bounds{delta.c, {delta.odr == Constraint::Order::le}});</div>
+<div class="line"><a id="l01097" name="l01097"></a><span class="lineno"> 1097</span>                      Bounds{<span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(delta.c), {delta.odr == Constraint::Order::le}});</div>
 <div class="line"><a id="l01098" name="l01098"></a><span class="lineno"> 1098</span>                  <span class="comment">// (2, 0) &lt;= (2, 1) + (1, 0)</span></div>
 <div class="line"><a id="l01099" name="l01099"></a><span class="lineno"> 1099</span>                  upperEndConstraint =</div>
 <div class="line"><a id="l01100" name="l01100"></a><span class="lineno"> 1100</span>                      std::min(upperEndConstraint,</div>
@@ -1142,7 +1142,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01108" name="l01108"></a><span class="lineno"> 1108</span>                <span class="keywordflow">case</span> Constraint::Order::ge:</div>
 <div class="line"><a id="l01109" name="l01109"></a><span class="lineno"> 1109</span>                  lowerDeltaConstraint = std::min(</div>
 <div class="line"><a id="l01110" name="l01110"></a><span class="lineno"> 1110</span>                      lowerDeltaConstraint,</div>
-<div class="line"><a id="l01111" name="l01111"></a><span class="lineno"> 1111</span>                      Bounds{-delta.c, {delta.odr == Constraint::Order::ge}});</div>
+<div class="line"><a id="l01111" name="l01111"></a><span class="lineno"> 1111</span>                      Bounds{<span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(-delta.c), {delta.odr == Constraint::Order::ge}});</div>
 <div class="line"><a id="l01112" name="l01112"></a><span class="lineno"> 1112</span>                  <span class="comment">// (1, 0) &lt;= (1, 2) + (2, 0)</span></div>
 <div class="line"><a id="l01113" name="l01113"></a><span class="lineno"> 1113</span>                  upperBeginConstraint =</div>
 <div class="line"><a id="l01114" name="l01114"></a><span class="lineno"> 1114</span>                      std::min(upperBeginConstraint,</div>
@@ -1411,7 +1411,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01384" name="l01384"></a><span class="lineno"> 1384</span>                <span class="keywordflow">case</span> Constraint::Order::le:</div>
 <div class="line"><a id="l01385" name="l01385"></a><span class="lineno"> 1385</span>                  upperDeltaConstraint = std::min(</div>
 <div class="line"><a id="l01386" name="l01386"></a><span class="lineno"> 1386</span>                      upperDeltaConstraint,</div>
-<div class="line"><a id="l01387" name="l01387"></a><span class="lineno"> 1387</span>                      Bounds{delta.c, {delta.odr == Constraint::Order::le}});</div>
+<div class="line"><a id="l01387" name="l01387"></a><span class="lineno"> 1387</span>                      Bounds{<span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(delta.c), {delta.odr == Constraint::Order::le}});</div>
 <div class="line"><a id="l01388" name="l01388"></a><span class="lineno"> 1388</span>                  <span class="comment">// (2, 0) &lt;= (2, 1) + (1, 0)</span></div>
 <div class="line"><a id="l01389" name="l01389"></a><span class="lineno"> 1389</span>                  upperEndConstraint =</div>
 <div class="line"><a id="l01390" name="l01390"></a><span class="lineno"> 1390</span>                      std::min(upperEndConstraint,</div>
@@ -1425,7 +1425,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01398" name="l01398"></a><span class="lineno"> 1398</span>                <span class="keywordflow">case</span> Constraint::Order::ge:</div>
 <div class="line"><a id="l01399" name="l01399"></a><span class="lineno"> 1399</span>                  lowerDeltaConstraint = std::min(</div>
 <div class="line"><a id="l01400" name="l01400"></a><span class="lineno"> 1400</span>                      lowerDeltaConstraint,</div>
-<div class="line"><a id="l01401" name="l01401"></a><span class="lineno"> 1401</span>                      Bounds{-delta.c, {delta.odr == Constraint::Order::ge}});</div>
+<div class="line"><a id="l01401" name="l01401"></a><span class="lineno"> 1401</span>                      Bounds{<span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(-delta.c), {delta.odr == Constraint::Order::ge}});</div>
 <div class="line"><a id="l01402" name="l01402"></a><span class="lineno"> 1402</span>                  <span class="comment">// (1, 0) &lt;= (1, 2) + (2, 0)</span></div>
 <div class="line"><a id="l01403" name="l01403"></a><span class="lineno"> 1403</span>                  upperBeginConstraint =</div>
 <div class="line"><a id="l01404" name="l01404"></a><span class="lineno"> 1404</span>                      std::min(upperBeginConstraint,</div>
@@ -1625,7 +1625,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01598" name="l01598"></a><span class="lineno"> 1598</span>                <span class="keywordflow">case</span> Constraint::Order::le:</div>
 <div class="line"><a id="l01599" name="l01599"></a><span class="lineno"> 1599</span>                  upperDeltaConstraint = std::min(</div>
 <div class="line"><a id="l01600" name="l01600"></a><span class="lineno"> 1600</span>                      upperDeltaConstraint,</div>
-<div class="line"><a id="l01601" name="l01601"></a><span class="lineno"> 1601</span>                      Bounds{delta.c, {delta.odr == Constraint::Order::le}});</div>
+<div class="line"><a id="l01601" name="l01601"></a><span class="lineno"> 1601</span>                      Bounds{<span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(delta.c), {delta.odr == Constraint::Order::le}});</div>
 <div class="line"><a id="l01602" name="l01602"></a><span class="lineno"> 1602</span>                  <span class="comment">// (2, 0) &lt;= (2, 1) + (1, 0)</span></div>
 <div class="line"><a id="l01603" name="l01603"></a><span class="lineno"> 1603</span>                  upperEndConstraint =</div>
 <div class="line"><a id="l01604" name="l01604"></a><span class="lineno"> 1604</span>                      std::min(upperEndConstraint,</div>
@@ -1639,7 +1639,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01612" name="l01612"></a><span class="lineno"> 1612</span>                <span class="keywordflow">case</span> Constraint::Order::ge:</div>
 <div class="line"><a id="l01613" name="l01613"></a><span class="lineno"> 1613</span>                  lowerDeltaConstraint = std::min(</div>
 <div class="line"><a id="l01614" name="l01614"></a><span class="lineno"> 1614</span>                      lowerDeltaConstraint,</div>
-<div class="line"><a id="l01615" name="l01615"></a><span class="lineno"> 1615</span>                      Bounds{-delta.c, {delta.odr == Constraint::Order::ge}});</div>
+<div class="line"><a id="l01615" name="l01615"></a><span class="lineno"> 1615</span>                      Bounds{<span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span>(-delta.c), {delta.odr == Constraint::Order::ge}});</div>
 <div class="line"><a id="l01616" name="l01616"></a><span class="lineno"> 1616</span>                  <span class="comment">// (1, 0) &lt;= (1, 2) + (2, 0)</span></div>
 <div class="line"><a id="l01617" name="l01617"></a><span class="lineno"> 1617</span>                  upperBeginConstraint =</div>
 <div class="line"><a id="l01618" name="l01618"></a><span class="lineno"> 1618</span>                      std::min(upperBeginConstraint,</div>
