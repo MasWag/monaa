@@ -4,7 +4,7 @@ Timed Automata
 In this document, we show how to use MONAA to monitor a timed automata specification. We assume that you know the basics of timed automata (e.g., [AD94]) and what MONAA does. If you have never used MONAA, we recommend to read [Getting Started](./getting_started.md).
 
 We use the following timed word as the input. It is also in
-[`example/getting_started/timed_word.txt`](../example/getting_started/timed_word.txt).
+[`example/getting_started/timed_word.txt`](https://github.com/MasWag/monaa/blob/master/examples/getting_started/timed_word.txt).
 
 ```
 A 0.5
