@@ -71,7 +71,11 @@ jobs:
           sudo apt-get update && sudo apt-get install -y --no-install-recommends \
             ca-certificates \
             build-essential \
-            libppl-dev \
+            bison \
+            libbison-dev \
+            flex \
+            libfl-dev \
+            libeigen3-dev \
             libboost-all-dev \
             cmake \
             libgmp-dev \
@@ -96,7 +100,11 @@ jobs:
           sudo apt-get update && sudo apt-get install -y --no-install-recommends \
             ca-certificates \
             build-essential \
-            libppl-dev \
+            bison \
+            libbison-dev \
+            flex \
+            libfl-dev \
+            libeigen3-dev \
             libboost-all-dev \
             cmake \
             libgmp-dev \
@@ -117,7 +125,7 @@ jobs:
         with:
           submodules: recursive
       - name: Install required packages
-        run: brew update && brew install boost gmp ppl cmake
+        run: brew update && brew install eigen boost bison flex
       - name: Build and test
         run: |
           mkdir -p build
@@ -134,7 +142,7 @@ jobs:
         with:
           submodules: recursive
       - name: Install required packages
-        run: brew update && brew install boost gmp ppl cmake
+        run: brew update && brew install eigen boost bison flex
       - name: Build and test
         run: |
           mkdir -p build
@@ -151,7 +159,7 @@ jobs:
         with:
           submodules: recursive
       - name: Install required packages
-        run: brew update && brew install boost gmp ppl cmake
+        run: brew update && brew install eigen boost bison flex
       - name: Build and test
         run: |
           mkdir -p build
