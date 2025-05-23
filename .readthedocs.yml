@@ -4,6 +4,11 @@
 
 version: 2
 
+# Add this block to install dependencies from requirements.txt
+python:
+  install:
+    - requirements: requirements.txt
+
 # Build documentation using MkDocs
 mkdocs:
   configuration: mkdocs.yml

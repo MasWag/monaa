@@ -40,4 +40,3 @@ extra:
 
 plugins:
   - search
-  - mkdocs-material
